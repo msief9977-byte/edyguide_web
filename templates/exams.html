@@ -1,0 +1,156 @@
+{% extends "dashboard_layout.html" %}
+
+{% block title %}EDUGUIDE | Exam Schedule{% endblock %}
+
+{% block page_title %}{{ 'مواعيد الامتحانات' if session.get('lang') == 'ar' else 'Exam Schedule' }}{% endblock %}
+
+{% block content %}
+<style>
+  .exams-container {
+    animation: fadeIn 0.5s ease;
+  }
+
+  .exams-hero {
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+    border-radius: 24px;
+    padding: 40px;
+    color: white;
+    margin-bottom: 32px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 15px 30px rgba(245, 158, 11, 0.15);
+  }
+  .exams-hero h1 { font-size: 28px; font-weight: 800; margin-bottom: 8px; }
+  .exams-hero p { opacity: 0.9; font-size: 15px; }
+
+  .exam-cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 24px;
+  }
+
+  .exam-card {
+    background: var(--surface);
+    border-radius: 20px;
+    padding: 0;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    transition: 0.3s;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.02);
+  }
+  .exam-card:hover { transform: translateY(-5px); box-shadow: 0 12px 30px rgba(0,0,0,0.08); border-color: #f59e0b; }
+  
+  .exam-card-head {
+    padding: 24px;
+    background: rgba(245, 158, 11, 0.05);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .exam-card-head h3 { font-weight: 800; font-size: 18px; color: var(--text-main); }
+  .exam-status {
+    padding: 4px 12px;
+    border-radius: 8px;
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+    background: #f59e0b;
+    color: white;
+  }
+
+  .exam-card-body {
+    padding: 24px;
+  }
+  
+  .exam-info-row {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 15px;
+  }
+  .exam-info-row:last-child { margin-bottom: 0; }
+  
+  .info-icon {
+    width: 40px;
+    height: 40px;
+    background: var(--bg);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #f59e0b;
+    font-size: 16px;
+  }
+  
+  .info-text div:first-child { font-size: 12px; color: var(--text-muted); font-weight: 600; margin-bottom: 2px; }
+  .info-text div:last-child { font-size: 15px; color: var(--text-main); font-weight: 700; }
+
+  .empty-state {
+    text-align: center;
+    padding: 80px 40px;
+    background: var(--surface);
+    border-radius: 24px;
+    border: 1px dashed var(--border);
+  }
+  .empty-icon { font-size: 64px; margin-bottom: 20px; opacity: 0.5; }
+
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+</style>
+
+<div class="exams-container">
+  <div class="exams-hero">
+    <div>
+      <h1>{{ 'جدول الامتحانات النهائية' if session.get('lang') == 'ar' else 'Final Examination Schedule' }}</h1>
+      <p>{{ 'استعد للامتحانات وراجع المواعيد والأماكن بدقة' if session.get('lang') == 'ar' else 'Prepare for your exams and review dates and locations accurately' }}</p>
+    </div>
+    <div style="background: rgba(255,255,255,0.2); padding: 15px 25px; border-radius: 18px; backdrop-filter: blur(10px); text-align: center;">
+      <div style="font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px;">{{ 'الامتحانات' if session.get('lang') == 'ar' else 'Total Exams' }}</div>
+      <div style="font-size: 32px; font-weight: 900;">{{ exams|length if exams else 0 }}</div>
+    </div>
+  </div>
+
+  {% if exams and exams|length > 0 %}
+    <div class="exam-cards-grid">
+      {% for exam in exams %}
+        <div class="exam-card">
+          <div class="exam-card-head">
+            <h3>{{ exam.subject_name }}</h3>
+            <div class="exam-status">{{ 'قادم' if session.get('lang') == 'ar' else 'Upcoming' }}</div>
+          </div>
+          <div class="exam-card-body">
+            <div class="exam-info-row">
+              <div class="info-icon"><i class="fas fa-calendar-alt"></i></div>
+              <div class="info-text">
+                <div>{{ 'التاريخ' if session.get('lang') == 'ar' else 'Date' }}</div>
+                <div>{{ exam.exam_date }}</div>
+              </div>
+            </div>
+            <div class="exam-info-row">
+              <div class="info-icon"><i class="fas fa-clock"></i></div>
+              <div class="info-text">
+                <div>{{ 'الوقت' if session.get('lang') == 'ar' else 'Time' }}</div>
+                <div>{{ exam.exam_time }}</div>
+              </div>
+            </div>
+            <div class="exam-info-row">
+              <div class="info-icon"><i class="fas fa-map-marker-alt"></i></div>
+              <div class="info-text">
+                <div>{{ 'المكان / القاعة' if session.get('lang') == 'ar' else 'Location / Hall' }}</div>
+                <div>{{ exam.location if exam.location else 'Main Exam Hall' }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="empty-state">
+      <div class="empty-icon">📝</div>
+      <h2>{{ 'لا توجد امتحانات معلنة' if session.get('lang') == 'ar' else 'No Announced Exams' }}</h2>
+      <p>{{ 'لم يتم رفع جدول الامتحانات بعد. بالتوفيق في دراستك!' if session.get('lang') == 'ar' else 'Exam schedule has not been uploaded yet. Good luck with your studies!' }}</p>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

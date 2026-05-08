@@ -1,0 +1,57 @@
+{% extends "system_layout.html" %}
+
+{% block title %}EDUGUIDE | System Faculty{% endblock %}
+{% block page_title %}{{ 'أعضاء هيئة التدريس' if session.get('lang', 'en') == 'ar' else 'Faculty Management' }}{% endblock %}
+
+{% block content %}
+<style>
+  .sys-header { margin-bottom: 30px; }
+  .sys-header h1 { font-size: 26px; font-weight: 800; color: var(--text-main); margin-bottom: 8px; letter-spacing: -0.5px; }
+  .sys-header p { color: var(--text-muted); font-size: 15px; font-weight: 500; }
+
+  .table-panel { background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 24px; box-shadow: 0 4px 15px rgba(0,0,0,0.02); }
+  .data-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+  .data-table th { text-align: left; padding: 12px 16px; font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; border-bottom: 1px solid var(--border); }
+  .data-table td { padding: 16px; font-size: 14px; font-weight: 600; color: var(--text-main); border-bottom: 1px solid var(--border); }
+  .data-table tr:last-child td { border-bottom: none; }
+  [dir="rtl"] .data-table th { text-align: right; }
+  
+  .badge-spec { background: rgba(79, 70, 229, 0.1); color: var(--primary); padding: 4px 10px; border-radius: 8px; font-weight: 800; font-size: 13px; }
+</style>
+
+{% set is_ar = session.get('lang', 'en') == 'ar' %}
+
+<div class="sys-header">
+  <h1>{{ 'قائمة المدرسين' if is_ar else 'Instructors Directory' }}</h1>
+  <p>{{ 'إدارة الأساتذة وأعضاء هيئة التدريس المسجلين' if is_ar else 'Manage registered professors and instructors.' }}</p>
+</div>
+
+<div class="table-panel">
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th>{{ 'الرقم التعريفي' if is_ar else 'ID' }}</th>
+        <th>{{ 'الاسم' if is_ar else 'Name' }}</th>
+        <th>{{ 'البريد الإلكتروني' if is_ar else 'Email' }}</th>
+        <th>{{ 'التخصص' if is_ar else 'Specialization' }}</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for f in faculty %}
+      <tr>
+        <td style="color:var(--text-muted);">#{{ f.id }}</td>
+        <td>{{ f.full_name }}</td>
+        <td style="color:var(--text-muted);">{{ f.email }}</td>
+        <td><span class="badge-spec">{{ f.specialization or 'N/A' }}</span></td>
+      </tr>
+      {% else %}
+      <tr>
+        <td colspan="4" style="text-align: center; padding: 30px; color: var(--text-muted);">
+          {{ 'لا يوجد مدرسين مسجلين' if is_ar else 'No faculty found.' }}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

@@ -1,0 +1,143 @@
+{% extends "dashboard_layout.html" %}
+
+{% block title %}EDYGUIDE | Exam Review{% endblock %}
+{% block page_title %}{{ 'مراجعة الامتحان' if session.get('lang') == 'ar' else 'Exam Review' }}{% endblock %}
+
+{% block content %}
+<style>
+  .exam-detail-container { max-width: 900px; margin: 0 auto; animation: fadeIn 0.5s ease; }
+
+  .back-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--text-muted);
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 14px;
+    margin-bottom: 24px;
+    transition: 0.2s;
+  }
+  .back-btn:hover { color: var(--primary); }
+
+  .exam-hero {
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+    border-radius: 24px;
+    padding: 40px;
+    color: white;
+    margin-bottom: 32px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 10px 30px rgba(245, 158, 11, 0.2);
+  }
+  .exam-hero h1 { font-size: 28px; font-weight: 800; margin-bottom: 8px; }
+  .exam-hero p { opacity: 0.9; font-size: 15px; }
+
+  .exam-icon {
+    width: 80px;
+    height: 80px;
+    background: rgba(255,255,255,0.2);
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 36px;
+    flex-shrink: 0;
+  }
+
+  .detail-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    margin-bottom: 28px;
+  }
+
+  .detail-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 24px;
+    transition: 0.3s;
+  }
+  .detail-card:hover { box-shadow: 0 8px 20px rgba(0,0,0,0.05); transform: translateY(-3px); }
+  .detail-card h3 {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 10px;
+  }
+  .detail-card .value { font-size: 20px; font-weight: 800; color: var(--text-main); }
+
+  .tip-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 28px;
+    border-left: 4px solid #f59e0b;
+  }
+  .tip-box h3 { font-size: 16px; font-weight: 800; margin-bottom: 15px; color: var(--text-main); }
+  .tip-box ul { padding: 0 20px; }
+  .tip-box li { color: var(--text-muted); line-height: 1.8; font-size: 14px; margin-bottom: 8px; }
+
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+</style>
+
+{% set is_ar = session.get('lang', 'en') == 'ar' %}
+
+<div class="exam-detail-container">
+  <a href="{{ url_for('exams_page') }}" class="back-btn">
+    <i class="fas fa-arrow-left"></i> {{ 'العودة للامتحانات' if is_ar else 'Back to Exams' }}
+  </a>
+
+  {% if exam %}
+    <div class="exam-hero">
+      <div>
+        <div style="font-size: 12px; font-weight: 800; letter-spacing: 1px; background: rgba(255,255,255,0.2); padding: 6px 14px; border-radius: 20px; margin-bottom: 15px; display: inline-block;">
+          📝 {{ 'مراجعة الامتحان' if is_ar else 'Exam Preview' }}
+        </div>
+        <h1>{{ exam.subject_name }}</h1>
+        <p>{{ exam.exam_date }} &bull; {{ exam.hall or ('Hall 1' if not is_ar else 'قاعة 1') }}</p>
+      </div>
+      <div class="exam-icon">📝</div>
+    </div>
+
+    <div class="detail-grid">
+      <div class="detail-card">
+        <h3>{{ 'تاريخ الامتحان' if is_ar else 'Exam Date' }}</h3>
+        <div class="value">{{ exam.exam_date }}</div>
+      </div>
+      <div class="detail-card">
+        <h3>{{ 'القاعة' if is_ar else 'Hall' }}</h3>
+        <div class="value">{{ exam.hall or ('1' if not is_ar else '1') }}</div>
+      </div>
+      <div class="detail-card">
+        <h3>{{ 'الوقت' if is_ar else 'Time' }}</h3>
+        <div class="value">{{ exam.exam_time if exam.get('exam_time') else '09:00 AM' }}</div>
+      </div>
+      <div class="detail-card">
+        <h3>{{ 'المدة' if is_ar else 'Duration' }}</h3>
+        <div class="value">{{ exam.duration if exam.get('duration') else '3 hrs' }}</div>
+      </div>
+    </div>
+
+    <div class="tip-box">
+      <h3><i class="fas fa-lightbulb" style="color: #f59e0b; margin-right: 8px;"></i> {{ 'نصائح للامتحان' if is_ar else 'Exam Tips' }}</h3>
+      <ul>
+        <li>{{ 'احضر قبل موعد الامتحان بـ 15 دقيقة على الأقل.' if is_ar else 'Arrive at least 15 minutes before the exam starts.' }}</li>
+        <li>{{ 'أحضر هويتك الجامعية وأدوات الكتابة اللازمة.' if is_ar else 'Bring your student ID and necessary writing tools.' }}</li>
+        <li>{{ 'راجع ملاحظاتك بشكل منهجي قبل الامتحان.' if is_ar else 'Review your notes systematically before the exam.' }}</li>
+        <li>{{ 'استخدم مساعد الذكاء الاصطناعي لمراجعة المادة.' if is_ar else 'Use the AI assistant to review course material.' }}</li>
+      </ul>
+    </div>
+  {% else %}
+    <div style="text-align: center; padding: 80px 20px; background: var(--surface); border-radius: 24px; border: 1px solid var(--border);">
+      <div style="font-size: 60px; margin-bottom: 20px; opacity: 0.2;">📝</div>
+      <h3 style="color: var(--text-main);">{{ 'لم يتم العثور على الامتحان' if is_ar else 'Exam Not Found' }}</h3>
+      <a href="{{ url_for('exams_page') }}" style="color: var(--primary); font-weight: 700;">{{ 'العودة للامتحانات' if is_ar else 'Back to Exams' }}</a>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

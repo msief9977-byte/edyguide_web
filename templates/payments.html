@@ -1,0 +1,383 @@
+{% extends "dashboard_layout.html" %}
+
+{% block title %}EDUGUIDE | Payments & Fees{% endblock %}
+
+{% block page_title %}{{ 'المدفوعات والرسوم' if session.get('lang') == 'ar' else 'Payments & Fees' }}{% endblock %}
+
+{% block content %}
+<style>
+  .payments-container {
+    animation: fadeIn 0.5s ease;
+  }
+
+  .finance-summary {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 24px;
+    margin-bottom: 32px;
+  }
+
+  .finance-card {
+    background: var(--surface);
+    border-radius: 24px;
+    padding: 30px;
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    transition: 0.3s;
+  }
+  .finance-card:hover { transform: translateY(-5px); box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
+  
+  .f-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+  }
+  
+  .f-info span { font-size: 13px; color: var(--text-muted); font-weight: 600; display: block; margin-bottom: 4px; }
+  .f-info strong { font-size: 22px; font-weight: 800; color: var(--text-main); }
+
+  .main-grid {
+    display: grid;
+    grid-template-columns: 1.5fr 1fr;
+    gap: 32px;
+  }
+
+  .panel-box {
+    background: var(--surface);
+    border-radius: 24px;
+    padding: 32px;
+    border: 1px solid var(--border);
+  }
+  .panel-box h3 { font-size: 20px; font-weight: 800; margin-bottom: 24px; color: var(--text-main); }
+
+  .invoice-card {
+    background: var(--bg);
+    border-radius: 20px;
+    padding: 24px;
+    border: 1px solid var(--border);
+  }
+  .invoice-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 12px 0;
+    border-bottom: 1px dashed var(--border);
+  }
+  .invoice-row:last-child { border-bottom: none; }
+  .invoice-row span { color: var(--text-muted); font-weight: 600; }
+  .invoice-row strong { color: var(--text-main); font-weight: 800; }
+
+  .status-badge {
+    padding: 5px 12px;
+    border-radius: 8px;
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+  }
+  .status-badge.paid { background: #dcfce7; color: #166534; }
+  .status-badge.pending { background: #fef3c7; color: #92400e; }
+  .status-badge.unpaid { background: #fee2e2; color: #991b1b; }
+
+  .pay-btn {
+    width: 100%;
+    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+    color: white;
+    border: none;
+    padding: 16px;
+    border-radius: 14px;
+    font-weight: 800;
+    font-size: 15px;
+    cursor: pointer;
+    margin-top: 20px;
+    transition: 0.3s;
+    box-shadow: 0 10px 20px rgba(37, 99, 235, 0.2);
+  }
+  .pay-btn:hover { transform: translateY(-2px); box-shadow: 0 15px 30px rgba(37, 99, 235, 0.3); }
+  .pay-btn.disabled { background: #e2e8f0; color: #94a3b8; box-shadow: none; cursor: not-allowed; }
+
+  .history-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  .history-table th { text-align: left; padding: 12px; font-size: 13px; color: var(--text-muted); font-weight: 600; border-bottom: 2px solid var(--border); }
+  .history-table td { padding: 16px 12px; border-bottom: 1px solid var(--border); font-size: 14px; color: var(--text-main); font-weight: 600; }
+
+  [dir="rtl"] .history-table th { text-align: right; }
+
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+</style>
+
+<div class="payments-container">
+  <!-- Top Stats -->
+  {% set ns = namespace(total=0, paid=0) %}
+  {% if payments %}
+    {% for p in payments %}
+      {% set ns.total = ns.total + p.amount %}
+      {% if p.payment_status|lower == 'paid' %}
+        {% set ns.paid = ns.paid + p.amount %}
+      {% endif %}
+    {% endfor %}
+  {% endif %}
+  
+  <div class="finance-summary">
+    <div class="finance-card">
+      <div class="f-icon" style="background: rgba(37, 99, 235, 0.1); color: var(--primary);"><i class="fas fa-wallet"></i></div>
+      <div class="f-info">
+        <span>{{ 'إجمالي الرسوم' if session.get('lang') == 'ar' else 'Total Fees' }}</span>
+        <strong>{{ ns.total }} EGP</strong>
+      </div>
+    </div>
+    <div class="finance-card">
+      <div class="f-icon" style="background: rgba(34, 197, 94, 0.1); color: #22c55e;"><i class="fas fa-check-circle"></i></div>
+      <div class="f-info">
+        <span>{{ 'المبلغ المدفوع' if session.get('lang') == 'ar' else 'Paid Amount' }}</span>
+        <strong>{{ ns.paid }} EGP</strong>
+      </div>
+    </div>
+    <div class="finance-card">
+      <div class="f-icon" style="background: rgba(239, 68, 68, 0.1); color: #ef4444;"><i class="fas fa-exclamation-triangle"></i></div>
+      <div class="f-info">
+        <span>{{ 'المبلغ المتبقي' if session.get('lang') == 'ar' else 'Remaining' }}</span>
+        <strong>{{ ns.total - ns.paid }} EGP</strong>
+      </div>
+    </div>
+  </div>
+
+  <div class="main-grid">
+    <!-- Payment History -->
+    <div class="panel-box">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+        <h3 style="margin: 0;">{{ 'سجل المدفوعات' if session.get('lang') == 'ar' else 'Payment History' }}</h3>
+        <span style="font-size: 12px; color: var(--text-muted); font-weight: 600;">{{ payments|length }} {{ 'معاملات' if session.get('lang') == 'ar' else 'Transactions' }}</span>
+      </div>
+      <table class="history-table">
+        <thead>
+          <tr>
+            <th>{{ 'نوع الرسوم' if session.get('lang') == 'ar' else 'Fee Type' }}</th>
+            <th>{{ 'المبلغ' if session.get('lang') == 'ar' else 'Amount' }}</th>
+            <th>{{ 'الحالة' if session.get('lang') == 'ar' else 'Status' }}</th>
+            <th>{{ 'تاريخ الدفع' if session.get('lang') == 'ar' else 'Date' }}</th>
+            <th style="text-align: center;">{{ 'الفاتورة' if session.get('lang') == 'ar' else 'Receipt' }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% if payments %}
+            {% for p in payments %}
+            <tr>
+              <td>
+                <div style="font-weight: 700; color: var(--text-main);">{{ p.payment_type }}</div>
+                <div style="font-size: 11px; color: var(--text-muted);">ID: #{{ p.id }}</div>
+              </td>
+              <td style="font-weight: 800; color: var(--primary);">{{ p.amount }} EGP</td>
+              <td>
+                <span class="status-badge {{ p.payment_status|lower }}">
+                  <i class="fas {% if p.payment_status|lower == 'paid' %}fa-check{% else %}fa-clock{% endif %}" style="margin-right: 4px;"></i>
+                  {{ p.payment_status }}
+                </span>
+              </td>
+              <td style="color: var(--text-muted); font-size: 13px;">{{ p.payment_date if p.payment_date else '-' }}</td>
+              <td style="text-align: center;">
+                {% if p.payment_status|lower == 'paid' %}
+                  <a href="{{ url_for('receipt', payment_id=p.id) }}" target="_blank" class="btn-icon-print" title="{{ 'طباعة' if session.get('lang') == 'ar' else 'Print' }}">
+                    <i class="fas fa-print"></i>
+                  </a>
+                {% else %}
+                  <span style="opacity:0.2; cursor: not-allowed;"><i class="fas fa-print"></i></span>
+                {% endif %}
+              </td>
+            </tr>
+            {% endfor %}
+          {% else %}
+            <tr><td colspan="5" style="text-align:center; padding: 60px; color: var(--text-muted);">
+              <i class="fas fa-receipt" style="font-size: 40px; opacity: 0.1; display: block; margin-bottom: 15px;"></i>
+              {{ 'لا يوجد سجل مدفوعات حالياً' if session.get('lang') == 'ar' else 'No payment records found' }}
+            </td></tr>
+          {% endif %}
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Quick Pay Section -->
+    <div class="panel-box">
+      <h3>{{ 'إجراء دفع سريع' if session.get('lang') == 'ar' else 'Quick Payment' }}</h3>
+      {% set pay_ns = namespace(pending=none) %}
+      {% for p in payments %}
+        {% if p.payment_status|lower != 'paid' and not pay_ns.pending %}
+          {% set pay_ns.pending = p %}
+        {% endif %}
+      {% endfor %}
+
+      {% if pay_ns.pending %}
+        <div class="invoice-card" style="background: #f8faff; border: 1px solid #e0e7ff;">
+          <div class="invoice-row">
+            <span>{{ 'الوصف' if session.get('lang') == 'ar' else 'Description' }}</span>
+            <strong>{{ pay_ns.pending.payment_type }}</strong>
+          </div>
+          <div class="invoice-row">
+            <span>{{ 'المبلغ المستحق' if session.get('lang') == 'ar' else 'Amount Due' }}</span>
+            <strong style="color: var(--primary); font-size: 18px;">{{ pay_ns.pending.amount }} EGP</strong>
+          </div>
+          <div class="invoice-row">
+            <span>{{ 'رقم المرجع' if session.get('lang') == 'ar' else 'Reference #' }}</span>
+            <strong>#{{ pay_ns.pending.id }}</strong>
+          </div>
+
+          <button class="pay-btn" onclick="openPaymentModal('{{ pay_ns.pending.amount }}', '{{ pay_ns.pending.payment_type }}', '{{ pay_ns.pending.id }}')">
+            <i class="fas fa-shield-alt" style="margin-right: 8px;"></i> {{ 'ادفع الآن بأمان' if session.get('lang') == 'ar' else 'Pay Securely Now' }}
+          </button>
+        </div>
+      {% else %}
+        <div class="invoice-card" style="text-align: center; background: #f0fdf4; border: 1px solid #dcfce7; padding: 40px 20px;">
+          <div style="font-size: 40px; color: #10b981; margin-bottom: 15px;"><i class="fas fa-check-double"></i></div>
+          <h4 style="color: #166534; margin-bottom: 10px;">{{ 'لا توجد مبالغ مستحقة' if session.get('lang') == 'ar' else 'No Pending Fees' }}</h4>
+          <p style="font-size: 13px; color: #15803d; opacity: 0.8;">{{ 'لقد قمت بسداد جميع الرسوم الدراسية المقررة بنجاح.' if session.get('lang') == 'ar' else 'You have successfully paid all your academic fees.' }}</p>
+        </div>
+      {% endif %}
+
+      <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid var(--border);">
+        <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 15px; font-weight: 600;">{{ 'بوابات دفع مؤمنة' if session.get('lang') == 'ar' else 'Secured Payment Gateways' }}</p>
+        <div style="display: flex; gap: 15px; font-size: 24px; color: var(--text-muted); opacity: 0.4;">
+          <i class="fab fa-cc-mastercard"></i>
+          <i class="fab fa-cc-visa"></i>
+          <i class="fas fa-wallet"></i>
+          <img src="https://fawry.com/wp-content/uploads/2019/11/fawry-logo-en.png" style="height: 20px; filter: grayscale(1); opacity: 0.6;">
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+.btn-icon-print {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  background: #f1f5f9;
+  color: var(--text-main);
+  text-decoration: none;
+  transition: 0.3s;
+}
+.btn-icon-print:hover {
+  background: var(--primary);
+  color: white;
+  transform: translateY(-2px);
+}
+</style>
+
+<!-- Modern Payment Modal -->
+<div id="paymentModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:9999; align-items:center; justify-content:center; backdrop-filter:blur(10px); animation: fadeIn 0.3s ease;">
+    <div style="background:var(--surface); padding:0; border-radius:30px; width:min(550px, 95%); border:1px solid var(--border); box-shadow:0 30px 60px rgba(0,0,0,0.3); overflow:hidden;">
+        
+        <div style="background: linear-gradient(135deg, var(--primary), var(--primary-dark)); padding:30px; color:white; position:relative;">
+            <button onclick="closePaymentModal()" style="position:absolute; right:20px; top:20px; background:rgba(255,255,255,0.2); border:none; color:white; width:32px; height:32px; border-radius:50%; cursor:pointer; font-size:18px;">&times;</button>
+            <h2 style="margin-bottom:8px; font-weight:800;">{{ 'إتمام الدفع الآمن' if session.get('lang') == 'ar' else 'Secure Payment' }}</h2>
+            <p style="opacity:0.9; font-size:14px;">{{ 'اختر وسيلة الدفع المفضلة لديك' if session.get('lang') == 'ar' else 'Select your preferred payment method' }}</p>
+        </div>
+
+        <div style="padding:30px;">
+            <div id="paymentSelection">
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px; margin-bottom:25px;">
+                    <div onclick="selectMethod('card')" id="method-card" style="padding:20px; border-radius:18px; border:2px solid var(--border); text-align:center; cursor:pointer; transition:0.3s;" class="method-box">
+                        <div style="font-size:32px; margin-bottom:10px;">💳</div>
+                        <div style="font-weight:800; font-size:14px;">{{ 'بطاقة بنكية' if session.get('lang') == 'ar' else 'Credit Card' }}</div>
+                    </div>
+                    <div onclick="selectMethod('fawry')" id="method-fawry" style="padding:20px; border-radius:18px; border:2px solid var(--border); text-align:center; cursor:pointer; transition:0.3s;" class="method-box">
+                        <div style="font-size:32px; margin-bottom:10px;">📲</div>
+                        <div style="font-weight:800; font-size:14px;">{{ 'فوري' if session.get('lang') == 'ar' else 'Fawry' }}</div>
+                    </div>
+                </div>
+
+                <div class="invoice-card" style="margin-bottom:25px; background:var(--bg); border:1px solid var(--border);">
+                    <div class="invoice-row"><span>{{ 'المبلغ الإجمالي' if session.get('lang') == 'ar' else 'Total Amount' }}</span><strong id="modalAmount" style="color:var(--primary); font-size:20px;">0 EGP</strong></div>
+                </div>
+
+                <button id="initiateBtn" onclick="processPayment()" style="width:100%; padding:18px; border-radius:15px; border:none; background:var(--primary); color:white; font-weight:800; font-size:16px; cursor:pointer; box-shadow:0 10px 20px rgba(37, 99, 235, 0.2);">
+                    {{ 'الاستمرار للدفع' if session.get('lang') == 'ar' else 'Continue to Pay' }}
+                </button>
+            </div>
+
+            <div id="fawryResult" style="display:none; text-align:center; padding:20px 0;">
+                <div style="background:#fff7ed; border:1px solid #fb923c; padding:30px; border-radius:20px;">
+                    <div style="font-size:14px; font-weight:700; color:#9a3412; margin-bottom:10px;">{{ 'كود الدفع (فوري)' if session.get('lang') == 'ar' else 'Fawry Payment Code' }}</div>
+                    <div id="fawryCodeDisplay" style="font-size:36px; font-weight:900; color:#000; letter-spacing:4px; margin-bottom:15px;">000000</div>
+                    <p style="font-size:12px; color:var(--text-muted);">{{ 'توجه لأي منفذ فوري واستخدم هذا الكود للدفع خلال 24 ساعة.' if session.get('lang') == 'ar' else 'Go to any Fawry outlet and use this code to pay within 24 hours.' }}</p>
+                </div>
+                <button onclick="location.reload()" style="margin-top:20px; background:none; border:none; color:var(--primary); font-weight:700; cursor:pointer;">{{ 'تم، إغلاق' if session.get('lang') == 'ar' else 'Done, Close' }}</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+let currentId = null;
+let currentAmount = 0;
+let selectedMethod = 'card';
+
+function selectMethod(m) {
+    selectedMethod = m;
+    document.querySelectorAll('.method-box').forEach(b => {
+        b.style.borderColor = 'var(--border)';
+        b.style.background = 'transparent';
+    });
+    document.getElementById('method-' + m).style.borderColor = 'var(--primary)';
+    document.getElementById('method-' + m).style.background = 'rgba(37, 99, 235, 0.05)';
+}
+
+function openPaymentModal(amount, type, id) {
+    document.getElementById('paymentModal').style.display = 'flex';
+    document.getElementById('modalAmount').innerText = amount + " EGP";
+    document.getElementById('paymentSelection').style.display = 'block';
+    document.getElementById('fawryResult').style.display = 'none';
+    currentId = id;
+    currentAmount = amount;
+    selectMethod('card');
+}
+
+function closePaymentModal() {
+    document.getElementById('paymentModal').style.display = 'none';
+}
+
+function processPayment() {
+    const btn = document.getElementById('initiateBtn');
+    btn.innerText = "{{ 'جاري التحويل...' if session.get('lang') == 'ar' else 'Processing...' }}";
+    btn.disabled = true;
+
+    fetch("/payments/initiate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ 
+            payment_id: currentId, 
+            amount: currentAmount,
+            method: selectedMethod 
+        })
+    }).then(res => res.json()).then(data => {
+        if(data.success) {
+            if(selectedMethod === 'card') {
+                window.location.href = data.redirect_url;
+            } else {
+                document.getElementById('paymentSelection').style.display = 'none';
+                document.getElementById('fawryResult').style.display = 'block';
+                document.getElementById('fawryCodeDisplay').innerText = data.payment_token;
+            }
+        } else {
+            alert("Payment initialization failed: " + data.error);
+            btn.innerText = "{{ 'الاستمرار للدفع' if session.get('lang') == 'ar' else 'Continue to Pay' }}";
+            btn.disabled = false;
+        }
+    }).catch(err => {
+        alert("An error occurred. Please try again.");
+        btn.innerText = "{{ 'الاستمرار للدفع' if session.get('lang') == 'ar' else 'Continue to Pay' }}";
+        btn.disabled = false;
+        console.error(err);
+    });
+}
+</script>
+{% endblock %}

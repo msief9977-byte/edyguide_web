@@ -1,0 +1,215 @@
+{% extends "system_layout.html" %}
+
+{% block title %}EDUGUIDE | System Control Panel{% endblock %}
+{% block page_title %}{{ 'لوحة تحكم النظام' if session.get('lang', 'en') == 'ar' else 'System Overview' }}{% endblock %}
+
+{% block content %}
+<style>
+  .sys-header { margin-bottom: 30px; }
+  .sys-header h1 { font-size: 26px; font-weight: 800; color: var(--text-main); margin-bottom: 8px; letter-spacing: -0.5px; }
+  .sys-header p { color: var(--text-muted); font-size: 15px; font-weight: 500; }
+
+  /* Stat Cards */
+  .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; margin-bottom: 30px; }
+  .stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 24px; display: flex; align-items: center; gap: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.02); transition: 0.2s; }
+  .stat-card:hover { transform: translateY(-3px); box-shadow: 0 10px 25px rgba(0,0,0,0.04); border-color: var(--primary); }
+  .stat-icon { width: 50px; height: 50px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0; }
+  .stat-info h3 { font-size: 24px; font-weight: 800; color: var(--text-main); margin-bottom: 4px; }
+  .stat-info p { font-size: 13px; color: var(--text-muted); font-weight: 600; margin: 0; text-transform: uppercase; letter-spacing: 0.5px; }
+
+  /* Charts */
+  .charts-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; margin-bottom: 30px; }
+  @media (max-width: 1024px) { .charts-grid { grid-template-columns: 1fr; } }
+  .chart-panel { background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 24px; box-shadow: 0 4px 15px rgba(0,0,0,0.02); }
+  .panel-title { font-size: 16px; font-weight: 800; color: var(--text-main); margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
+  .chart-container { position: relative; height: 300px; width: 100%; }
+
+  /* Table */
+  .table-panel { background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 24px; box-shadow: 0 4px 15px rgba(0,0,0,0.02); }
+  .data-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+  .data-table th { text-align: left; padding: 12px 16px; font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; border-bottom: 1px solid var(--border); }
+  .data-table td { padding: 16px; font-size: 14px; font-weight: 600; color: var(--text-main); border-bottom: 1px solid var(--border); }
+  .data-table tr:last-child td { border-bottom: none; }
+  [dir="rtl"] .data-table th { text-align: right; }
+  
+  .grade-badge { background: rgba(79, 70, 229, 0.1); color: var(--primary); padding: 4px 10px; border-radius: 8px; font-weight: 800; font-size: 13px; }
+  [data-theme="dark"] .grade-badge { background: rgba(79, 70, 229, 0.2); color: #818cf8; }
+</style>
+
+{% set is_ar = session.get('lang', 'en') == 'ar' %}
+
+<!-- AI SMART INSIGHTS -->
+<div class="db-card" id="aiStatsPanel" style="display: none; border-left: 4px solid var(--primary); background: linear-gradient(to right, var(--surface), var(--bg)); margin-bottom: 30px;">
+  <div class="panel-title" style="margin-bottom:10px;">
+    <i class="fas fa-robot" style="color:var(--primary);"></i> 
+    {{ 'تحليلات إيديوجايد الذكية' if is_ar else 'EDUGUIDE Smart Insights' }}
+  </div>
+  <p id="aiSummaryText" style="font-size: 15px; color: var(--text-main); font-weight: 600; line-height: 1.6;"></p>
+</div>
+
+<div class="sys-header">
+  <h1>{{ 'النظرة العامة' if is_ar else 'Platform Overview' }}</h1>
+  <p>{{ 'إحصائيات شاملة عن منصة إيديوجايد الأكاديمية والطلاب' if is_ar else 'Comprehensive statistics regarding the EDUGUIDE academic platform and students.' }}</p>
+</div>
+
+<!-- STATS CARDS -->
+<div class="stats-grid">
+  <div class="stat-card">
+    <div class="stat-icon" style="background: rgba(37,99,235,0.1); color: #2563eb;"><i class="fas fa-users"></i></div>
+    <div class="stat-info">
+      <h3>{{ st_count }}</h3>
+      <p>{{ 'إجمالي الطلاب' if is_ar else 'Total Students' }}</p>
+    </div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon" style="background: rgba(16,185,129,0.1); color: #10b981;"><i class="fas fa-chalkboard-teacher"></i></div>
+    <div class="stat-info">
+      <h3>{{ ins_count }}</h3>
+      <p>{{ 'أعضاء التدريس' if is_ar else 'Faculty Members' }}</p>
+    </div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon" style="background: rgba(139,92,246,0.1); color: #8b5cf6;"><i class="fas fa-book"></i></div>
+    <div class="stat-info">
+      <h3>{{ cr_count }}</h3>
+      <p>{{ 'المقررات' if is_ar else 'Courses' }}</p>
+    </div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon" style="background: rgba(245,158,11,0.1); color: #f59e0b;"><i class="fas fa-star"></i></div>
+    <div class="stat-info">
+      <h3>{{ avg_gpa }}</h3>
+      <p>{{ 'متوسط الـ GPA' if is_ar else 'Average GPA' }}</p>
+    </div>
+  </div>
+</div>
+
+<!-- CHARTS -->
+<div class="charts-grid">
+  <div class="chart-panel">
+    <div class="panel-title"><i class="fas fa-chart-bar" style="color:var(--primary);"></i> {{ 'توزيع الطلاب على الأقسام' if is_ar else 'Students by Department' }}</div>
+    <div class="chart-container">
+      <canvas id="deptChart"></canvas>
+    </div>
+  </div>
+  <div class="chart-panel">
+    <div class="panel-title"><i class="fas fa-venus-mars" style="color:var(--primary);"></i> {{ 'توزيع النوع' if is_ar else 'Gender Distribution' }}</div>
+    <div class="chart-container">
+      <canvas id="genderChart"></canvas>
+    </div>
+  </div>
+</div>
+
+<!-- TOP STUDENTS TABLE -->
+<div class="table-panel">
+    <div class="panel-title"><i class="fas fa-trophy" style="color:#f59e0b;"></i> {{ 'أوائل الدفعة والأعلى تقييماً' if is_ar else 'Top Ranked Students' }}</div>
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th>{{ 'الترتيب' if is_ar else 'Rank' }}</th>
+        <th>{{ 'رقم الكارنيه' if is_ar else 'ID' }}</th>
+        <th>{{ 'اسم الطالب' if is_ar else 'Student Name' }}</th>
+        <th>{{ 'المعدل التراكمي' if is_ar else 'GPA' }}</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for s in top_students %}
+      <tr>
+        <td style="font-weight: 800; color: {% if loop.index == 1 %}#f59e0b{% elif loop.index == 2 %}#94a3b8{% elif loop.index == 3 %}#b45309{% else %}var(--text-muted){% endif %};">
+          #{{ loop.index }}
+        </td>
+        <td style="color:var(--text-muted);">{{ s.student_code }}</td>
+        <td>{{ s.full_name }}</td>
+        <td><span class="grade-badge">{{ s.gpa }} / 4.0</span></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+  let deptChartInst, genderChartInst;
+
+  function initCharts() {
+    const isDark = document.body.getAttribute('data-theme') === 'dark';
+    const textColor = isDark ? '#94a3b8' : '#64748b';
+    const gridColor = isDark ? '#334155' : '#e2e8f0';
+    
+    Chart.defaults.font.family = "'Plus Jakarta Sans', sans-serif";
+    Chart.defaults.color = textColor;
+
+    const ctxDept = document.getElementById('deptChart').getContext('2d');
+    if(deptChartInst) deptChartInst.destroy();
+    
+    // Fallback data if no departments in DB
+    let deptLabels = {{ dept_labels | tojson | safe if dept_labels else "['Accounting', 'Business Admin', 'Economics', 'Finance', 'Marketing', 'Statistics']" }};
+    let deptData = {{ dept_counts | tojson | safe if dept_counts else "[25, 20, 15, 10, 5, 5]" }};
+    
+    deptChartInst = new Chart(ctxDept, {
+      type: 'bar',
+      data: {
+        labels: deptLabels,
+        datasets: [{
+          label: 'Students',
+          data: deptData,
+          backgroundColor: '#4f46e5',
+          borderRadius: 6
+        }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          x: { grid: { display: false }, ticks: { color: textColor } },
+          y: { grid: { color: gridColor }, ticks: { color: textColor } }
+        }
+      }
+    });
+
+    const ctxGender = document.getElementById('genderChart').getContext('2d');
+    if(genderChartInst) genderChartInst.destroy();
+    genderChartInst = new Chart(ctxGender, {
+      type: 'doughnut',
+      data: {
+        labels: ['{{ "ذكور" if is_ar else "Male" }}', '{{ "إناث" if is_ar else "Female" }}'],
+        datasets: [{
+          data: [55, 45],
+          backgroundColor: ['#4f46e5', '#10b981'],
+          borderWidth: 0,
+          cutout: '70%'
+        }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: {
+          legend: { position: 'bottom', labels: { color: textColor, padding: 20, usePointStyle: true } }
+        }
+      }
+    });
+  }
+
+  // Init charts on load
+  initCharts();
+
+  // Fetch Smart AI Stats
+  async function loadSmartStats() {
+    try {
+        const res = await fetch('/api/admin/smart-stats');
+        const data = await res.json();
+        if(data.summary) {
+            document.getElementById('aiSummaryText').textContent = data.summary;
+            document.getElementById('aiStatsPanel').style.display = 'block';
+        }
+    } catch(e) { console.log("Smart Stats Error", e); }
+  }
+  loadSmartStats();
+
+  // Re-render charts when theme changes to update text/grid colors
+  window.updateChartsTheme = function(theme) {
+    initCharts();
+  };
+</script>
+{% endblock %}

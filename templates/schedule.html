@@ -1,0 +1,234 @@
+{% extends "dashboard_layout.html" %}
+
+{% block title %}EDUGUIDE | Weekly Schedule{% endblock %}
+
+{% block page_title %}{{ 'الجدول الدراسي' if session.get('lang') == 'ar' else 'Weekly Schedule' }}{% endblock %}
+
+{% block content %}
+<style>
+  .schedule-container {
+    animation: fadeIn 0.5s ease;
+  }
+
+  .schedule-hero {
+    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+    border-radius: 24px;
+    padding: 40px;
+    color: white;
+    margin-bottom: 32px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 15px 30px rgba(37, 99, 235, 0.1);
+  }
+  .schedule-hero h1 { font-size: 28px; font-weight: 800; margin-bottom: 8px; }
+  .schedule-hero p { opacity: 0.8; font-size: 15px; }
+
+  .schedule-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 24px;
+  }
+
+  .day-card {
+    background: var(--surface);
+    border-radius: 20px;
+    padding: 24px;
+    border: 1px solid var(--border);
+    transition: 0.3s;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.02);
+  }
+  .day-card:hover { transform: translateY(-5px); box-shadow: 0 12px 30px rgba(0,0,0,0.05); border-color: var(--primary); }
+  
+  .day-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 1px dashed var(--border);
+  }
+  .day-header i { color: var(--primary); font-size: 18px; }
+  .day-header h3 { font-weight: 800; font-size: 18px; color: var(--text-main); }
+
+  .class-item {
+    display: flex;
+    gap: 15px;
+    padding: 15px 0;
+    position: relative;
+  }
+  .class-item:not(:last-child) { border-bottom: 1px solid rgba(0,0,0,0.03); }
+  
+  .class-time {
+    min-width: 80px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg);
+    border-radius: 12px;
+    padding: 8px;
+    font-size: 11px;
+    font-weight: 800;
+    color: var(--primary);
+  }
+  .class-details { flex: 1; }
+  .class-name { font-weight: 800; font-size: 15px; color: var(--text-main); margin-bottom: 4px; display: block; }
+  .class-room { font-size: 12px; color: var(--text-muted); font-weight: 600; display: flex; align-items: center; gap: 6px; }
+
+  .empty-state {
+    text-align: center;
+    padding: 80px 40px;
+    background: var(--surface);
+    border-radius: 24px;
+    border: 1px dashed var(--border);
+  }
+  .empty-icon { font-size: 64px; margin-bottom: 20px; opacity: 0.5; }
+
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+  [dir="rtl"] .day-header i { transform: scaleX(-1); }
+
+  @media print {
+    body * { visibility: hidden; }
+    .schedule-container, .schedule-container * { visibility: visible; }
+    .schedule-container { position: absolute; left: 0; top: 0; width: 100%; margin: 0; padding: 0; }
+    .schedule-hero { background: var(--primary) !important; color: white !important; box-shadow: none !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .export-btn, .schedule-tabs { display: none !important; }
+    .sidebar, .global-header { display: none !important; }
+    .day-card { page-break-inside: avoid; border: 1px solid #ddd; box-shadow: none; display: block !important; }
+    .class-item { display: flex !important; }
+  }
+
+  /* TABS */
+  .schedule-tabs {
+    display: flex; gap: 12px; margin-bottom: 24px; padding: 6px;
+    background: var(--surface); border-radius: 16px; border: 1px solid var(--border); width: fit-content;
+  }
+  .tab-btn {
+    padding: 10px 24px; border-radius: 12px; border: none; background: transparent; color: var(--text-muted);
+    font-weight: 800; font-size: 14px; cursor: pointer; transition: 0.3s;
+  }
+  .tab-btn.active {
+    background: var(--primary); color: white; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+  }
+</style>
+
+<div class="schedule-container">
+  <div class="schedule-hero">
+    <div>
+      <h1>{{ 'الجدول الدراسي الأسبوعي' if session.get('lang') == 'ar' else 'Weekly Class Schedule' }}</h1>
+      <p>{{ 'تنظيم المحاضرات واللقاءات الأكاديمية الخاصة بك' if session.get('lang') == 'ar' else 'Organization of your academic lectures and meetings' }}</p>
+    </div>
+    <div style="display:flex; align-items:center; gap:16px;">
+      <button onclick="window.print()" class="export-btn" style="background:white; color:var(--primary-dark); border:none; padding:12px 20px; border-radius:14px; font-weight:800; font-size:14px; cursor:pointer; display:flex; align-items:center; gap:8px; box-shadow:0 4px 12px rgba(0,0,0,0.1); transition:0.2s;">
+        <i class="fas fa-file-pdf"></i> {{ 'تصدير PDF' if session.get('lang') == 'ar' else 'Export PDF' }}
+      </button>
+      <div style="background: rgba(255,255,255,0.15); padding: 15px 25px; border-radius: 18px; backdrop-filter: blur(10px); text-align: center;">
+        <div style="font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px;">{{ 'المحاضرات' if session.get('lang') == 'ar' else 'Classes' }}</div>
+        <div style="font-size: 32px; font-weight: 900;">{{ schedules|length if schedules else 0 }}</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="schedule-tabs">
+    <button class="tab-btn active" onclick="filterSchedule('all', this)">{{ 'الكل' if session.get('lang') == 'ar' else 'All' }}</button>
+    <button class="tab-btn" onclick="filterSchedule('lecture', this)">{{ 'المحاضرات' if session.get('lang') == 'ar' else 'Lectures' }}</button>
+    <button class="tab-btn" onclick="filterSchedule('section', this)">{{ 'السكاشن' if session.get('lang') == 'ar' else 'Sections' }}</button>
+  </div>
+
+  {% if schedules and schedules|length > 0 %}
+    <div class="schedule-grid">
+      {% set days = [] %}
+      {% if session.get('lang') == 'ar' %}
+        {% set days = ['السبت', 'الأحد', 'الاثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة'] %}
+      {% else %}
+        {% set days = ['Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'] %}
+      {% endif %}
+
+      {% for day in days %}
+        {% set day_classes = [] %}
+        {% for s in schedules %}
+            {% if s.day_name == day %}
+                {% set _ = day_classes.append(s) %}
+            {% endif %}
+        {% endfor %}
+
+        {% if day_classes|length > 0 %}
+          <div class="day-card">
+            <div class="day-header">
+              <i class="fas fa-calendar-day"></i>
+              <h3>{{ day }}</h3>
+              <span style="margin-left:auto; background: var(--blue-soft); color: var(--primary); padding: 4px 10px; border-radius: 8px; font-size: 11px; font-weight: 800;">
+                {{ day_classes|length }} {{ 'محاضرات' if session.get('lang') == 'ar' else 'Classes' }}
+              </span>
+            </div>
+            <div class="classes-list">
+              {% for item in day_classes %}
+                <div class="class-item" data-type="{{ item.type|lower if item.type else 'lecture' }}">
+                  <div class="class-time">
+                    <span>{{ item.start_time }}</span>
+                    <span style="opacity: 0.5; font-size: 9px; margin: 2px 0;">{{ 'إلى' if session.get('lang') == 'ar' else 'TO' }}</span>
+                    <span>{{ item.end_time }}</span>
+                  </div>
+                  <div class="class-details">
+                    <span class="class-name">{{ item.subject_name }} <span style="font-size: 0.85em; opacity: 0.7; font-weight: 500; margin-right: 8px; color: var(--primary);">({{ item.doctor_name }})</span></span>
+                    <div class="class-room">
+                      <i class="fas fa-map-marker-alt"></i> {{ item.room }}
+                      <span style="margin: 0 8px; opacity: 0.3;">|</span>
+                      <i class="fas {{ 'fa-chalkboard-teacher' if item.type != 'Section' else 'fa-users' }}"></i> 
+                      {% if item.type == 'Section' %}
+                        {{ 'سكشن' if session.get('lang') == 'ar' else 'Section' }}
+                      {% else %}
+                        {{ 'محاضرة' if session.get('lang') == 'ar' else 'Lecture' }}
+                      {% endif %}
+                    </div>
+                  </div>
+                </div>
+              {% endfor %}
+            </div>
+          </div>
+        {% endif %}
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="empty-state">
+      <div class="empty-icon">📅</div>
+      <h2>{{ 'لا يوجد جدول متاح حالياً' if session.get('lang') == 'ar' else 'No Schedule Available' }}</h2>
+      <p>{{ 'لم يتم رفع جدولك الدراسي بعد. يرجى مراجعة شؤون الطلاب.' if session.get('lang') == 'ar' else 'Your schedule has not been uploaded yet. Please check with student affairs.' }}</p>
+    </div>
+  {% endif %}
+</div>
+
+<script>
+function filterSchedule(type, btn) {
+  // Update active tab
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+
+  // Filter items
+  const items = document.querySelectorAll('.class-item');
+  items.forEach(item => {
+    if(type === 'all') {
+      item.style.display = 'flex';
+    } else {
+      if(item.dataset.type === type) {
+        item.style.display = 'flex';
+      } else {
+        item.style.display = 'none';
+      }
+    }
+  });
+
+  // Hide empty days
+  document.querySelectorAll('.day-card').forEach(day => {
+    const visibleItems = day.querySelectorAll('.class-item[style="display: flex;"]');
+    if(visibleItems.length === 0) {
+      day.style.display = 'none';
+    } else {
+      day.style.display = 'block';
+    }
+  });
+}
+</script>
+{% endblock %}

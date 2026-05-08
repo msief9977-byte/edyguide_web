@@ -1,0 +1,13 @@
+{% extends "dashboard_layout.html" %}
+
+{% block title %}EDUGUIDE | 404 Not Found{% endblock %}
+{% block page_title %}Page Not Found{% endblock %}
+
+{% block content %}
+<div style="display:flex; flex-direction:column; align-items:center; justify-content:center; height:60vh; text-align:center;">
+    <div style="font-size:80px; margin-bottom:10px;">🔍</div>
+    <h1 style="font-size:36px; font-weight:800; color:var(--text-main); margin-bottom:10px;">{{ 'عذراً، الصفحة غير موجودة' if session.get('lang') == 'ar' else 'Oops! Page Not Found' }}</h1>
+    <p style="color:var(--text-muted); font-size:16px; margin-bottom:30px; max-width:400px;">{{ 'الرابط الذي تحاول الوصول إليه قد يكون تم تغييره أو حذفه.' if session.get('lang') == 'ar' else 'The page you are looking for might have been removed, had its name changed, or is temporarily unavailable.' }}</p>
+    <a href="{{ url_for('dashboard') }}" style="background:var(--primary); color:white; padding:12px 24px; border-radius:12px; text-decoration:none; font-weight:700;">{{ 'العودة للرئيسية' if session.get('lang') == 'ar' else 'Back to Dashboard' }}</a>
+</div>
+{% endblock %}

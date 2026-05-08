@@ -1,0 +1,230 @@
+{% extends "dashboard_layout.html" %}
+
+{% block title %}EDUGUIDE | Student Library{% endblock %}
+
+{% block page_title %}{{ 'المكتبة الطلابية' if session.get('lang') == 'ar' else 'Student Library' }}{% endblock %}
+
+{% block content %}
+<style>
+.marketplace-shell { width: 100%; max-width: 1200px; margin: 0 auto; }
+.marketplace-hero {
+  display: flex; justify-content: space-between; align-items: center; gap: 24px;
+  padding: 28px; border-radius: 28px; background: var(--surface); border: 1px solid var(--border);
+  box-shadow: 0 10px 20px rgba(0,0,0,0.02); margin-bottom: 24px; flex-wrap: wrap;
+}
+.marketplace-badge {
+  display: inline-block; padding: 8px 14px; border-radius: 999px;
+  background: rgba(37, 99, 235, 0.1); color: var(--primary); font-weight: 800; font-size: 0.88rem;
+}
+.marketplace-hero h1 { margin: 10px 0; font-size: 2rem; color: var(--text-main); font-weight: 800; }
+.marketplace-hero p { margin: 0; color: var(--text-muted); line-height: 1.7; max-width: 650px; font-weight: 600; }
+.marketplace-hero-card {
+  min-width: 220px; padding: 22px; border-radius: 22px; background: rgba(37, 99, 235, 0.05);
+  border: 1px solid rgba(37, 99, 235, 0.1); text-align: center;
+}
+.marketplace-hero-card span { display: block; color: var(--text-muted); margin-bottom: 8px; font-weight: 600; }
+.marketplace-hero-card strong { font-size: 1.8rem; color: var(--primary); font-weight: 800; }
+
+.marketplace-toolbar {
+  display: grid; grid-template-columns: 1fr 1.6fr; gap: 16px; align-items: center; margin-bottom: 24px;
+}
+.marketplace-search input {
+  width: 100%; padding: 14px 16px; border-radius: 16px; border: 1px solid var(--border);
+  background: var(--surface); color: var(--text-main); outline: none; font-weight: 600;
+}
+.marketplace-search input::placeholder { color: var(--text-muted); }
+.marketplace-filters { display: flex; gap: 10px; flex-wrap: wrap; }
+.market-filter-btn {
+  border: 1px solid var(--border); padding: 10px 14px; border-radius: 999px;
+  background: var(--surface); color: var(--text-muted); cursor: pointer; font-weight: 700; transition: 0.3s;
+}
+.market-filter-btn.active, .market-filter-btn:hover {
+  background: var(--primary); color: #fff; border-color: var(--primary);
+}
+
+.marketplace-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 18px; margin-bottom: 30px;
+}
+.market-card {
+  padding: 18px; border-radius: 24px; background: var(--surface); border: 1px solid var(--border);
+  box-shadow: 0 10px 20px rgba(0,0,0,0.02); color: var(--text-main); display: flex; flex-direction: column; gap: 14px;
+  transition: 0.3s;
+}
+.market-card:hover { transform: translateY(-5px); box-shadow: 0 15px 30px rgba(0,0,0,0.05); }
+.market-card-image {
+  width: 100%; height: 180px; border-radius: 18px; overflow: hidden; background: rgba(37, 99, 235, 0.05);
+  display: flex; align-items: center; justify-content: center;
+}
+.market-card-image img { width: 100%; height: 100%; object-fit: cover; }
+.market-image-placeholder { font-size: 2.4rem; }
+.market-card-top { display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+.market-category { padding: 6px 10px; border-radius: 8px; background: var(--bg); font-size: 0.8rem; font-weight: 700; color: var(--text-muted); border: 1px solid var(--border); }
+.market-pdf-badge { padding: 6px 10px; border-radius: 8px; background: rgba(34, 197, 94, 0.1); color: #16a34a; font-size: 0.8rem; font-weight: 800; }
+.market-card h3 { margin: 0; color: var(--text-main); font-size: 1.12rem; font-weight: 800; }
+.market-desc { margin: 0; color: var(--text-muted); line-height: 1.6; font-size: 0.9rem; font-weight: 500; }
+.market-meta { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: auto; font-size: 0.85rem; color: var(--text-muted); }
+.market-meta strong { color: var(--text-main); font-weight: 700; display: block; margin-top: 4px;}
+.market-actions { display: flex; gap: 10px; }
+.market-primary-btn, .market-secondary-btn {
+  flex: 1; display: inline-flex; justify-content: center; align-items: center;
+  padding: 12px 14px; border-radius: 14px; text-decoration: none; font-weight: 800; font-size: 0.9rem; cursor: pointer; transition: 0.2s;
+}
+.market-primary-btn { background: var(--primary); color: #fff !important; border: none; }
+.market-primary-btn:hover { background: var(--primary-dark); }
+.market-secondary-btn { background: var(--bg); color: var(--text-main) !important; border: 1px solid var(--border); }
+.market-secondary-btn:hover { background: var(--border); }
+
+.market-empty-state {
+  grid-column: 1 / -1; text-align: center; padding: 50px 20px; border-radius: 22px;
+  background: var(--surface); border: 1px dashed var(--border); color: var(--text-main); box-shadow: 0 10px 20px rgba(0,0,0,0.02);
+}
+.market-empty-icon { font-size: 2rem; margin-bottom: 10px; }
+.market-empty-state h3 { margin: 0 0 8px; color: var(--text-main); font-weight: 800; }
+.market-empty-state p { margin: 0; color: var(--text-muted); font-weight: 600; }
+</style>
+{% set is_ar = session.get('lang', 'en') == 'ar' %}
+
+<div class="marketplace-shell">
+
+  <section class="marketplace-hero">
+    <div class="marketplace-hero-left">
+      <div class="marketplace-badge">{{ 'المكتبة الطلابية' if is_ar else 'Student Library' }}</div>
+      <h1>{{ 'المكتبة والخدمات الطلابية' if is_ar else 'Student Library & Resources' }}</h1>
+      <p>
+        {{ 'اعثر على كتب، ملازم PDF، مراجعات، كورسات، وخدمات دراسية في مكان واحد.' if is_ar
+           else 'Find books, PDF notes, revision sheets, courses, and study services in one place.' }}
+      </p>
+    </div>
+
+    <div class="marketplace-hero-card">
+      <span>{{ 'عدد العناصر' if is_ar else 'Items Listed' }}</span>
+      <strong>{{ products|length if products else 0 }}</strong>
+    </div>
+  </section>
+
+  <section class="marketplace-toolbar">
+    <div class="marketplace-search">
+      <input type="text" placeholder="{{ 'ابحث عن كتاب أو ملزمة...' if is_ar else 'Search for a book or PDF...' }}">
+    </div>
+
+    <div class="marketplace-filters">
+  <button class="market-filter-btn active" onclick="filterLibrary('All', this)">{{ 'الكل' if is_ar else 'All' }}</button>
+  <button class="market-filter-btn" onclick="filterLibrary('Books', this)">{{ 'كتب' if is_ar else 'Books' }}</button>
+  <button class="market-filter-btn" onclick="filterLibrary('PDF Notes', this)">PDF</button>
+  <button class="market-filter-btn" onclick="filterLibrary('Revision Sheets', this)">{{ 'مراجعات' if is_ar else 'Revision' }}</button>
+  <button class="market-filter-btn" onclick="filterLibrary('Courses', this)">{{ 'كورسات' if is_ar else 'Courses' }}</button>
+  <button class="market-filter-btn" onclick="filterLibrary('Past Exams', this)">{{ 'امتحانات' if is_ar else 'Past Exams' }}</button>
+</div>
+  </section>
+{% if recommended and recommended|length > 0 %}
+<section class="recommended-section">
+  <h2>🔥 Recommended for You</h2>
+
+  <div class="marketplace-grid">
+    {% for item in recommended %}
+      <div class="market-card" data-category="{{ item.category }}">
+        <h3>{{ item.title }}</h3>
+        <p>{{ item.description }}</p>
+
+        <a href="{{ url_for('product_details', id=item.id) }}" class="market-primary-btn">
+          View Details
+        </a>
+      </div>
+    {% endfor %}
+  </div>
+</section>
+{% endif %}
+  <section class="marketplace-grid">
+    {% if products and products|length > 0 %}
+      {% for item in products %}
+      <div class="market-card" data-category="{{ item.category }}" data-title="{{ item.title|lower }}">
+
+        <div class="market-card-image">
+          {% if item.image %}
+            <img src="{{ url_for('static', filename='uploads/' + item.image) }}" alt="{{ item.title }}">
+          {% else %}
+            <div class="market-image-placeholder">📚</div>
+          {% endif %}
+        </div>
+
+        <div class="market-card-top">
+          <span class="market-category">{{ item.category }}</span>
+          {% if item.pdf_file %}
+            <span class="market-pdf-badge">PDF</span>
+          {% endif %}
+        </div>
+
+        <h3>{{ item.title }}</h3>
+
+        <p class="market-desc">
+          {{ item.summary if item.summary else ('لا يوجد وصف متاح.' if is_ar else 'No summary available.') }}
+        </p>
+
+        <div class="market-meta">
+          <div>
+            <span class="meta-label">{{ 'النوع' if is_ar else 'Type' }}</span>
+            <strong>{{ item.category }}</strong>
+          </div>
+          {% if item.doctor_name %}
+          <div>
+            <span class="meta-label">{{ 'بواسطة' if is_ar else 'By' }}</span>
+            <strong>د. {{ item.doctor_name }}</strong>
+          </div>
+          {% endif %}
+        </div>
+
+        <div class="market-actions">
+          <a href="{{ url_for('marketplace_details', product_id=item.id) }}" class="market-primary-btn">
+            {{ 'عرض التفاصيل' if is_ar else 'View Details' }}
+          </a>
+
+          {% if item.pdf_file %}
+          <a href="{{ url_for('static', filename='uploads/' + item.pdf_file) }}" target="_blank" class="market-secondary-btn">
+            {{ 'فتح PDF' if is_ar else 'Open PDF' }}
+          </a>
+          {% else %}
+          <a href="{{ url_for('chat_page') }}" class="market-secondary-btn">
+            {{ 'اسأل عنه' if is_ar else 'Ask' }}
+          </a>
+          {% endif %}
+        </div>
+
+      </div>
+      {% endfor %}
+    {% else %}
+      <div class="market-empty-state">
+        <div class="market-empty-icon">📭</div>
+        <h3>{{ 'لا توجد عناصر حالياً' if is_ar else 'No items available yet' }}</h3>
+        <p>{{ 'سيتم عرض الكتب والملازم هنا بعد إضافتها من لوحة الإدارة.' if is_ar else 'Books and PDFs will appear here after being added from the admin dashboard.' }}</p>
+      </div>
+    {% endif %}
+  </section>
+
+</div>
+
+<script>
+function filterLibrary(category, btn) {
+  const cards = document.querySelectorAll(".market-card");
+
+  cards.forEach(card => {
+    const cardCategory = card.dataset.category;
+    card.style.display = (category === "All" || cardCategory === category) ? "flex" : "none";
+  });
+
+  document.querySelectorAll(".market-filter-btn").forEach(b => b.classList.remove("active"));
+  btn.classList.add("active");
+}
+
+const searchInput = document.querySelector(".marketplace-search input");
+
+if (searchInput) {
+  searchInput.addEventListener("input", function () {
+    const value = this.value.toLowerCase();
+    document.querySelectorAll(".market-card").forEach(card => {
+      const text = card.dataset.title || card.innerText.toLowerCase();
+      card.style.display = text.includes(value) ? "flex" : "none";
+    });
+  });
+}
+</script>
+{% endblock %}

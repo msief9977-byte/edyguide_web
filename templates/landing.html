@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="{{ 'ar' if session.get('lang', 'en') == 'ar' else 'en' }}"
+  dir="{{ 'rtl' if session.get('lang', 'en') == 'ar' else 'ltr' }}">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EDUGUIDE | Smart Student Platform</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --navy: #1e3a8a;
+      --blue: #2563eb;
+      --sky: #0ea5e9;
+      --text: #0f172a;
+      --muted: #64748b;
+      --border: #e2e8f0;
+      --white: #ffffff;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: #ffffff;
+      color: var(--text);
+      overflow-x: hidden;
+    }
+
+    /* REFINED TOPBAR ORDER */
+    .top-bar-announce {
+      background: #1e3a8a;
+      color: #ffffff;
+      padding: 8px 10%;
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      align-items: center;
+      font-size: 12px;
+      font-weight: 700;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .top-bar-left {
+      display: flex;
+      gap: 20px;
+    }
+
+    .top-bar-center {
+      text-align: center;
+      color: rgba(255, 255, 255, 0.9);
+    }
+
+    .top-bar-right {
+      display: flex;
+      justify-content: flex-end;
+      gap: 15px;
+    }
+
+    .top-bar-announce a {
+      color: #fff;
+      text-decoration: none;
+      transition: 0.2s;
+    }
+
+    .top-bar-announce a:hover {
+      color: var(--sky);
+    }
+
+    /* REFINED NAVBAR ORDER (User Specific) */
+    .navbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 18px 10%;
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(15px);
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .nav-brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+    }
+
+    .nav-brand img {
+      width: 36px;
+      height: 36px;
+    }
+
+    .nav-brand span {
+      font-size: 24px;
+      font-weight: 800;
+      color: var(--navy);
+      letter-spacing: -0.5px;
+    }
+
+    .nav-content-right {
+      display: flex;
+      align-items: center;
+      gap: 30px;
+    }
+
+    .nav-link-item {
+      text-decoration: none;
+      color: var(--muted);
+      font-weight: 600;
+      font-size: 15px;
+      transition: 0.2s;
+    }
+
+    .nav-link-item:hover,
+    .nav-link-item.active {
+      color: var(--blue);
+    }
+
+    .lang-toggle-btn,
+    .theme-toggle-btn {
+      background: none;
+      color: var(--muted);
+      border: none;
+      padding: 0;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      text-decoration: none;
+      transition: 0.2s;
+      font-size: 15px;
+      font-weight: 700;
+    }
+
+    .lang-toggle-btn:hover,
+    .theme-toggle-btn:hover {
+      color: var(--blue);
+    }
+
+    .theme-btn:hover,
+    .lang-link:hover {
+      background: #e2e8f0;
+      color: var(--blue);
+    }
+
+    .login-btn {
+      background: var(--navy);
+      color: #fff !important;
+      padding: 12px 28px;
+      border-radius: 12px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      transition: 0.3s;
+      text-decoration: none;
+      font-size: 15px;
+    }
+
+    .login-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 20px rgba(30, 58, 138, 0.2);
+    }
+
+    /* HERO */
+    .hero {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 60px 10% 120px;
+      gap: 100px;
+      min-height: 80vh;
+    }
+
+    .hero-content {
+      flex: 1;
+      min-width: 500px;
+    }
+
+    .hero h1 {
+      font-size: 76px;
+      font-weight: 800;
+      line-height: 1.1;
+      margin-bottom: 25px;
+      letter-spacing: -3px;
+    }
+
+    .hero h1 span {
+      color: var(--sky);
+    }
+
+    .hero p {
+      font-size: 20px;
+      color: var(--muted);
+      line-height: 1.6;
+      margin-bottom: 45px;
+      font-weight: 500;
+    }
+
+    .hero-btns {
+      display: flex;
+      gap: 20px;
+    }
+
+    .btn-primary {
+      background: var(--navy);
+      color: #fff;
+      padding: 18px 40px;
+      border-radius: 12px;
+      font-weight: 800;
+      text-decoration: none;
+    }
+
+    /* ANIMATION WRAPPER */
+    .hero-visual-wrapper {
+      flex: 1.3;
+      perspective: 2000px;
+      position: relative;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .dashboard-tilted {
+      width: 100%;
+      height: 480px;
+      background: #f8fafc;
+      border-radius: 40px;
+      border: 1px solid var(--border);
+      display: flex;
+      overflow: hidden;
+      box-shadow: 0 40px 100px rgba(0, 0, 0, 0.05);
+      transform: rotateY(-20deg) rotateX(10deg);
+      position: relative;
+    }
+
+    .sidebar-mock {
+      width: 80px;
+      background: var(--navy);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding-top: 30px;
+      gap: 25px;
+    }
+
+    .sb-dot {
+      width: 35px;
+      height: 35px;
+      background: rgba(255, 255, 255, 0.15);
+      border-radius: 8px;
+    }
+
+    .main-mock {
+      flex: 1;
+      padding: 40px;
+    }
+
+    .floating-logo-center {
+      position: absolute;
+      z-index: 50;
+      width: 480px;
+      filter: drop-shadow(0 50px 100px rgba(30, 58, 138, 0.45));
+      animation: megaFloat 6s ease-in-out infinite;
+      transform: translateZ(120px) rotateY(10deg);
+      pointer-events: none;
+    }
+
+    @keyframes megaFloat {
+
+      0%,
+      100% {
+        transform: translateZ(120px) translateY(0) rotateY(10deg);
+      }
+
+      50% {
+        transform: translateZ(180px) translateY(-30px) rotateY(15deg) rotateX(5deg);
+      }
+    }
+
+    .tag {
+      position: absolute;
+      background: #fff;
+      padding: 12px 22px;
+      border-radius: 15px;
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.08);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 800;
+      font-size: 13px;
+      z-index: 60;
+      animation: tagFloat 5s ease-in-out infinite;
+      white-space: nowrap;
+    }
+
+    @keyframes tagFloat {
+
+      0%,
+      100% {
+        transform: translateY(0);
+      }
+
+      50% {
+        transform: translateY(-15px);
+      }
+    }
+
+    .t-ai {
+      top: 5%;
+      right: -20px;
+    }
+
+    .t-pay {
+      top: 35%;
+      right: -50px;
+    }
+
+    .t-gpa {
+      bottom: 15%;
+      right: -30px;
+      background: var(--sky);
+      color: #fff;
+    }
+
+    .t-time {
+      bottom: 5%;
+      left: -10px;
+    }
+
+    .t-cv {
+      top: 45%;
+      left: -60px;
+    }
+
+    /* RTL OVERRIDES - Fixed Layout */
+    [dir="rtl"] .hero-content {
+      text-align: right;
+    }
+
+    [dir="rtl"] .hero-btns {
+      justify-content: flex-end;
+    }
+
+    [dir="rtl"] .top-bar-announce {
+      direction: rtl;
+    }
+
+    [dir="rtl"] .nav-content-right {
+      flex-direction: row;
+    }
+
+    /* Keep same order as LTR */
+  </style>
+</head>
+
+<body>
+
+  {% set is_ar = session.get('lang', 'en') == 'ar' %}
+
+  <!-- TOP BAR -->
+  <div class="top-bar-announce">
+    <div class="top-bar-left">
+      <a href="mailto:support@eduguide.com"><i class="fas fa-envelope"></i> support@eduguide.com</a>
+      <span><i class="fas fa-phone"></i> +20 100 000 0000</span>
+    </div>
+    <div class="top-bar-center">
+      {{ 'New Semester Updates are now available!' if not is_ar else 'تحديثات الفصل الدراسي الجديد متاحة الآن!' }}
+    </div>
+    <div class="top-bar-right">
+      <a href="#"><i class="fab fa-facebook-f"></i></a>
+      <a href="#"><i class="fab fa-instagram"></i></a>
+      <a href="#"><i class="fab fa-linkedin-in"></i></a>
+      <a href="#"><i class="fab fa-whatsapp"></i></a>
+    </div>
+  </div>
+
+  <!-- NAVBAR (Order: Logo ... Home | About | Contact | Language | Theme | Login) -->
+  <nav class="navbar">
+    <a href="{{ url_for('landing') }}" class="nav-brand">
+      <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Logo">
+      <span>EDUGUIDE</span>
+    </a>
+
+    <div class="nav-content-right">
+      <a href="{{ url_for('landing') }}" class="nav-link-item active">{{ 'Home' if not is_ar else 'الرئيسية' }}</a>
+      <a href="{{ url_for('about') }}" class="nav-link-item">{{ 'About' if not is_ar else 'من نحن' }}</a>
+      <a href="{{ url_for('contact') }}" class="nav-link-item">{{ 'Contact' if not is_ar else 'تواصل معنا' }}</a>
+
+      <a href="{{ url_for('set_language', lang='en' if is_ar else 'ar', next=request.path) }}" class="lang-toggle-btn">
+        <i class="fas fa-globe"></i> {{ 'AR' if not is_ar else 'EN' }}
+      </a>
+
+      <button class="theme-toggle-btn" onclick="toggleTheme()">
+        <i class="fas fa-moon"></i>
+      </button>
+
+      <a href="{{ url_for('login') }}" class="login-btn">
+        {{ 'Login' if not is_ar else 'دخول' }} <i class="fas fa-arrow-right"></i>
+      </a>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-content">
+      <h1>{{ 'Your University,' if not is_ar else 'جامعتك،' }} <br><span>{{ 'Smarter.' if not is_ar else 'أذكى.'
+          }}</span></h1>
+      <p>{{ 'EDUGUIDE redefines the university experience in Egypt by integrating AI into every detail of your daily
+        academic life.' if not is_ar else 'إديوجايد يعيد تعريف التجربة الجامعية في مصر من خلال دمج الذكاء الاصطناعي في
+        كل تفاصيل حياتك الأكاديمية اليومية.' }}</p>
+      <div class="hero-btns">
+        <a href="{{ url_for('login') }}" class="btn-primary">{{ 'Start Now' if not is_ar else 'ابدأ الآن' }}</a>
+      </div>
+    </div>
+
+    <div class="hero-visual-wrapper">
+      <img src="{{ url_for('static', filename='images/logo.png') }}" class="floating-logo-center" alt="EDUGUIDE LOGO">
+
+      <div class="tag t-ai"><i class="fas fa-robot"></i> AI Concierge</div>
+      <div class="tag t-pay"><i class="fas fa-wallet" style="color:#f59e0b;"></i> Payments</div>
+      <div class="tag t-cv"><i class="fas fa-file-alt" style="color:#10b981;"></i> CV Optimizer</div>
+      <div class="tag t-time"><i class="fas fa-clock" style="color:#3b82f6;"></i> Timetable</div>
+      <div class="tag t-gpa"><i class="fas fa-chart-line"></i> Smart GPA</div>
+
+      <div class="dashboard-tilted">
+        <div class="sidebar-mock">
+          <div class="sb-dot" style="background:#fff; opacity: 0.8;"></div>
+          <div class="sb-dot"></div>
+          <div class="sb-dot"></div>
+        </div>
+        <div class="main-mock">
+          <div style="display:flex; align-items:center; gap:15px; margin-bottom:30px;">
+            <div class="mock-circ" style="width:40px; height:40px; background: var(--border); border-radius:50%;"></div>
+            <div style="flex:1;">
+              <div class="mock-line"
+                style="height:10px; background: var(--border); border-radius:5px; margin-bottom:8px; width:120px;">
+              </div>
+              <div class="mock-line" style="height:10px; background: var(--bg); border-radius:5px; width:80px;"></div>
+            </div>
+          </div>
+          <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:15px; margin-bottom:30px;">
+            <div class="card-mock"
+              style="height:70px; background: var(--white); border-radius:12px; border:1px solid var(--border);"></div>
+            <div class="card-mock"
+              style="height:70px; background: var(--white); border-radius:12px; border:1px solid var(--border);"></div>
+            <div class="card-mock"
+              style="height:70px; background: var(--white); border-radius:12px; border:1px solid var(--border);"></div>
+          </div>
+          <div class="big-card-mock"
+            style="width:100%; height:160px; background: var(--white); border-radius:20px; border:1px solid var(--border);">
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <script>
+    function toggleTheme() {
+      const body = document.body;
+      const isDark = body.classList.contains('dark-mode');
+      if (isDark) {
+        body.classList.remove('dark-mode');
+        localStorage.setItem('theme', 'light');
+      } else {
+        body.classList.add('dark-mode');
+        localStorage.setItem('theme', 'dark');
+      }
+    }
+
+    // Auto-apply theme
+    if (localStorage.getItem('theme') === 'dark') {
+      document.body.classList.add('dark-mode');
+    }
+  </script>
+
+  <style>
+    /* Inline Dark Mode overrides for landing */
+    .dark-mode {
+      --navy: #1e293b;
+      --blue: #3b82f6;
+      --border: #334155;
+      --white: #1e293b;
+      --muted: #94a3b8;
+      background: #020617;
+      color: #f8fafc;
+    }
+
+    .dark-mode .navbar {
+      background: rgba(2, 6, 23, 0.95);
+      border-color: #1e293b;
+    }
+
+    .dark-mode .nav-link-item {
+      color: #94a3b8;
+    }
+
+    .dark-mode .theme-toggle-btn {
+      color: #f8fafc;
+    }
+
+    .dark-mode .dashboard-tilted {
+      background: #0f172a !important;
+      border-color: #334155;
+    }
+
+    .dark-mode .tag {
+      background: #1e293b;
+      color: #f8fafc;
+      border-color: #334155;
+    }
+
+    .dark-mode .hero h1 {
+      color: #f8fafc;
+    }
+
+    .dark-mode .hero p {
+      color: #94a3b8;
+    }
+
+    .dark-mode .mock-circ,
+    .dark-mode .mock-line {
+      background: #334155 !important;
+    }
+
+    .dark-mode .card-mock,
+    .dark-mode .big-card-mock {
+      background: #1e293b !important;
+      border-color: #334155 !important;
+    }
+
+    .dark-mode .gfx-c {
+      background: #1e293b;
+      border-color: #334155;
+    }
+  </style>
+
+</body>
+
+</html>

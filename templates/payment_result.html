@@ -1,0 +1,31 @@
+{% extends "dashboard_layout.html" %}
+
+{% block title %}EDUGUIDE | Payment Result{% endblock %}
+
+{% block content %}
+<div style="display:flex; align-items:center; justify-content:center; min-height:60vh;">
+    <div style="background:var(--surface); padding:40px; border-radius:24px; text-align:center; border:1px solid var(--border); box-shadow:0 20px 40px rgba(0,0,0,0.05); max-width:500px; width:100%;">
+        {% if success %}
+            <div style="width:80px; height:80px; background:#dcfce7; color:#166534; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:40px; margin:0 auto 20px;">
+                <i class="fas fa-check"></i>
+            </div>
+            <h2 style="font-weight:800; font-size:24px; margin-bottom:10px;">{{ 'تم الدفع بنجاح!' if session.get('lang') == 'ar' else 'Payment Successful!' }}</h2>
+            <p style="color:var(--text-muted); font-size:15px; margin-bottom:30px;">
+                {{ 'تم تسجيل الدفعة الخاصة بك بنجاح وتم تحديث حالتك.' if session.get('lang') == 'ar' else 'Your payment has been successfully processed and your status is updated.' }}
+            </p>
+        {% else %}
+            <div style="width:80px; height:80px; background:#fee2e2; color:#991b1b; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:40px; margin:0 auto 20px;">
+                <i class="fas fa-times"></i>
+            </div>
+            <h2 style="font-weight:800; font-size:24px; margin-bottom:10px;">{{ 'فشلت عملية الدفع' if session.get('lang') == 'ar' else 'Payment Failed' }}</h2>
+            <p style="color:var(--text-muted); font-size:15px; margin-bottom:30px;">
+                {{ 'عذراً، لم نتمكن من إتمام عملية الدفع. يرجى المحاولة مرة أخرى أو استخدام طريقة دفع مختلفة.' if session.get('lang') == 'ar' else 'Sorry, we could not process your payment. Please try again or use a different method.' }}
+            </p>
+        {% endif %}
+        
+        <a href="{{ url_for('dashboard') }}" style="display:inline-block; padding:15px 30px; background:var(--primary); color:white; border-radius:12px; font-weight:700; text-decoration:none; transition:0.3s;">
+            <i class="fas fa-home" style="margin-right:8px;"></i> {{ 'العودة للوحة التحكم' if session.get('lang') == 'ar' else 'Back to Dashboard' }}
+        </a>
+    </div>
+</div>
+{% endblock %}

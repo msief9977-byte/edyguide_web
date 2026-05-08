@@ -1,0 +1,147 @@
+{% extends "dashboard_layout.html" %}
+
+{% block title %}EDYGUIDE | Course Details{% endblock %}
+{% block page_title %}{{ 'تفاصيل المادة' if session.get('lang') == 'ar' else 'Course Details' }}{% endblock %}
+
+{% block content %}
+<style>
+  .detail-container { max-width: 900px; margin: 0 auto; animation: fadeIn 0.5s ease; }
+  .detail-hero {
+    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+    border-radius: 24px;
+    padding: 40px;
+    color: white;
+    margin-bottom: 32px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 10px 30px rgba(30, 77, 183, 0.15);
+  }
+  .detail-hero h1 { font-size: 28px; font-weight: 800; margin-bottom: 8px; }
+  .detail-hero p { opacity: 0.85; font-size: 15px; }
+
+  .detail-badge {
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    background: rgba(255,255,255,0.15);
+    padding: 6px 14px;
+    border-radius: 20px;
+    margin-bottom: 15px;
+    display: inline-block;
+  }
+
+  .detail-icon {
+    width: 80px;
+    height: 80px;
+    background: rgba(255,255,255,0.15);
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 36px;
+    flex-shrink: 0;
+  }
+
+  .detail-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    margin-bottom: 24px;
+  }
+
+  .detail-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 28px;
+  }
+
+  .detail-card h3 {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 10px;
+  }
+
+  .detail-card .value {
+    font-size: 20px;
+    font-weight: 800;
+    color: var(--text-main);
+  }
+
+  .back-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--text-muted);
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 14px;
+    margin-bottom: 24px;
+    transition: 0.2s;
+  }
+  .back-btn:hover { color: var(--primary); }
+
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+</style>
+
+{% set is_ar = session.get('lang', 'en') == 'ar' %}
+
+<div class="detail-container">
+  <a href="{{ url_for('schedule_page') }}" class="back-btn">
+    <i class="fas fa-arrow-left"></i> {{ 'العودة للجدول' if is_ar else 'Back to Schedule' }}
+  </a>
+
+  {% if course %}
+    <div class="detail-hero">
+      <div>
+        <div class="detail-badge">📚 {{ 'تفاصيل المادة' if is_ar else 'Course Details' }}</div>
+        <h1>{{ course.course_name or course.get('name', 'Course') }}</h1>
+        <p>{{ course.course_code or course.get('code', '') }} &bull; {{ course.department or course.get('faculty', '') }}</p>
+      </div>
+      <div class="detail-icon">📖</div>
+    </div>
+
+    <div class="detail-grid">
+      <div class="detail-card">
+        <h3>{{ 'كود المادة' if is_ar else 'Course Code' }}</h3>
+        <div class="value">{{ course.course_code or course.get('code', 'N/A') }}</div>
+      </div>
+      <div class="detail-card">
+        <h3>{{ 'القسم / الكلية' if is_ar else 'Department' }}</h3>
+        <div class="value">{{ course.department or course.get('faculty', 'N/A') }}</div>
+      </div>
+      <div class="detail-card">
+        <h3>{{ 'عدد الساعات' if is_ar else 'Credit Hours' }}</h3>
+        <div class="value">{{ course.credit_hours or course.get('hours', '3') }} {{ 'ساعات' if is_ar else 'hrs' }}</div>
+      </div>
+      <div class="detail-card">
+        <h3>{{ 'الفصل الدراسي' if is_ar else 'Semester' }}</h3>
+        <div class="value">{{ course.semester or course.get('term', 'Spring 2026') }}</div>
+      </div>
+      <div class="detail-card">
+        <h3>{{ 'أستاذ المادة' if is_ar else 'Instructor' }}</h3>
+        <div class="value">{{ course.instructor_name or 'N/A' }}</div>
+      </div>
+    </div>
+
+    {% if course.get('description') %}
+    <div class="detail-card" style="margin-bottom: 24px;">
+      <h3>{{ 'وصف المادة' if is_ar else 'Course Description' }}</h3>
+      <p style="color: var(--text-muted); line-height: 1.8; margin-top: 10px;">{{ course.description }}</p>
+    </div>
+    {% endif %}
+
+  {% else %}
+    <div style="text-align: center; padding: 80px 20px; background: var(--surface); border-radius: 24px; border: 1px solid var(--border);">
+      <div style="font-size: 60px; margin-bottom: 20px; opacity: 0.2;">📚</div>
+      <h3 style="color: var(--text-main);">{{ 'لم يتم العثور على المادة' if is_ar else 'Course Not Found' }}</h3>
+      <a href="{{ url_for('schedule_page') }}" style="color: var(--primary); font-weight: 700;">{{ 'العودة للجدول' if is_ar else 'Back to Schedule' }}</a>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="{{ 'ar' if session.get('lang', 'en') == 'ar' else 'en' }}"
+  dir="{{ 'rtl' if session.get('lang', 'en') == 'ar' else 'ltr' }}">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}EDUGUIDE | Instructor Dashboard{% endblock %}</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --primary: #4f46e5;
+      --primary-dark: #3730a3;
+      --surface: #ffffff;
+      --bg: #f8fafc;
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+      --border: #e2e8f0;
+      --sidebar-width: 280px;
+      --header-height: 80px;
+      --header-bg: rgba(255, 255, 255, 0.85);
+    }
+
+    [data-theme="dark"] {
+      --surface: #1e293b;
+      --bg: #0f172a;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --border: #334155;
+      --header-bg: rgba(15, 23, 42, 0.85);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text-main);
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    /* GLOBAL HEADER */
+    .global-header {
+      height: var(--header-height);
+      width: 100%;
+      background: var(--header-bg);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 32px;
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: 2000;
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 30px;
+    }
+
+    .header-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+    }
+
+    .header-brand .logo-img {
+      width: 38px;
+      height: 38px;
+    }
+
+    .header-brand span {
+      font-size: 22px;
+      font-weight: 800;
+      color: var(--primary-dark);
+      letter-spacing: -0.5px;
+    }
+
+    .page-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text-main);
+      padding-left: 20px;
+      border-left: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .h-btn {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      background: transparent;
+      border: 1px solid transparent;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    .h-btn:hover {
+      background: var(--bg);
+      color: var(--primary);
+      border-color: var(--border);
+    }
+
+    .user-pill {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--bg);
+      padding: 5px 5px 5px 15px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    .user-pill:hover {
+      border-color: var(--primary);
+    }
+
+    .user-pill .nm {
+      font-weight: 700;
+      font-size: 13px;
+      color: var(--text-main);
+    }
+
+    .user-pill .av {
+      width: 30px;
+      height: 30px;
+      border-radius: 8px;
+      background: var(--primary);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 12px;
+    }
+
+    /* APP WRAP */
+    .app-wrap {
+      display: flex;
+      height: 100vh;
+      padding-top: var(--header-height);
+    }
+
+    /* SIDEBAR */
+    .sidebar {
+      width: var(--sidebar-width);
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      padding: 24px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      overflow-y: auto;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      padding: 14px 18px;
+      border-radius: 12px;
+      color: var(--text-muted);
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 15px;
+      transition: 0.2s;
+    }
+
+    .nav-item:hover {
+      background: var(--bg);
+      color: var(--primary);
+    }
+
+    .nav-item.active {
+      background: #eef2ff;
+      color: var(--primary);
+    }
+
+    .nav-item i {
+      margin-right: 15px;
+      width: 24px;
+      text-align: center;
+    }
+
+    /* MAIN CONTENT */
+    .main-content {
+      flex: 1;
+      padding: 40px;
+      overflow-y: auto;
+      background: var(--bg);
+    }
+
+    [dir="rtl"] .sidebar {
+      border-right: none;
+      border-left: 1px solid var(--border);
+    }
+
+    [dir="rtl"] .nav-item i {
+      margin-right: 0;
+      margin-left: 15px;
+    }
+    /* TOASTS */
+    #toast-container {
+      position: fixed; top: 20px; right: 20px; z-index: 99999;
+      display: flex; flex-direction: column; gap: 10px;
+    }
+    .toast {
+      background: var(--surface); border: 1px solid var(--border);
+      padding: 16px 24px; border-radius: 14px; min-width: 300px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+      display: flex; align-items: center; gap: 12px;
+      transform: translateX(120%); transition: 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+      border-left: 5px solid var(--primary);
+    }
+    .toast.show { transform: translateX(0); }
+    .toast.success { border-left-color: #10b981; }
+    .toast.error { border-left-color: #ef4444; }
+    .toast-icon { font-size: 20px; }
+    .toast-content { flex: 1; }
+    .toast-title { font-weight: 800; font-size: 14px; color: var(--text-main); margin-bottom: 2px; }
+    .toast-msg { font-size: 13px; color: var(--text-muted); }
+  </style>
+  {% block head %}{% endblock %}
+</head>
+
+<body class="dashboard-body">
+  <div id="toast-container"></div>
+
+  {% set is_ar = session.get('lang', 'en') == 'ar' %}
+
+  <header class="global-header">
+    <div class="header-left">
+      <a href="{{ url_for('landing') }}" class="header-brand">
+        <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Logo" class="logo-img">
+        <span>EDUGUIDE</span>
+      </a>
+      <div class="page-title">
+        <i class="fas fa-chevron-right" style="font-size: 10px; opacity: 0.3;"></i>
+        {% block page_title %}{{ 'Instructor Portal' }}{% endblock %}
+      </div>
+    </div>
+
+    <div class="header-right">
+      <div class="h-btn" id="theme-toggle">
+        <i class="fas fa-moon" id="theme-icon"></i>
+      </div>
+      <a href="{{ url_for('set_language', lang='en' if is_ar else 'ar', next=request.path) }}" class="h-btn"
+        style="text-decoration: none; font-weight: 800; font-size: 11px;">
+        {{ 'EN' if is_ar else 'AR' }}
+      </a>
+      <div class="user-pill">
+        <div class="nm">{{ session.get('name', 'Instructor') }}</div>
+        <div class="av"><i class="fas fa-user-tie"></i></div>
+      </div>
+    </div>
+  </header>
+
+  <div class="app-wrap">
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+      <nav style="display: flex; flex-direction: column; gap: 6px;">
+        <a href="{{ url_for('admin_dashboard') }}"
+          class="nav-item {% if request.endpoint == 'admin_dashboard' %}active{% endif %}">
+          <i class="fas fa-th-large"></i> {{ 'الرئيسية' if is_ar else 'Dashboard' }}
+        </a>
+        <a href="{{ url_for('admin_my_students') }}"
+          class="nav-item {% if request.endpoint == 'admin_my_students' %}active{% endif %}">
+          <i class="fas fa-user-graduate"></i> {{ 'الطلاب' if is_ar else 'My Students' }}
+        </a>
+        <a href="{{ url_for('admin_grades') }}"
+          class="nav-item {% if request.endpoint == 'admin_grades' %}active{% endif %}">
+          <i class="fas fa-star"></i> {{ 'إدارة الدرجات' if is_ar else 'Manage Grades' }}
+        </a>
+        <a href="{{ url_for('admin_requests') }}"
+          class="nav-item {% if request.endpoint == 'admin_requests' %}active{% endif %}">
+          <i class="fas fa-inbox"></i> {{ 'الطلبات' if is_ar else 'Requests' }}
+        </a>
+        <a href="{{ url_for('admin_add_product') }}"
+          class="nav-item {% if request.endpoint == 'admin_add_product' %}active{% endif %}">
+          <i class="fas fa-file-upload"></i> {{ 'رفع للمكتبة' if is_ar else 'Library Uploads' }}
+        </a>
+
+        <div style="margin-top: 20px; border-top: 1px solid var(--border); padding-top: 20px;">
+          <a href="{{ url_for('logout') }}" class="nav-item" style="color: #ef4444;">
+            <i class="fas fa-sign-out-alt"></i> {{ 'تسجيل خروج' if is_ar else 'Logout' }}
+          </a>
+        </div>
+      </nav>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content">
+      {% block content %}{% endblock %}
+    </main>
+  </div>
+
+  <script>
+    const themeToggle = document.getElementById('theme-toggle');
+    const themeIcon = document.getElementById('theme-icon');
+    const body = document.body;
+
+    function setTheme(theme) {
+      if (theme === 'dark') {
+        body.setAttribute('data-theme', 'dark');
+        themeIcon.classList.replace('fa-moon', 'fa-sun');
+        localStorage.setItem('theme', 'dark');
+      } else {
+        body.removeAttribute('data-theme');
+        themeIcon.classList.replace('fa-sun', 'fa-moon');
+        localStorage.setItem('theme', 'light');
+      }
+    }
+
+    if (themeToggle) {
+      themeToggle.addEventListener('click', () => {
+        setTheme(body.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
+      });
+    }
+
+    // Toast Function
+    function showToast(title, message, type = 'success') {
+      const container = document.getElementById('toast-container');
+      if(!container) return;
+      const toast = document.createElement('div');
+      toast.className = `toast ${type}`;
+      const icon = type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle';
+      
+      toast.innerHTML = `
+        <i class="fas ${icon} toast-icon" style="color: ${type==='success'?'#10b981':'#ef4444'}"></i>
+        <div class="toast-content">
+          <div class="toast-title">${title}</div>
+          <div class="toast-msg">${message}</div>
+        </div>
+      `;
+      
+      container.appendChild(toast);
+      setTimeout(() => toast.classList.add('show'), 10);
+      
+      setTimeout(() => {
+        toast.classList.remove('show');
+        setTimeout(() => toast.remove(), 500);
+      }, 4000);
+    }
+
+    // Auto-show flash messages
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          showToast("{{ 'تنبيه' if is_ar else 'Notification' }}", "{{ message }}", "{{ 'success' if category == 'success' else 'error' }}");
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    if (localStorage.getItem('theme') === 'dark') setTheme('dark');
+  </script>
+  {% block scripts %}{% endblock %}
+</body>
+
+</html>
+
+</html>
