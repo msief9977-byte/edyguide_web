@@ -1,0 +1,243 @@
+{% extends "dashboard_layout.html" %}
+
+{% block title %}EDYGUIDE | Internships{% endblock %}
+{% block page_title %}{{ 'فرص التدريب' if session.get('lang') == 'ar' else 'Internships' }}{% endblock %}
+
+{% block content %}
+<style>
+  .intern-container { max-width: 1000px; margin: 0 auto; animation: fadeIn 0.5s ease; }
+
+  .intern-hero {
+    background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+    border-radius: 24px;
+    padding: 44px;
+    color: white;
+    margin-bottom: 32px;
+    position: relative;
+    overflow: hidden;
+  }
+  .intern-hero::after {
+    content: '🚀';
+    position: absolute;
+    right: 44px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 90px;
+    opacity: 0.1;
+  }
+  .intern-hero h1 { font-size: 30px; font-weight: 800; margin-bottom: 10px; }
+  .intern-hero p { opacity: 0.85; max-width: 560px; line-height: 1.7; font-size: 15px; }
+
+  /* Filter Bar */
+  .filter-bar {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 28px;
+    flex-wrap: wrap;
+  }
+  .filter-btn {
+    padding: 9px 20px;
+    border-radius: 12px;
+    border: 1.5px solid var(--border);
+    background: var(--surface);
+    color: var(--text-muted);
+    font-weight: 700;
+    font-size: 13px;
+    cursor: pointer;
+    transition: 0.2s;
+  }
+  .filter-btn:hover, .filter-btn.active {
+    background: var(--primary);
+    color: white;
+    border-color: var(--primary);
+  }
+
+  /* Job Cards Grid */
+  .jobs-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+    gap: 24px;
+  }
+
+  .job-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 28px;
+    transition: 0.3s;
+    display: flex;
+    flex-direction: column;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+  }
+  .job-card:hover { transform: translateY(-6px); box-shadow: 0 15px 35px rgba(0,0,0,0.07); border-color: var(--primary); }
+  .job-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 4px;
+    background: var(--primary);
+    border-radius: 20px 20px 0 0;
+    opacity: 0;
+    transition: 0.3s;
+  }
+  .job-card:hover::before { opacity: 1; }
+
+  .company-logo {
+    width: 52px;
+    height: 52px;
+    border-radius: 14px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 26px;
+    margin-bottom: 18px;
+  }
+
+  .job-title { font-size: 17px; font-weight: 800; color: var(--text-main); margin-bottom: 5px; }
+  .company-name { font-size: 13px; font-weight: 700; color: var(--primary); margin-bottom: 15px; }
+
+  .job-tags { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; }
+  .job-tag {
+    padding: 5px 12px;
+    border-radius: 10px;
+    font-size: 11px;
+    font-weight: 700;
+    background: var(--bg);
+    color: var(--text-muted);
+    border: 1px solid var(--border);
+  }
+
+  .apply-btn {
+    margin-top: auto;
+    width: 100%;
+    padding: 13px;
+    border-radius: 14px;
+    border: 1.5px solid var(--primary);
+    background: transparent;
+    color: var(--primary);
+    font-weight: 800;
+    font-size: 14px;
+    cursor: pointer;
+    transition: 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+  .apply-btn:hover { background: var(--primary); color: white; }
+
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+</style>
+
+{% set is_ar = session.get('lang', 'en') == 'ar' %}
+
+<div class="intern-container">
+  <div class="intern-hero">
+    <div>
+      <h1>{{ 'فرص التدريب المتاحة' if is_ar else 'Available Internships' }}</h1>
+      <p>{{ 'اكتشف فرص التدريب في كبرى الشركات والمؤسسات التقنية والمالية، مخصصة لطلاب الجامعة.' if is_ar else 'Discover internship opportunities at top tech and financial companies, tailored for university students.' }}</p>
+    </div>
+  </div>
+
+  <div class="filter-bar">
+    <button class="filter-btn active" onclick="filterJobs('all', this)">{{ 'الكل' if is_ar else 'All' }}</button>
+    <button class="filter-btn" onclick="filterJobs('tech', this)">{{ 'تقنية' if is_ar else 'Tech' }}</button>
+    <button class="filter-btn" onclick="filterJobs('finance', this)">{{ 'مالية' if is_ar else 'Finance' }}</button>
+    <button class="filter-btn" onclick="filterJobs('remote', this)">{{ 'عن بُعد' if is_ar else 'Remote' }}</button>
+  </div>
+
+  <div class="jobs-grid" id="jobsGrid">
+
+    <div class="job-card" data-cat="tech remote">
+      <div class="company-logo" style="color: #4285F4; font-size: 28px;">G</div>
+      <div class="job-title">Software Engineer Intern</div>
+      <div class="company-name">Google</div>
+      <div class="job-tags">
+        <span class="job-tag">Remote</span>
+        <span class="job-tag">Tech</span>
+        <span class="job-tag">3 Months</span>
+      </div>
+      <button class="apply-btn"><i class="fas fa-paper-plane"></i> {{ 'قدّم الآن' if is_ar else 'Apply Now' }}</button>
+    </div>
+
+    <div class="job-card" data-cat="tech">
+      <div class="company-logo" style="color: #0078d4; font-size: 24px;"><i class="fab fa-microsoft"></i></div>
+      <div class="job-title">Cloud Computing Intern</div>
+      <div class="company-name">Microsoft</div>
+      <div class="job-tags">
+        <span class="job-tag">Hybrid</span>
+        <span class="job-tag">Azure</span>
+        <span class="job-tag">Paid</span>
+      </div>
+      <button class="apply-btn"><i class="fas fa-paper-plane"></i> {{ 'قدّم الآن' if is_ar else 'Apply Now' }}</button>
+    </div>
+
+    <div class="job-card" data-cat="tech remote">
+      <div class="company-logo" style="color: #ff9900; font-size: 24px;"><i class="fab fa-amazon"></i></div>
+      <div class="job-title">Data Science Intern</div>
+      <div class="company-name">Amazon</div>
+      <div class="job-tags">
+        <span class="job-tag">Remote</span>
+        <span class="job-tag">Python</span>
+        <span class="job-tag">ML</span>
+      </div>
+      <button class="apply-btn"><i class="fas fa-paper-plane"></i> {{ 'قدّم الآن' if is_ar else 'Apply Now' }}</button>
+    </div>
+
+    <div class="job-card" data-cat="finance">
+      <div class="company-logo" style="color: #1e40af;"><i class="fas fa-university"></i></div>
+      <div class="job-title">Financial Analyst Intern</div>
+      <div class="company-name">{{ 'البنك الأهلي المصري' if is_ar else 'National Bank of Egypt' }}</div>
+      <div class="job-tags">
+        <span class="job-tag">On-site</span>
+        <span class="job-tag">Finance</span>
+        <span class="job-tag">Cairo</span>
+      </div>
+      <button class="apply-btn"><i class="fas fa-paper-plane"></i> {{ 'قدّم الآن' if is_ar else 'Apply Now' }}</button>
+    </div>
+
+    <div class="job-card" data-cat="tech">
+      <div class="company-logo" style="color: #6366f1;"><i class="fas fa-shield-alt"></i></div>
+      <div class="job-title">Cybersecurity Intern</div>
+      <div class="company-name">Orange Egypt</div>
+      <div class="job-tags">
+        <span class="job-tag">On-site</span>
+        <span class="job-tag">Security</span>
+        <span class="job-tag">6 Months</span>
+      </div>
+      <button class="apply-btn"><i class="fas fa-paper-plane"></i> {{ 'قدّم الآن' if is_ar else 'Apply Now' }}</button>
+    </div>
+
+    <div class="job-card" data-cat="finance remote">
+      <div class="company-logo" style="color: #10b981;"><i class="fas fa-chart-pie"></i></div>
+      <div class="job-title">Accounting Intern</div>
+      <div class="company-name">Deloitte Egypt</div>
+      <div class="job-tags">
+        <span class="job-tag">Remote</span>
+        <span class="job-tag">Finance</span>
+        <span class="job-tag">Paid</span>
+      </div>
+      <button class="apply-btn"><i class="fas fa-paper-plane"></i> {{ 'قدّم الآن' if is_ar else 'Apply Now' }}</button>
+    </div>
+
+  </div>
+</div>
+
+<script>
+function filterJobs(cat, btn) {
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.job-card').forEach(card => {
+    if (cat === 'all' || card.dataset.cat.includes(cat)) {
+      card.style.display = 'flex';
+    } else {
+      card.style.display = 'none';
+    }
+  });
+}
+</script>
+{% endblock %}

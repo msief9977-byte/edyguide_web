@@ -1,0 +1,154 @@
+{% extends "instructor_layout.html" %}
+
+{% block title %}EDUGUIDE | Student Requests{% endblock %}
+{% block page_title %}{{ 'طلبات الطلاب' if session.get('lang', 'en') == 'ar' else 'Student Requests' }}{% endblock %}
+
+{% block content %}
+<style>
+  .page-header { margin-bottom: 30px; }
+  .page-header h1 { font-size: 24px; font-weight: 800; color: var(--text-main); margin-bottom: 8px; }
+  .page-header p { color: var(--text-muted); font-size: 14px; font-weight: 500; }
+
+  .req-grid { display: grid; grid-template-columns: 1fr; gap: 20px; }
+  .req-card { background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 24px; display: flex; flex-direction: column; gap: 16px; transition: 0.3s; }
+  .req-card:hover { border-color: var(--primary); box-shadow: 0 10px 25px rgba(0,0,0,0.05); }
+  
+  .req-top { display: flex; justify-content: space-between; align-items: flex-start; }
+  .req-title { font-size: 18px; font-weight: 800; color: var(--text-main); margin-bottom: 6px; }
+  .req-meta { font-size: 13px; font-weight: 600; color: var(--text-muted); display: flex; gap: 15px; align-items: center; }
+  .req-meta strong { color: var(--text-main); }
+  
+  .req-badge { padding: 6px 12px; border-radius: 8px; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; }
+  .badge-pending { background: rgba(245, 158, 11, 0.15); color: #b45309; }
+  .badge-replied { background: rgba(22, 163, 74, 0.15); color: #166534; }
+  [data-theme="dark"] .badge-pending { color: #fcd34d; }
+  [data-theme="dark"] .badge-replied { color: #4ade80; }
+
+  .req-message { background: var(--bg); padding: 16px; border-radius: 12px; border: 1px solid var(--border); font-size: 14px; color: var(--text-muted); line-height: 1.6; }
+  
+  .req-reply-box { margin-top: 10px; padding: 16px; border-radius: 12px; background: rgba(79, 70, 229, 0.05); border: 1px solid rgba(79, 70, 229, 0.2); }
+  .req-reply-box h4 { font-size: 13px; color: var(--primary); margin-bottom: 8px; font-weight: 800; display: flex; align-items: center; gap: 6px; }
+  .req-reply-box p { font-size: 14px; color: var(--text-main); line-height: 1.5; margin: 0; }
+
+  .btn-reply { align-self: flex-start; padding: 10px 20px; border-radius: 10px; background: var(--primary); color: white; border: none; font-weight: 700; font-size: 13px; cursor: pointer; transition: 0.2s; display: flex; align-items: center; gap: 8px; }
+  .btn-reply:hover { background: var(--primary-dark); }
+
+  /* MODAL */
+  .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); backdrop-filter: blur(5px); display: none; align-items: center; justify-content: center; z-index: 9999; }
+  .modal-overlay.active { display: flex; }
+  .modal-content { background: var(--surface); padding: 30px; border-radius: 24px; width: 90%; max-width: 500px; border: 1px solid var(--border); box-shadow: 0 20px 40px rgba(0,0,0,0.2); }
+  .modal-title { font-size: 18px; font-weight: 800; margin-bottom: 15px; color: var(--text-main); }
+  .modal-body { margin-bottom: 20px; }
+  .modal-body textarea { width: 100%; padding: 15px; border-radius: 12px; border: 1px solid var(--border); background: var(--bg); color: var(--text-main); font-family: inherit; resize: vertical; min-height: 120px; font-weight: 500; }
+  .modal-body textarea:focus { outline: none; border-color: var(--primary); }
+  .modal-footer { display: flex; justify-content: flex-end; gap: 10px; }
+  .btn-cancel { padding: 10px 20px; border-radius: 10px; background: transparent; border: 1px solid var(--border); color: var(--text-muted); font-weight: 700; cursor: pointer; }
+</style>
+
+{% set is_ar = session.get('lang', 'en') == 'ar' %}
+
+<div class="page-header">
+  <h1>{{ 'صندوق الوارد (طلبات الطلاب)' if is_ar else 'Inbox (Student Requests)' }}</h1>
+  <p>{{ 'استعراض الرسائل والاستفسارات الموجهة لك من طلابك والرد عليها.' if is_ar else 'Review and reply to messages and inquiries sent by your students.' }}</p>
+</div>
+
+<div class="req-grid">
+  {% if requests %}
+    {% for r in requests %}
+    <div class="req-card">
+      <div class="req-top">
+        <div>
+          <div class="req-title">{{ r.title }}</div>
+          <div class="req-meta">
+            <span><i class="fas fa-user-circle"></i> <strong>{{ r.student_name }}</strong></span>
+            <span><i class="fas fa-envelope"></i> {{ r.email }}</span>
+            <span><i class="fas fa-calendar-alt"></i> {{ r.created_at.strftime('%Y-%m-%d') if r.created_at else '' }}</span>
+          </div>
+        </div>
+        <div>
+          {% if r.status == 'Replied' %}
+            <span class="req-badge badge-replied">{{ 'تم الرد' if is_ar else 'Replied' }}</span>
+          {% else %}
+            <span class="req-badge badge-pending">{{ 'في الانتظار' if is_ar else 'Pending' }}</span>
+          {% endif %}
+        </div>
+      </div>
+      
+      <div class="req-message">
+        {{ r.message }}
+      </div>
+
+      {% if r.status == 'Replied' and r.doctor_reply %}
+        <div class="req-reply-box">
+          <h4><i class="fas fa-check-circle"></i> {{ 'ردك' if is_ar else 'Your Reply' }}</h4>
+          <p>{{ r.doctor_reply }}</p>
+        </div>
+      {% else %}
+        <button class="btn-reply" onclick="openReplyModal('{{ r.id }}', '{{ r.student_name }}')">
+          <i class="fas fa-reply"></i> {{ 'أضف رداً' if is_ar else 'Reply Now' }}
+        </button>
+      {% endif %}
+    </div>
+    {% endfor %}
+  {% else %}
+    <div style="padding: 60px; text-align: center; color: var(--text-muted); background: var(--surface); border: 1px solid var(--border); border-radius: 20px;">
+      <i class="fas fa-inbox" style="font-size: 50px; margin-bottom: 15px; opacity: 0.5;"></i>
+      <p style="font-size: 16px; font-weight: 600;">{{ 'صندوق الوارد فارغ. لا توجد رسائل حالياً.' if is_ar else 'Your inbox is empty. No requests at the moment.' }}</p>
+    </div>
+  {% endif %}
+</div>
+
+<!-- REPLY MODAL -->
+<div class="modal-overlay" id="replyModal">
+  <div class="modal-content">
+    <div class="modal-title" id="replyModalTitle">Reply to Student</div>
+    <div class="modal-body">
+      <textarea id="replyText" placeholder="{{ 'اكتب ردك هنا...' if is_ar else 'Type your reply here...' }}"></textarea>
+      <input type="hidden" id="currentReqId">
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeReplyModal()">{{ 'إلغاء' if is_ar else 'Cancel' }}</button>
+      <button class="btn-reply" onclick="sendReply()">{{ 'إرسال' if is_ar else 'Send' }}</button>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  function openReplyModal(reqId, studentName) {
+    document.getElementById('currentReqId').value = reqId;
+    const isAr = {{ 'true' if is_ar else 'false' }};
+    document.getElementById('replyModalTitle').innerText = (isAr ? 'رد على ' : 'Reply to ') + studentName;
+    document.getElementById('replyText').value = '';
+    document.getElementById('replyModal').classList.add('active');
+  }
+
+  function closeReplyModal() {
+    document.getElementById('replyModal').classList.remove('active');
+  }
+
+  async function sendReply() {
+    const reqId = document.getElementById('currentReqId').value;
+    const text = document.getElementById('replyText').value.trim();
+    if (!text) return;
+
+    try {
+      const res = await fetch('/admin/reply_request', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ request_id: reqId, reply_text: text })
+      });
+      const data = await res.json();
+      if(data.success) {
+        showToast("{{ 'نجاح' if is_ar else 'Success' }}", "{{ 'تم إرسال الرد بنجاح' if is_ar else 'Reply sent successfully' }}", 'success');
+        setTimeout(() => location.reload(), 1500);
+      } else {
+        showToast("{{ 'خطأ' if is_ar else 'Error' }}", data.error || 'Failed to send reply', 'error');
+      }
+    } catch(e) {
+      showToast("{{ 'خطأ' if is_ar else 'Error' }}", 'Network error', 'error');
+    }
+  }
+</script>
+{% endblock %}

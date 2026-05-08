@@ -1,0 +1,101 @@
+{% extends "dashboard_layout.html" %}
+
+{% block title %}EDUGUIDE | Study Planner{% endblock %}
+{% block page_title %}{{ 'منظم المذاكرة' if session.get('lang') == 'ar' else 'Study Planner' }}{% endblock %}
+
+{% block content %}
+<style>
+  .planner-container { max-width: 1000px; margin: 0 auto; animation: fadeIn 0.5s ease; }
+  
+  .planner-grid { display: grid; grid-template-columns: 1fr 350px; gap: 30px; }
+  @media (max-width: 992px) { .planner-grid { grid-template-columns: 1fr; } }
+  
+  .task-panel { background: var(--surface); border: 1px solid var(--border); border-radius: 24px; padding: 30px; }
+  .section-title { font-size: 20px; font-weight: 800; margin-bottom: 25px; color: var(--text-main); display: flex; align-items: center; gap: 10px; }
+  
+  .task-item { background: var(--bg); border: 1px solid var(--border); border-radius: 16px; padding: 16px 20px; margin-bottom: 15px; display: flex; align-items: center; justify-content: space-between; transition: 0.2s; }
+  .task-item:hover { border-color: var(--primary); }
+  
+  .task-info h4 { font-size: 15px; font-weight: 700; color: var(--text-main); margin-bottom: 4px; }
+  .task-info p { font-size: 12px; color: var(--text-muted); font-weight: 600; margin: 0; }
+  
+  .priority-badge { font-size: 11px; font-weight: 800; padding: 4px 10px; border-radius: 6px; text-transform: uppercase; }
+  .priority-high { background: rgba(239, 68, 68, 0.1); color: #ef4444; }
+  .priority-medium { background: rgba(245, 158, 11, 0.1); color: #f59e0b; }
+  
+  .add-task-card { background: var(--surface); border: 1px solid var(--border); border-radius: 24px; padding: 24px; position: sticky; top: 20px; }
+  .form-group { margin-bottom: 15px; }
+  .form-group label { display: block; font-size: 13px; font-weight: 700; color: var(--text-muted); margin-bottom: 8px; }
+  .form-control { width: 100%; padding: 12px; border-radius: 10px; border: 1px solid var(--border); background: var(--bg); color: var(--text-main); }
+</style>
+
+<div class="planner-container">
+  <div class="planner-grid">
+    <div class="task-panel">
+      <div class="section-title"><i class="fas fa-tasks" style="color:var(--primary);"></i> {{ 'مهام المذاكرة' if session.get('lang') == 'ar' else 'Study Tasks' }}</div>
+      
+      <div id="taskList">
+          {% for t in tasks %}
+          <div class="task-item">
+            <div class="task-info">
+              <h4>{{ t.title }}</h4>
+              <p><i class="far fa-calendar"></i> {{ t.deadline }}</p>
+            </div>
+            <span class="priority-badge priority-{{ t.priority.lower() }}">{{ t.priority }}</span>
+          </div>
+          {% endfor %}
+          
+          {% if not tasks %}
+          <div style="text-align:center; padding: 40px; color:var(--text-muted);">
+              <i class="fas fa-clipboard-list" style="font-size: 40px; opacity: 0.2; margin-bottom: 15px; display:block;"></i>
+              {{ 'لا توجد مهام حالية. ابدأ بإضافة مهامك!' if session.get('lang') == 'ar' else 'No tasks yet. Start planning!' }}
+          </div>
+          {% endif %}
+      </div>
+    </div>
+
+    <div class="add-task-card">
+      <div class="section-title" style="font-size:16px; margin-bottom:20px;">{{ 'إضافة مهمة جديدة' if session.get('lang') == 'ar' else 'Add New Task' }}</div>
+      <div class="form-group">
+        <label>{{ 'اسم المهمة' if session.get('lang') == 'ar' else 'Task Title' }}</label>
+        <input type="text" id="taskTitle" class="form-control" placeholder="e.g. Chapter 3 Summary">
+      </div>
+      <div class="form-group">
+        <label>{{ 'الموعد النهائي' if session.get('lang') == 'ar' else 'Deadline' }}</label>
+        <input type="date" id="taskDeadline" class="form-control">
+      </div>
+      <div class="form-group">
+        <label>{{ 'الأولوية' if session.get('lang') == 'ar' else 'Priority' }}</label>
+        <select id="taskPriority" class="form-control">
+          <option value="High">High</option>
+          <option value="Medium" selected>Medium</option>
+          <option value="Low">Low</option>
+        </select>
+      </div>
+      <button class="btn-primary" onclick="addTask()" style="width:100%; justify-content:center; margin-top:10px;">
+        <i class="fas fa-plus"></i> {{ 'إضافة' if session.get('lang') == 'ar' else 'Add Task' }}
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+  async function addTask() {
+    const title = document.getElementById('taskTitle').value;
+    const deadline = document.getElementById('taskDeadline').value;
+    const priority = document.getElementById('taskPriority').value;
+    
+    if(!title || !deadline) return alert("Please fill in all fields.");
+    
+    const res = await fetch('/api/study/add-task', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ title, deadline, priority })
+    });
+    
+    if(res.ok) {
+        location.reload();
+    }
+  }
+</script>
+{% endblock %}

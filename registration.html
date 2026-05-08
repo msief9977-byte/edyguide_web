@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="{{ 'ar' if session.get('lang', 'en') == 'ar' else 'en' }}" dir="{{ 'rtl' if session.get('lang', 'en') == 'ar' else 'ltr' }}">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ 'EDYGUIDE | تسجيل المقررات' if session.get('lang', 'en') == 'ar' else 'EDYGUIDE | Course Registration' }}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=3">
+</head>
+<body class="dashboard-body">
+
+  {% set is_ar = session.get('lang', 'en') == 'ar' %}
+<header class="top-nav" style="margin:24px auto 0; width:min(1200px, calc(100% - 40px));">
+    <div class="brand">
+      <div class="brand-icon">🎓</div>
+      <div>
+        <div class="brand-top">UNIVERSITY LOGO</div>
+        <div class="brand-name">EDYGUIDE</div>
+      </div>
+    </div>
+    
+    <div class="nav-links">
+      <a href="{{ url_for('dashboard') }}">{{ 'لوحة التحكم' if is_ar else 'Dashboard' }}</a>
+      <a href="{{ url_for('set_language', lang='en' if is_ar else 'ar', next=request.path) }}" class="lang-icon" title="{{ 'English' if is_ar else 'العربية' }}">
+  🌐 <span>{{ 'EN' if is_ar else 'AR' }}</span>
+</a>
+        <a href="{{ url_for('login') }}" class="mini-btn">{{ 'تسجيل الدخول' if is_ar else 'Login' }}</a>
+    </div>
+</header>
+  <div class="subpage-shell">
+
+    <div class="subpage-top">
+      <h1>{{ 'تسجيل المقررات' if is_ar else 'Course Registration' }}</h1>
+
+      <div style="display:flex; gap:10px;">
+      </div>
+    </div>
+
+    <div class="subpage-card">
+      <h2>{{ 'المقررات المسجلة' if is_ar else 'Registered Courses' }}</h2>
+
+      {% if registrations %}
+        <div class="subpage-table">
+
+          <div class="subpage-row header-like">
+            <div>{{ 'المادة' if is_ar else 'Course' }}</div>
+            <div>{{ 'اليوم' if is_ar else 'Day' }}</div>
+            <div>{{ 'الوقت' if is_ar else 'Time' }}</div>
+            <div>{{ 'القاعة' if is_ar else 'Room' }}</div>
+          </div>
+
+          {% for item in registrations %}
+          <div class="subpage-row">
+            <div>{{ item.subject_name }}</div>
+            <div>{{ item.day_name }}</div>
+            <div>{{ item.start_time }} - {{ item.end_time }}</div>
+            <div>{{ item.room }}</div>
+          </div>
+          {% endfor %}
+
+        </div>
+      {% else %}
+        <p>{{ 'لا توجد مقررات مسجلة.' if is_ar else 'No registration data found.' }}</p>
+      {% endif %}
+    </div>
+
+  </div>
+
+</body>
+</html>

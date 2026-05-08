@@ -1,0 +1,150 @@
+{% extends "dashboard_layout.html" %}
+
+{% block title %}EDUGUIDE | Notifications{% endblock %}
+{% block page_title %}{{ 'التنبيهات' if session.get('lang') == 'ar' else 'Notifications' }}{% endblock %}
+
+{% block head %}
+<style>
+  .notif-container { max-width: 1000px; margin: 0 auto; }
+  .notif-hero { 
+    background: linear-gradient(135deg, var(--primary), var(--primary-dark)); 
+    border-radius: 24px; 
+    padding: 40px; 
+    color: white; 
+    margin-bottom: 30px; 
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center; 
+    box-shadow: 0 10px 30px rgba(30, 77, 183, 0.15); 
+  }
+  .notif-hero h1 { font-size: 32px; font-weight: 800; margin-bottom: 10px; }
+  .notif-hero p { opacity: 0.9; font-size: 16px; max-width: 600px; line-height: 1.6; }
+  .notif-stat { 
+    background: rgba(255, 255, 255, 0.15); 
+    backdrop-filter: blur(10px); 
+    padding: 20px 30px; 
+    border-radius: 20px; 
+    text-align: center; 
+    border: 1px solid rgba(255,255,255,0.2); 
+  }
+  .notif-stat span { display: block; font-size: 13px; font-weight: 600; opacity: 0.8; margin-bottom: 5px; }
+  .notif-stat strong { font-size: 28px; font-weight: 800; }
+
+  .notif-grid { display: grid; gap: 20px; }
+  .notif-card { 
+    background: var(--surface); 
+    border: 1px solid var(--border); 
+    border-radius: 20px; 
+    padding: 24px; 
+    display: flex; 
+    gap: 20px; 
+    transition: 0.3s; 
+    position: relative; 
+    overflow: hidden; 
+  }
+  .notif-card:hover { transform: translateY(-5px); box-shadow: 0 10px 30px rgba(0,0,0,0.05); border-color: var(--primary); }
+  
+  .notif-card::before { 
+    content: ''; 
+    position: absolute; 
+    left: 0; 
+    top: 0; 
+    width: 4px; 
+    height: 100%; 
+    background: var(--primary); 
+  }
+  .notif-card.warning::before { background: #f59e0b; }
+  .notif-card.payment::before { background: #10b981; }
+  .notif-card.exam::before { background: #ef4444; }
+
+  .notif-icon { 
+    width: 48px; 
+    height: 48px; 
+    border-radius: 12px; 
+    background: var(--bg); 
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+    font-size: 20px; 
+    flex-shrink: 0; 
+    border: 1px solid var(--border);
+  }
+  .notif-body { flex: 1; }
+  .notif-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+  .notif-top h3 { font-size: 17px; font-weight: 700; color: var(--text-main); }
+  .notif-top .time { font-size: 12px; color: var(--text-muted); }
+  .notif-body p { font-size: 14px; color: var(--text-muted); line-height: 1.6; margin-bottom: 12px; }
+  
+  .notif-footer { display: flex; gap: 10px; }
+  .notif-tag { 
+    font-size: 11px; 
+    font-weight: 700; 
+    padding: 4px 12px; 
+    border-radius: 20px; 
+    background: var(--bg); 
+    color: var(--primary); 
+    text-transform: uppercase; 
+    letter-spacing: 0.5px; 
+  }
+
+  [dir="rtl"] .notif-card::before { left: auto; right: 0; }
+  [dir="rtl"] .notif-hero { text-align: right; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="notif-container">
+  {% set is_ar = session.get('lang', 'en') == 'ar' %}
+  
+  <div class="notif-hero">
+    <div>
+      <h1>{{ 'مركز التنبيهات' if is_ar else 'Notification Center' }}</h1>
+      <p>{{ 'ابق على اطلاع بكل ما يخص جدولك، امتحاناتك، ومدفوعاتك الدراسية في مكان واحد.' if is_ar else 'Stay informed about your schedule, exams, and tuition payments all in one place.' }}</p>
+    </div>
+    <div class="notif-stat">
+      <span>{{ 'إجمالي التنبيهات' if is_ar else 'Total Notifications' }}</span>
+      <strong>{{ notifications|length if notifications else 0 }}</strong>
+    </div>
+  </div>
+
+  <div class="notif-grid">
+    {% if notifications and notifications|length > 0 %}
+      {% for n in notifications %}
+        <div class="notif-card {{ n.type }}">
+          <div class="notif-icon">
+            {% if n.type == 'warning' %}⚠️{% elif n.type == 'payment' %}💳{% elif n.type == 'exam' %}📝{% elif n.type == 'lecture' %}📚{% else %}🔔{% endif %}
+          </div>
+          <div class="notif-body">
+            <div class="notif-top">
+              <h3>{{ n.title }}</h3>
+              <span class="time">{{ n.created_at }}</span>
+            </div>
+            <p>{{ n.message }}</p>
+            <div class="notif-footer">
+              <span class="notif-tag">
+                {% if n.type == 'payment' %}
+                  {{ 'مدفوعات' if is_ar else 'Payment' }}
+                {% elif n.type == 'exam' %}
+                  {{ 'امتحان' if is_ar else 'Exam' }}
+                {% elif n.type == 'lecture' %}
+                  {{ 'محاضرة' if is_ar else 'Lecture' }}
+                {% elif n.type == 'warning' %}
+                  {{ 'تنبيه' if is_ar else 'Warning' }}
+                {% else %}
+                  {{ 'عام' if is_ar else 'General' }}
+                {% endif %}
+              </span>
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    {% else %}
+      <div style="text-align: center; padding: 80px 20px; background: var(--surface); border-radius: 24px; border: 1px solid var(--border);">
+         <div style="font-size: 64px; margin-bottom: 20px; opacity: 0.2;">🔔</div>
+         <h3 style="color: var(--text-main); margin-bottom: 10px;">{{ 'لا توجد تنبيهات جديدة' if is_ar else 'No new notifications' }}</h3>
+         <p style="color: var(--text-muted);">{{ 'سنقوم بإخطارك هنا فور توفر أي تحديثات جديدة.' if is_ar else 'We will notify you here as soon as there are any new updates.' }}</p>
+      </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

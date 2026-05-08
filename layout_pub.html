@@ -1,0 +1,3938 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="about-wrapper">
+    <div class="about-hero">
+        <div class="hero-content">
+            <h1>{{ 'قصة إديوجايد' if session.get('lang') == 'ar' else 'The EDYGUIDE Story' }}</h1>
+            <p>{{ 'نحن هنا لنغير مفهوم التعليم الجامعي في مصر.' if session.get('lang') == 'ar' else 'We are here to redefine university education in Egypt.' }}</p>
+        </div>
+    </div>
+
+    <div class="about-grid">
+        <div class="about-card">
+            <div class="card-icon"><i class="fas fa-eye"></i></div>
+            <h3>{{ 'رؤيتنا' if session.get('lang') == 'ar' else 'Our Vision' }}</h3>
+            <p>{{ 'أن نكون المنصة الرقمية الأولى التي ترافق كل طالب جامعي مصري في رحلته من القبول وحتى التخرج والتوظيف.' if session.get('lang') == 'ar' else 'To be the leading digital platform accompanying every Egyptian university student from admission to graduation and employment.' }}</p>
+        </div>
+        <div class="about-card">
+            <div class="card-icon"><i class="fas fa-bullseye"></i></div>
+            <h3>{{ 'مهمتنا' if session.get('lang') == 'ar' else 'Our Mission' }}</h3>
+            <p>{{ 'توفير حلول ذكية ومتكاملة تبسط الإجراءات الإدارية، وتحسن الأداء الأكاديمي، وتفتح آفاقاً مهنية جديدة.' if session.get('lang') == 'ar' else 'Providing smart, integrated solutions that simplify administrative procedures, improve academic performance, and open new career horizons.' }}</p>
+        </div>
+    </div>
+
+    <div class="team-section">
+        <h2>{{ 'لماذا إديوجايد؟' if session.get('lang') == 'ar' else 'Why EDYGUIDE?' }}</h2>
+        <div class="features-list-about">
+            <div class="feature-item">
+                <i class="fas fa-check-circle"></i>
+                <span>{{ 'دمج كامل مع أنظمة الجامعات المصرية.' if session.get('lang') == 'ar' else 'Full integration with Egyptian university systems.' }}</span>
+            </div>
+            <div class="feature-item">
+                <i class="fas fa-check-circle"></i>
+                <span>{{ 'دعم كامل للغتين العربية والإنجليزية.' if session.get('lang') == 'ar' else 'Full support for Arabic and English.' }}</span>
+            </div>
+            <div class="feature-item">
+                <i class="fas fa-check-circle"></i>
+                <span>{{ 'ذكاء اصطناعي مخصص للسياق الأكاديمي.' if session.get('lang') == 'ar' else 'Custom AI for academic context.' }}</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.about-wrapper { padding-bottom: 50px; }
+.about-hero { 
+    background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+    padding: 80px 40px; border-radius: 32px; color: white; text-align: center; margin-bottom: 50px;
+}
+.about-hero h1 { font-size: 2.8rem; font-weight: 800; margin-bottom: 15px; }
+.about-hero p { font-size: 1.2rem; opacity: 0.9; }
+
+.about-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; margin-bottom: 50px; }
+.about-card { background: white; padding: 40px; border-radius: 24px; border: 1px solid #f1f5f9; text-align: center; transition: transform 0.3s; }
+.about-card:hover { transform: translateY(-10px); box-shadow: 0 20px 30px rgba(0,0,0,0.05); }
+.about-card .card-icon { font-size: 2.5rem; color: #3b82f6; margin-bottom: 20px; }
+.about-card h3 { font-size: 1.4rem; font-weight: 800; color: #1e293b; margin-bottom: 15px; }
+.about-card p { color: #64748b; line-height: 1.6; }
+
+.team-section { background: white; padding: 50px; border-radius: 32px; border: 1px solid #f1f5f9; text-align: center; }
+.team-section h2 { font-size: 2rem; font-weight: 800; color: #1e293b; margin-bottom: 30px; }
+.features-list-about { display: flex; flex-direction: column; gap: 20px; align-items: center; }
+.feature-item { display: flex; align-items: center; gap: 15px; font-size: 1.1rem; color: #475569; font-weight: 600; }
+.feature-item i { color: #10b981; font-size: 1.3rem; }
+</style>
+{% endblock %}
+<!DOCTYPE html>
+<html lang="{{ 'ar' if session.get('lang', 'en') == 'ar' else 'en' }}" dir="{{ 'rtl' if session.get('lang', 'en') == 'ar' else 'ltr' }}">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ 'EDYGUIDE | إضافة مورد دراسي' if session.get('lang', 'en') == 'ar' else 'EDYGUIDE | Add Library Resource' }}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=220">
+</head>
+
+<body class="dashboard-body">
+{% set is_ar = session.get('lang', 'en') == 'ar' %}
+
+<header class="top-nav" style="margin:24px auto 0; width:min(1200px, calc(100% - 40px));">
+  <div class="brand">
+    <div class="brand-icon">🎓</div>
+    <div>
+      <div class="brand-top">UNIVERSITY LOGO</div>
+      <div class="brand-name">EDYGUIDE ADMIN</div>
+    </div>
+  </div>
+
+  <div class="nav-links">
+    <a href="{{ url_for('admin_dashboard') }}">{{ 'لوحة الإدارة' if is_ar else 'Admin Dashboard' }}</a>
+    <a href="{{ url_for('logout') }}" class="mini-btn">{{ 'خروج' if is_ar else 'Logout' }}</a>
+  </div>
+</header>
+
+<div class="admin-form-shell">
+  <div class="admin-form-card">
+
+    <h1>{{ 'إضافة مورد دراسي' if is_ar else 'Add Library Resource' }}</h1>
+    <p>
+      {{ 'أضف كتاب، ملف PDF، ملزمة، كورس أو مورد دراسي للمكتبة الطلابية.' if is_ar
+         else 'Add a book, PDF file, notes, course, or study resource to the student library.' }}
+    </p>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="alert">{{ message }}</div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <form method="POST" enctype="multipart/form-data">
+
+      <div class="admin-form-grid">
+
+        <div class="admin-form-group">
+          <label>{{ 'اسم المورد' if is_ar else 'Resource Title' }}</label>
+          <input class="admin-input" type="text" name="title" placeholder="{{ 'مثال: كتاب رسم هندسي' if is_ar else 'Example: Engineering Drawing Book' }}" required>
+        </div>
+
+        <div class="admin-form-group">
+  <label>{{ 'التصنيف' if is_ar else 'Category' }}</label>
+  <select class="admin-select" name="category" required>
+    <option value="">{{ 'اختر التصنيف' if is_ar else 'Select Category' }}</option>
+    <option value="Books">{{ 'كتب' if is_ar else 'Books' }}</option>
+    <option value="PDF Notes">{{ 'ملازم PDF' if is_ar else 'PDF Notes' }}</option>
+    <option value="Revision Sheets">{{ 'مراجعات' if is_ar else 'Revision Sheets' }}</option>
+    <option value="Courses">{{ 'كورسات' if is_ar else 'Courses' }}</option>
+    <option value="Study Guides">{{ 'أدلة مذاكرة' if is_ar else 'Study Guides' }}</option>
+    <option value="Past Exams">{{ 'امتحانات سابقة' if is_ar else 'Past Exams' }}</option>
+  </select>
+</div>
+
+        <div class="admin-form-group">
+          <label>{{ 'صورة المورد' if is_ar else 'Resource Image' }}</label>
+          <input class="admin-input" type="file" name="image" accept="image/*">
+        </div>
+
+        <div class="admin-form-group">
+          <label>{{ 'ملف PDF' if is_ar else 'PDF File' }}</label>
+          <input class="admin-input" type="file" name="pdf_file" accept="application/pdf">
+        </div>
+
+        <div class="admin-form-group full">
+          <label>{{ 'الملخص / الوصف' if is_ar else 'Summary / Description' }}</label>
+          <textarea class="admin-textarea" name="summary" placeholder="{{ 'اكتب وصف المورد هنا...' if is_ar else 'Write resource summary here...' }}" required></textarea>
+        </div>
+
+      </div>
+
+      <div class="admin-form-actions">
+        <button type="submit" class="admin-submit-btn">
+          {{ 'إضافة المورد' if is_ar else 'Add Resource' }}
+        </button>
+
+        <a href="{{ url_for('admin_dashboard') }}" class="admin-cancel-btn">
+          {{ 'إلغاء' if is_ar else 'Cancel' }}
+        </a>
+      </div>
+
+    </form>
+
+  </div>
+</div>
+
+</body>
+</html>
+<!DOCTYPE html>
+<html lang="{{ 'ar' if session.get('lang', 'en') == 'ar' else 'en' }}" dir="{{ 'rtl' if session.get('lang', 'en') == 'ar' else 'ltr' }}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EDYGUIDE | Admin Panel</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=18">
+</head>
+<body class="admin-body">
+    {% set is_ar = session.get('lang', 'en') == 'ar' %}
+    
+    <div class="admin-layout">
+        <!-- Sidebar -->
+        <aside class="admin-sidebar">
+            <div class="sidebar-brand">
+                <span class="logo">🎓</span>
+                <h2>EDYGUIDE</h2>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="{{ url_for('admin_dashboard') }}" class="active">📊 {{ 'لوحة التحكم' if is_ar else 'Dashboard' }}</a>
+                <a href="{{ url_for('admin_requests') }}">📨 {{ 'طلبات الطلاب' if is_ar else 'Requests' }}</a>
+                <a href="{{ url_for('admin_my_students') }}">👥 {{ 'إدارة الطلاب' if is_ar else 'Students' }}</a>
+                <a href="{{ url_for('admin_add_product') }}">📦 {{ 'إضافة منتجات' if is_ar else 'Add Products' }}</a>
+                <a href="{{ url_for('logout') }}" class="logout-link">🚪 {{ 'خروج' if is_ar else 'Logout' }}</a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="admin-main">
+            <header class="admin-header">
+                <div class="header-left">
+                    <h1>{{ 'أهلاً، ' if is_ar else 'Welcome, ' }}{{ session.get('name', 'Admin') }}</h1>
+                    <p>{{ 'إليك نظرة شاملة على أداء المنصة اليوم.' if is_ar else "Here's an overview of the platform performance today." }}</p>
+                </div>
+                <div class="header-right">
+                    <span class="system-status active">{{ 'النظام نشط' if is_ar else 'System Active' }}</span>
+                </div>
+            </header>
+
+            <section class="admin-stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon users">👥</div>
+                    <div class="stat-data">
+                        <span class="label">{{ 'إجمالي الطلاب' if is_ar else 'Total Students' }}</span>
+                        <span class="value">1,240</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon requests">📨</div>
+                    <div class="stat-data">
+                        <span class="label">{{ 'طلبات معلقة' if is_ar else 'Pending Requests' }}</span>
+                        <span class="value">42</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon money">💳</div>
+                    <div class="stat-data">
+                        <span class="label">{{ 'إيرادات الشهر' if is_ar else 'Monthly Revenue' }}</span>
+                        <span class="value">45,000 EGP</span>
+                    </div>
+                </div>
+            </section>
+
+            <section class="admin-recent-activity">
+                <div class="section-header">
+                    <h3>{{ 'آخر الطلبات' if is_ar else 'Recent Requests' }}</h3>
+                    <a href="{{ url_for('admin_requests') }}">{{ 'عرض الكل' if is_ar else 'View All' }}</a>
+                </div>
+                <div class="activity-table-wrapper">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>{{ 'الطالب' if is_ar else 'Student' }}</th>
+                                <th>{{ 'الطلب' if is_ar else 'Request' }}</th>
+                                <th>{{ 'التاريخ' if is_ar else 'Date' }}</th>
+                                <th>{{ 'الحالة' if is_ar else 'Status' }}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Example Data -->
+                            <tr>
+                                <td>Ahmed Ali</td>
+                                <td>GPA Review Request</td>
+                                <td>2026-04-29</td>
+                                <td><span class="status-badge pending">Pending</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </main>
+    </div>
+</body>
+</html>
+<!DOCTYPE html>
+<html lang="{{ 'ar' if session.get('lang','en')=='ar' else 'en' }}"
+    dir="{{ 'rtl' if session.get('lang','en')=='ar' else 'ltr' }}">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EDUGUIDE | {{ 'الدرجات' if session.get('lang','en')=='ar' else 'Grades' }}</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Cairo:wght@400;600;700;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=15">
+    <style>
+        .table-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 24px;
+            margin-top: 20px;
+            box-shadow: var(--shadow-sm);
+            overflow-x: auto;
+        }
+
+        .custom-table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+        }
+
+        html[dir="rtl"] .custom-table {
+            text-align: right;
+        }
+
+        .custom-table th {
+            background: var(--bg);
+            padding: 14px 20px;
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 2px solid var(--border);
+        }
+
+        .custom-table td {
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border);
+            font-size: 14px;
+            color: var(--text);
+            font-weight: 500;
+        }
+
+        .custom-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .custom-table tbody tr:hover {
+            background: var(--bg);
+        }
+
+        .score-badge {
+            padding: 4px 10px;
+            border-radius: 8px;
+            font-weight: 800;
+            font-size: 13px;
+            display: inline-block;
+            min-width: 40px;
+            text-align: center;
+        }
+
+        .score-high {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .score-mid {
+            background: #fef9c3;
+            color: #854d0e;
+        }
+
+        .score-low {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+    </style>
+</head>
+
+<body class="app-body">
+    {% set is_ar = session.get('lang', 'en') == 'ar' %}
+
+    <div class="app-layout">
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-logo">
+                    <div class="logo-icon"
+                        style="background:#fff;padding:4px;display:flex;align-items:center;justify-content:center;"><img
+                            src="{{ url_for('static', filename='logo.png') }}" style="width:24px;"></div>
+                    <span class="logo-text">INSTRUCTOR PANEL</span>
+                </div>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="{{ url_for('admin_dashboard') }}" class="nav-item">
+                    <span class="nav-icon">⊞</span><span class="nav-label">{{ 'الرئيسية' if is_ar else 'Dashboard'
+                        }}</span>
+                </a>
+                <a href="{{ url_for('admin_my_students') }}" class="nav-item">
+                    <span class="nav-icon">👥</span><span class="nav-label">{{ 'طلابي' if is_ar else 'My Students'
+                        }}</span>
+                </a>
+                <a href="{{ url_for('admin_grades') }}" class="nav-item active">
+                    <span class="nav-icon">📊</span><span class="nav-label">{{ 'الدرجات' if is_ar else 'Grades'
+                        }}</span>
+                </a>
+                <a href="{{ url_for('admin_add_product') }}" class="nav-item">
+                    <span class="nav-icon">📚</span><span class="nav-label">{{ 'إضافة مواد' if is_ar else 'Add Material'
+                        }}</span>
+                </a>
+                <a href="{{ url_for('admin_requests') }}" class="nav-item">
+                    <span class="nav-icon">📋</span><span class="nav-label">{{ 'الطلبات' if is_ar else 'Requests'
+                        }}</span>
+                </a>
+            </nav>
+        </aside>
+
+        <div class="app-main">
+            <header class="app-topbar">
+                <div class="topbar-left">
+                    <button class="menu-btn" onclick="toggleSidebar()">☰</button>
+                    <div class="topbar-breadcrumb">{{ 'الدرجات' if is_ar else 'Grades' }}</div>
+                </div>
+                <div class="topbar-right">
+                    <a href="{{ url_for('set_language', lang='en' if is_ar else 'ar', next=request.path) }}"
+                        class="lang-toggle-btn">
+                        🌐 <span class="lang-label">{{ 'EN' if is_ar else 'العربية' }}</span>
+                    </a>
+                    <button class="theme-toggle-btn" onclick="toggleTheme()" id="themeToggle"
+                        style="margin-inline: 10px;">🌙</button>
+                </div>
+            </header>
+            <script src="{{ url_for('static', filename='js/theme.js') }}"></script>
+
+            <div class="page-content">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;">
+                    <div class="section-title" style="margin:0;">{{ 'سجل درجات الطلاب' if is_ar else 'Student Grades
+                        Record' }}</div>
+                    <div
+                        style="background:var(--primary);color:#fff;padding:6px 16px;border-radius:20px;font-size:13px;font-weight:800;">
+                        {{ grades|length if grades else 0 }} {{ 'سجل' if is_ar else 'Records' }}
+                    </div>
+                </div>
+
+                {% for course, course_grades in grades|groupby('course_name') %}
+                <div class="table-card">
+                    <h4 style="margin: 0 0 16px 0; font-size: 18px; color: var(--primary);">📚 {{ course }}</h4>
+                    <table class="custom-table">
+                        <thead>
+                            <tr>
+                                <th>{{ 'كود الطالب' if is_ar else 'Student ID' }}</th>
+                                <th>{{ 'الاسم' if is_ar else 'Name' }}</th>
+                                <th>{{ 'الدرجة الكلية (100)' if is_ar else 'Total Score (100)' }}</th>
+                                <th>{{ 'الدرجة (من 60)' if is_ar else 'Score (Out of 60)' }}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for g in course_grades %}
+                            <tr>
+                                <td style="color:var(--primary);font-weight:700;">{{ g['student_id'] }}</td>
+                                <td>{{ g['first_name'] }} {{ g['last_name'] }}</td>
+                                <td>
+                                    {% set total = g['total_score'] | float if g['total_score'] else 0.0 %}
+                                    <span style="font-weight:700;color:var(--text);">{{ "%.1f"|format(total) }}</span>
+                                </td>
+                                <td>
+                                    {% set score60 = (total / 100) * 60 %}
+                                    <span
+                                        class="score-badge {{ 'score-high' if score60 >= 50 else ('score-mid' if score60 >= 30 else 'score-low') }}">
+                                        {{ "%.1f"|format(score60) }} / 60
+                                    </span>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="table-card" style="text-align:center;padding:40px;color:var(--muted);">
+                    {{ 'لا توجد درجات متاحة لطلابك حالياً.' if is_ar else 'No grades available for your students yet.'
+                    }}
+                </div>
+                {% endfor %}
+
+            </div>
+        </div>
+    </div>
+
+    <script>function toggleSidebar() { document.getElementById("sidebar").classList.toggle("collapsed"); document.querySelector(".app-main").classList.toggle("expanded"); }</script>
+</body>
+
+</html>
+<!DOCTYPE html>
+<html lang="{{ 'ar' if session.get('lang','en')=='ar' else 'en' }}"
+    dir="{{ 'rtl' if session.get('lang','en')=='ar' else 'ltr' }}">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EDUGUIDE | {{ 'طُلابي' if session.get('lang','en')=='ar' else 'My Students' }}</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Cairo:wght@400;600;700;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=15">
+    <style>
+        .table-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 24px;
+            margin-top: 20px;
+            box-shadow: var(--shadow-sm);
+            overflow-x: auto;
+        }
+
+        .custom-table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+        }
+
+        html[dir="rtl"] .custom-table {
+            text-align: right;
+        }
+
+        .custom-table th {
+            background: var(--bg);
+            padding: 14px 20px;
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 2px solid var(--border);
+        }
+
+        .custom-table td {
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border);
+            font-size: 14px;
+            color: var(--text);
+            font-weight: 500;
+        }
+
+        .custom-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .custom-table tbody tr:hover {
+            background: var(--bg);
+        }
+
+        .gpa-badge {
+            padding: 4px 10px;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 12px;
+        }
+
+        .gpa-high {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .gpa-mid {
+            background: #fef9c3;
+            color: #854d0e;
+        }
+
+        .gpa-low {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+    </style>
+</head>
+
+<body class="app-body">
+    {% set is_ar = session.get('lang', 'en') == 'ar' %}
+
+    <div class="app-layout">
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-logo">
+                    <div class="logo-icon"
+                        style="background:#fff;padding:4px;display:flex;align-items:center;justify-content:center;"><img
+                            src="{{ url_for('static', filename='logo.png') }}" style="width:24px;"></div>
+                    <span class="logo-text">INSTRUCTOR PANEL</span>
+                </div>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="{{ url_for('admin_dashboard') }}" class="nav-item">
+                    <span class="nav-icon">⊞</span><span class="nav-label">{{ 'الرئيسية' if is_ar else 'Dashboard'
+                        }}</span>
+                </a>
+                <a href="{{ url_for('admin_my_students') }}" class="nav-item active">
+                    <span class="nav-icon">👥</span><span class="nav-label">{{ 'طلابي' if is_ar else 'My Students'
+                        }}</span>
+                </a>
+                <a href="{{ url_for('admin_grades') }}" class="nav-item">
+                    <span class="nav-icon">📊</span><span class="nav-label">{{ 'الدرجات' if is_ar else 'Grades'
+                        }}</span>
+                </a>
+                <a href="{{ url_for('admin_add_product') }}" class="nav-item">
+                    <span class="nav-icon">📚</span><span class="nav-label">{{ 'إضافة مواد' if is_ar else 'Add Material'
+                        }}</span>
+                </a>
+                <a href="{{ url_for('admin_requests') }}" class="nav-item">
+                    <span class="nav-icon">📋</span><span class="nav-label">{{ 'الطلبات' if is_ar else 'Requests'
+                        }}</span>
+                </a>
+            </nav>
+        </aside>
+
+        <div class="app-main">
+            <header class="app-topbar">
+                <div class="topbar-left">
+                    <button class="menu-btn" onclick="toggleSidebar()">☰</button>
+                    <div class="topbar-breadcrumb">{{ 'طلابي' if is_ar else 'My Students' }}</div>
+                </div>
+                <div class="topbar-right">
+                    <a href="{{ url_for('set_language', lang='en' if is_ar else 'ar', next=request.path) }}"
+                        class="lang-toggle-btn">
+                        🌐 <span class="lang-label">{{ 'EN' if is_ar else 'العربية' }}</span>
+                    </a>
+                    <button class="theme-toggle-btn" onclick="toggleTheme()" id="themeToggle"
+                        style="margin-inline: 10px;">🌙</button>
+                </div>
+            </header>
+            <script src="{{ url_for('static', filename='js/theme.js') }}"></script>
+
+            <div class="page-content">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;">
+                    <div class="section-title" style="margin:0;">{{ 'قائمة الطلاب المسجلين' if is_ar else 'Enrolled
+                        Students List' }}</div>
+                    <div
+                        style="background:var(--primary);color:#fff;padding:6px 16px;border-radius:20px;font-size:13px;font-weight:800;">
+                        {{ students|length if students else 0 }} {{ 'طالب' if is_ar else 'Students' }}
+                    </div>
+                </div>
+
+                {% for course, course_students in students|groupby('course_name') %}
+                <div class="table-card">
+                    <h4 style="margin: 0 0 16px 0; font-size: 18px; color: var(--primary);">📚 {{ course }}</h4>
+                    <table class="custom-table">
+                        <thead>
+                            <tr>
+                                <th>{{ 'كود الطالب' if is_ar else 'Student ID' }}</th>
+                                <th>{{ 'الاسم' if is_ar else 'Name' }}</th>
+                                <th>{{ 'البريد الإلكتروني' if is_ar else 'Email' }}</th>
+                                <th>{{ 'المعدل (GPA)' if is_ar else 'GPA' }}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for s in course_students %}
+                            <tr>
+                                <td style="color:var(--primary);font-weight:700;">{{ s['student_id'] }}</td>
+                                <td>{{ s['first_name'] }} {{ s['last_name'] }}</td>
+                                <td style="color:var(--muted);">{{ s['email'] }}</td>
+                                <td>
+                                    {% set gpa = s['gpa'] | float if s['gpa'] else 0.0 %}
+                                    <span
+                                        class="gpa-badge {{ 'gpa-high' if gpa >= 3.0 else ('gpa-mid' if gpa >= 2.0 else 'gpa-low') }}">
+                                        {{ "%.2f"|format(gpa) }}
+                                    </span>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="table-card" style="text-align:center;padding:40px;color:var(--muted);">
+                    {{ 'لا يوجد طلاب مسجلين في موادك حالياً.' if is_ar else 'No students are currently enrolled in your
+                    courses.' }}
+                </div>
+                {% endfor %}
+
+            </div>
+        </div>
+    </div>
+
+    <script>function toggleSidebar() { document.getElementById("sidebar").classList.toggle("collapsed"); document.querySelector(".app-main").classList.toggle("expanded"); }</script>
+</body>
+
+</html>
+<!DOCTYPE html>
+<html lang="{{ 'ar' if session.get('lang','en')=='ar' else 'en' }}"
+  dir="{{ 'rtl' if session.get('lang','en')=='ar' else 'ltr' }}">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EDUGUIDE | {{ 'إدارة الطلبات' if session.get('lang','en')=='ar' else 'Manage Requests' }}</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Cairo:wght@400;600;700;800&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=15">
+  <style>
+    .request-card-admin {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 24px;
+      margin-bottom: 20px;
+      transition: 0.3s;
+      animation: slideInUp 0.5s ease both;
+    }
+
+    .request-card-admin:hover {
+      box-shadow: var(--shadow-lg);
+      border-color: var(--primary);
+    }
+
+    .req-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 12px;
+    }
+
+    .req-title {
+      font-size: 18px;
+      font-weight: 800;
+      color: var(--text);
+    }
+
+    .req-student {
+      font-size: 13px;
+      color: var(--primary);
+      font-weight: 700;
+      background: var(--primary-light);
+      padding: 4px 10px;
+      border-radius: 20px;
+    }
+
+    .req-message {
+      font-size: 14px;
+      color: var(--muted);
+      line-height: 1.6;
+      margin-bottom: 20px;
+    }
+
+    .reply-box {
+      background: var(--bg);
+      padding: 20px;
+      border-radius: 12px;
+      border: 1.5px solid var(--border);
+    }
+
+    .reply-input {
+      width: 100%;
+      background: transparent;
+      border: none;
+      outline: none;
+      font-family: inherit;
+      font-size: 14px;
+      resize: none;
+      min-height: 80px;
+    }
+
+    .status-tag {
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+
+    .status-pending {
+      background: #fef3c7;
+      color: #92400e;
+    }
+
+    .status-replied {
+      background: #dcfce7;
+      color: #16a34a;
+    }
+
+    @keyframes slideInUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+  </style>
+</head>
+
+<body class="app-body">
+  {% set is_ar = session.get('lang', 'en') == 'ar' %}
+
+  <div class="app-layout">
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-logo">
+          <div class="logo-icon"
+            style="background:#fff;padding:4px;display:flex;align-items:center;justify-content:center;"><img
+              src="{{ url_for('static', filename='logo.png') }}" style="width:24px;"></div>
+          <span class="logo-text">INSTRUCTOR PANEL</span>
+        </div>
+      </div>
+      <nav class="sidebar-nav">
+        <a href="{{ url_for('admin_dashboard') }}" class="nav-item">
+          <span class="nav-icon">⊞</span><span class="nav-label">{{ 'الرئيسية' if is_ar else 'Dashboard' }}</span>
+        </a>
+        <a href="{{ url_for('admin_my_students') }}" class="nav-item">
+          <span class="nav-icon">👥</span><span class="nav-label">{{ 'طلابي' if is_ar else 'My Students' }}</span>
+        </a>
+        <a href="{{ url_for('admin_grades') }}" class="nav-item">
+          <span class="nav-icon">📊</span><span class="nav-label">{{ 'الدرجات' if is_ar else 'Grades' }}</span>
+        </a>
+        <a href="{{ url_for('admin_add_product') }}" class="nav-item">
+          <span class="nav-icon">📚</span><span class="nav-label">{{ 'إضافة مواد' if is_ar else 'Add Material' }}</span>
+        </a>
+        <a href="{{ url_for('admin_requests') }}" class="nav-item active">
+          <span class="nav-icon">📋</span><span class="nav-label">{{ 'الطلبات' if is_ar else 'Requests' }}</span>
+        </a>
+      </nav>
+    </aside>
+
+    <div class="app-main">
+      <header class="app-topbar">
+        <div class="topbar-left">
+          <button class="menu-btn" onclick="toggleSidebar()">☰</button>
+          <div class="topbar-breadcrumb">{{ 'طلبات الطلاب' if is_ar else 'Student Requests' }}</div>
+        </div>
+        <div class="topbar-right">
+          <a href="{{ url_for('set_language', lang='en' if is_ar else 'ar', next=request.path) }}"
+            class="lang-toggle-btn">
+            🌐 <span class="lang-label">{{ 'EN' if is_ar else 'العربية' }}</span>
+          </a>
+          <button class="theme-toggle-btn" onclick="toggleTheme()" id="themeToggle"
+            style="margin-inline: 10px;">🌙</button>
+        </div>
+      </header>
+      <script src="{{ url_for('static', filename='js/theme.js') }}"></script>
+
+      <div class="page-content">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;">
+          <div class="section-title" style="margin:0;">{{ 'إدارة طلبات التواصل' if is_ar else 'Manage Communication
+            Requests' }}</div>
+          <div
+            style="background:var(--primary);color:#fff;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:800;">
+            {{ all_requests|length if all_requests else 0 }} {{ 'طلبات' if is_ar else 'Requests' }}
+          </div>
+        </div>
+
+        {% if not all_requests %}
+        <div
+          style="text-align:center;padding:100px;background:var(--surface);border-radius:24px;border:2px dashed var(--border);">
+          <div style="font-size:64px;margin-bottom:20px;">📂</div>
+          <h3 style="font-weight:800;">{{ 'لا توجد طلبات حالياً' if is_ar else 'No requests found' }}</h3>
+          <p style="color:var(--muted);">{{ 'سيظهر هنا أي تواصل جديد من الطلاب.' if is_ar else 'Any new student
+            communication will appear here.' }}</p>
+        </div>
+        {% endif %}
+
+        <div style="display:grid;gap:20px;">
+          {% for req in all_requests if all_requests %}
+          <div class="request-card-admin" style="animation-delay: {{ loop.index0 * 0.1 }}s;">
+            <div class="req-header">
+              <div>
+                <div class="req-title" style="font-size:20px;margin-bottom:8px;">{{ req['title'] if req['title'] else
+                  ('طلب بدون عنوان' if is_ar else 'Untitled') }}</div>
+                <div style="display:flex;gap:10px;align-items:center;">
+                  <span class="req-student"
+                    style="font-size:12px;background:var(--primary-light);color:var(--primary);">👤 {{
+                    req['student_name'] if req['student_name'] else ('طالب' if is_ar else 'Student') }}</span>
+                  <span style="font-size:12px;color:var(--muted);font-weight:600;">📅 {{ req['created_at'] if
+                    req['created_at'] else '--/--' }}</span>
+                </div>
+              </div>
+              {% set r_status = req['status']|lower if req['status'] else 'pending' %}
+              <div class="status-tag {{ 'status-pending' if r_status == 'pending' else 'status-replied' }}"
+                style="padding:6px 16px;border-radius:12px;">
+                {{ 'قيد الانتظار' if is_ar and r_status == 'pending' else ('تم الرد' if is_ar else r_status|capitalize)
+                }}
+              </div>
+            </div>
+
+            <div class="req-message" style="background:rgba(0,0,0,0.02);padding:15px;border-radius:12px;margin:15px 0;">
+              {{ req['message'] if req['message'] else '...' }}
+            </div>
+
+            {% if r_status == 'pending' %}
+            <form method="POST" action="{{ url_for('admin_reply_request') }}">
+              <input type="hidden" name="request_id" value="{{ req['id'] }}">
+              <div class="reply-box" style="border:1.5px solid var(--primary-light);">
+                <textarea name="reply" class="reply-input"
+                  placeholder="{{ 'اكتب ردك الاحترافي هنا...' if is_ar else 'Type your professional reply here...' }}"
+                  required></textarea>
+                <div style="display:flex;justify-content:flex-end;margin-top:12px;">
+                  <button type="submit" class="btn-primary"
+                    style="padding:10px 30px;font-size:14px;border-radius:10px;box-shadow:var(--shadow-sm);">
+                    🚀 {{ 'إرسال الرد' if is_ar else 'Send Reply' }}
+                  </button>
+                </div>
+              </div>
+            </form>
+            {% else %}
+            <div style="background:#f0fdf4;padding:20px;border-radius:16px;border:1px solid #dcfce7;position:relative;">
+              <div
+                style="font-size:11px;font-weight:900;color:#16a34a;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;display:flex;align-items:center;gap:6px;">
+                <span style="font-size:14px;">✅</span> {{ 'الرد المرسل:' if is_ar else 'RESPONSE SENT' }}
+              </div>
+              <div style="font-size:14px;color:#166534;line-height:1.6;font-weight:600;">{{ req['doctor_reply'] if
+                req['doctor_reply'] else '--' }}</div>
+            </div>
+            {% endif %}
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>function toggleSidebar() { document.getElementById("sidebar").classList.toggle("collapsed"); document.querySelector(".app-main").classList.toggle("expanded"); }</script>
+</body>
+
+</html>
+<!DOCTYPE html>
+<html lang="{{ session.get('lang', 'en') }}" dir="{{ 'rtl' if session.get('lang', 'en') == 'ar' else 'ltr' }}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EDUGUIDE | Portal</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=16">
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+</head>
+<body class="app-body">
+    <div class="app-layout">
+        {% include '_sidebar.html' %}
+        
+        <div class="app-main">
+            {% include '_topbar.html' %}
+            
+            <div class="page-content">
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                  {% if messages %}
+                    {% for category, message in messages %}
+                      <div class="alert alert-{{ category }}" style="margin-bottom: 20px; padding: 15px; border-radius: 12px; background: #fee2e2; color: #b91c1c;">{{ message }}</div>
+                    {% endfor %}
+                  {% endif %}
+                {% endwith %}
+                
+                {% block content %}{% endblock %}
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/theme.js') }}"></script>
+    <script>
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('collapsed');
+            document.querySelector('.app-main').classList.toggle('expanded');
+        }
+    </script>
+</body>
+</html>
+{% extends "base.html" %}
+
+{% block content %}
+<div class="career-hub-container">
+    <div class="career-hero">
+        <div class="hero-text">
+            <h1>{{ 'بوابة التوظيف والمستقبل' if session.get('lang') == 'ar' else 'Career & Future Hub' }}</h1>
+            <p>{{ 'نحن نساعدك في بناء مسارك المهني من اليوم الأول.' if session.get('lang') == 'ar' else 'Helping you build your career path from day one.' }}</p>
+        </div>
+        <div class="hero-image">
+            <i class="fas fa-rocket"></i>
+        </div>
+    </div>
+
+    <div class="services-grid-premium">
+        <!-- CV Optimizer -->
+        <div class="service-card-career">
+            <div class="card-icon"><i class="fas fa-file-alt"></i></div>
+            <h3>{{ 'مُحسّن السيرة الذاتية' if session.get('lang') == 'ar' else 'CV Optimizer' }}</h3>
+            <p>{{ 'ارفع سيرتك الذاتية واحصل على تحليل ذكي لتحسينها.' if session.get('lang') == 'ar' else 'Upload your CV and get AI-powered analysis to improve it.' }}</p>
+            <a href="{{ url_for('cv_optimizer_page') }}" class="btn-service">{{ 'ابدأ الآن' if session.get('lang') == 'ar' else 'Start Now' }}</a>
+        </div>
+
+        <!-- Mock Interview -->
+        <div class="service-card-career highlight">
+            <div class="card-icon"><i class="fas fa-user-friends"></i></div>
+            <h3>{{ 'مقابلة عمل تجريبية' if session.get('lang') == 'ar' else 'Mock Interview' }}</h3>
+            <p>{{ 'تدرب على مقابلات العمل مع مساعدنا الذكي واحصل على تقييم.' if session.get('lang') == 'ar' else 'Practice interviews with our AI assistant and get feedback.' }}</p>
+            <a href="{{ url_for('mock_interview_page') }}" class="btn-service">{{ 'دخول التدريب' if session.get('lang') == 'ar' else 'Enter Training' }}</a>
+        </div>
+
+        <!-- Career Matching -->
+        <div class="service-card-career">
+            <div class="card-icon"><i class="fas fa-briefcase"></i></div>
+            <h3>{{ 'مطابقة الوظائف' if session.get('lang') == 'ar' else 'Job Matching' }}</h3>
+            <p>{{ 'اكتشف الوظائف التي تناسب مهاراتك وتخصصك الدراسي.' if session.get('lang') == 'ar' else 'Discover jobs that match your skills and academic major.' }}</p>
+            <a href="#" class="btn-service">{{ 'استكشف' if session.get('lang') == 'ar' else 'Explore' }}</a>
+        </div>
+    </div>
+</div>
+
+<style>
+.career-hub-container { padding-bottom: 50px; }
+.career-hero { 
+    background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%);
+    padding: 60px; border-radius: 32px; color: white; display: flex;
+    justify-content: space-between; align-items: center; margin-bottom: 50px;
+    box-shadow: 0 20px 40px rgba(15, 23, 42, 0.2);
+}
+.hero-text h1 { font-size: 2.5rem; font-weight: 800; margin-bottom: 15px; }
+.hero-text p { font-size: 1.2rem; opacity: 0.9; }
+.hero-image { font-size: 5rem; opacity: 0.2; }
+
+.services-grid-premium { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; }
+.service-card-career { 
+    background: white; padding: 40px; border-radius: 24px; text-align: center;
+    border: 1px solid #f1f5f9; transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+.service-card-career:hover { transform: translateY(-15px); box-shadow: 0 20px 30px rgba(0,0,0,0.08); border-color: #3b82f6; }
+.service-card-career.highlight { border: 2px solid #3b82f6; background: #eff6ff; }
+
+.card-icon { width: 80px; height: 80px; background: #f8fafc; border-radius: 20px; display: flex; align-items: center; justify-content: center; font-size: 2rem; color: #1e3a8a; margin: 0 auto 25px; transition: all 0.3s; }
+.service-card-career:hover .card-icon { background: #3b82f6; color: white; transform: rotate(10deg); }
+
+.service-card-career h3 { font-size: 1.4rem; font-weight: 800; color: #1e293b; margin-bottom: 15px; }
+.service-card-career p { color: #64748b; font-size: 1rem; line-height: 1.6; margin-bottom: 30px; }
+
+.btn-service { 
+    display: inline-block; padding: 12px 35px; border-radius: 12px; 
+    background: #1e3a8a; color: white; text-decoration: none; font-weight: 700;
+    transition: all 0.3s; width: 100%; box-sizing: border-box;
+}
+.btn-service:hover { background: #3b82f6; box-shadow: 0 10px 20px rgba(59, 130, 246, 0.2); }
+
+@media (max-width: 768px) {
+    .career-hero { flex-direction: column; text-align: center; padding: 40px 20px; }
+    .hero-image { display: none; }
+}
+</style>
+{% endblock %}
+<!DOCTYPE html>
+<html lang="{{ 'ar' if session.get('lang', 'en') == 'ar' else 'en' }}" dir="{{ 'rtl' if session.get('lang', 'en') == 'ar' else 'ltr' }}">
+<head>
+  <meta charset="UTF-8">
+  <title>EDYGUIDE | Career Matching</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=421">
+</head>
+
+<body class="dashboard-body">
+
+{% set is_ar = session.get('lang', 'en') == 'ar' %}
+
+<header class="top-nav" style="margin:24px auto 0; width:min(1200px, calc(100% - 40px));">
+  <div class="brand">
+    <div class="brand-icon">🎓</div>
+    <div>
+      <div class="brand-top">UNIVERSITY LOGO</div>
+      <div class="brand-name">EDYGUIDE</div>
+    </div>
+  </div>
+
+  <div class="nav-links">
+    <a href="{{ url_for('dashboard') }}">{{ 'لوحة التحكم' if is_ar else 'Dashboard' }}</a>
+    <a href="{{ url_for('career_page') }}">{{ 'مركز التوظيف' if is_ar else 'Career Center' }}</a>
+    <a href="{{ url_for('set_language', lang='en' if is_ar else 'ar', next=request.path) }}" class="lang-icon" title="{{ 'English' if is_ar else 'العربية' }}">
+  🌐 <span>{{ 'EN' if is_ar else 'AR' }}</span>
+</a>
+    <a href="{{ url_for('logout') }}" class="mini-btn">{{ 'خروج' if is_ar else 'Logout' }}</a>
+  </div>
+</header>
+
+<div class="career-shell">
+
+  <section class="career-hero">
+    <div>
+      <div class="career-badge">Career Matching</div>
+      <h1>{{ 'ترشيح الوظائف والتدريبات' if is_ar else 'Internship & Career Matching' }}</h1>
+      <p>
+        {{ 'يعتمد الترشيح على المعدل التراكمي ونتيجة آخر تحليل للسيرة الذاتية والمهارات المكتشفة.'
+        if is_ar else
+        'Recommendations are based on GPA, the latest CV analysis, and detected skills.' }}
+      </p>
+    </div>
+  </section>
+
+  <section class="career-card cv-upload-card">
+    <h2>{{ 'ترشيحات مناسبة لك' if is_ar else 'Recommended Opportunities' }}</h2>
+
+    <button type="button" id="matchBtn" class="career-main-btn">
+      {{ 'اعرض الترشيحات' if is_ar else 'Get My Matches' }}
+    </button>
+
+    <div id="matchResult" class="career-result"></div>
+  </section>
+
+</div>
+
+<script>
+document.getElementById("matchBtn").addEventListener("click", function () {
+  const box = document.getElementById("matchResult");
+  box.innerHTML = `<div class="career-loading">Loading recommendations...</div>`;
+
+  fetch("/career/match")
+    .then(res => res.json())
+    .then(data => {
+      if (data.error) {
+        box.innerHTML = `<div class="career-alert">${data.error}</div>`;
+        return;
+      }
+
+      if (!data || data.length === 0) {
+        box.innerHTML = `<div class="career-alert">No suitable matches found yet. Try improving your CV skills first.</div>`;
+        return;
+      }
+
+      let html = `<div class="career-matches-grid">`;
+
+      data.forEach(item => {
+        const matched = item.matched_skills && item.matched_skills.length
+          ? item.matched_skills.join(", ")
+          : "No direct skill match";
+
+        html += `
+          <div class="career-match-card">
+            <div class="career-match-top">
+              <span>🏢 ${item.company}</span>
+              <strong>${item.score}% Match</strong>
+            </div>
+
+            <h3>${item.title}</h3>
+            <p>This opportunity matches your GPA and detected CV skills.</p>
+            <p><strong>Matched Skills:</strong> ${matched}</p>
+          </div>
+        `;
+      });
+
+      html += `</div>`;
+      box.innerHTML = html;
+    })
+    .catch((err) => {
+      console.error(err);
+      box.innerHTML = `<div class="career-alert">Server error. Check terminal for CAREER MATCH ERROR.</div>`;
+    });
+});
+</script>
+
+</body>
+</html>
+{% extends "base.html" if base_exists else "layout_pub.html" %}
+{% block content %}
+<div class="chat-wrapper">
+    <div class="chat-container" id="chat-container">
+        <div class="chat-header">
+            <div class="header-info">
+                <div class="bot-avatar">🤖</div>
+                <div>
+                    <h3>EDYGUIDE AI</h3>
+                    <span class="status-indicator">Online</span>
+                </div>
+            </div>
+            <div class="header-actions">
+                <button onclick="clearChat()" title="Clear Chat"><i class="fas fa-trash-alt"></i></button>
+            </div>
+        </div>
+
+        <div class="chat-messages" id="chat-messages">
+            <div class="message bot">
+                <div class="msg-content">
+                    {{ 'أهلاً بك يا ' if session.get('lang') == 'ar' else 'Hello, ' }} {{ user.full_name }}! 👋
+                    <br>
+                    {{ 'أنا مساعدك الذكي. اسألني عن جدولك، امتحاناتك، معدلك الدراسي، أو أي استفسار يخص الكلية.' if session.get('lang') == 'ar' else 'I am your AI assistant. Ask me about your schedule, exams, GPA, or any university inquiries.' }}
+                </div>
+            </div>
+        </div>
+
+        <div class="chat-input-area">
+            <div class="quick-prompts">
+                <button onclick="sendQuick('{{ 'ما هو معدلي؟' if session.get('lang') == 'ar' else 'What is my GPA?' }}')">{{ 'معدلي' if session.get('lang') == 'ar' else 'GPA' }}</button>
+                <button onclick="sendQuick('{{ 'متى امتحاني القادم؟' if session.get('lang') == 'ar' else 'When is my next exam?' }}')">{{ 'الامتحانات' if session.get('lang') == 'ar' else 'Exams' }}</button>
+                <button onclick="sendQuick('{{ 'ما هي محاضراتي اليوم؟' if session.get('lang') == 'ar' else 'What are my lectures today?' }}')">{{ 'الجدول' if session.get('lang') == 'ar' else 'Schedule' }}</button>
+            </div>
+            <div class="input-group">
+                <input type="text" id="user-input" placeholder="{{ 'اكتب سؤالك هنا...' if session.get('lang') == 'ar' else 'Type your question...' }}" onkeypress="checkEnter(event)">
+                <button onclick="sendMessage()" id="send-btn">
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    async function sendMessage() {
+        const input = document.getElementById('user-input');
+        const msg = input.value.trim();
+        if (!msg) return;
+
+        appendMessage('student', msg);
+        input.value = '';
+
+        try {
+            const response = await fetch('/chat/send', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message: msg })
+            });
+            const data = await response.json();
+            appendMessage('bot', data.bot_reply);
+        } catch (error) {
+            appendMessage('bot', 'Sorry, I am having trouble connecting right now.');
+        }
+    }
+
+    function appendMessage(sender, text) {
+        const chatBox = document.getElementById('chat-messages');
+        const div = document.createElement('div');
+        div.className = `message ${sender}`;
+        div.innerHTML = `<div class="msg-content">${text}</div>`;
+        chatBox.appendChild(div);
+        chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    function sendQuick(text) {
+        document.getElementById('user-input').value = text;
+        sendMessage();
+    }
+
+    function checkEnter(e) {
+        if (e.key === 'Enter') sendMessage();
+    }
+
+    // Load history
+    async function loadHistory() {
+        const res = await fetch('/chat/{{ user.id }}');
+        const history = await res.json();
+        const chatBox = document.getElementById('chat-messages');
+        history.forEach(m => appendMessage(m.sender, m.message));
+    }
+    
+    window.onload = loadHistory;
+</script>
+{% endblock %}
+{% extends "base.html" %}
+
+{% block content %}
+<div class="checkout-wrapper">
+    <div class="checkout-container">
+        <!-- Order Summary Side -->
+        <div class="order-summary">
+            <div class="summary-card">
+                <div class="summary-header">
+                    <h2><i class="fas fa-shopping-cart"></i> {{ 'ملخص الطلب' if session.get('lang') == 'ar' else 'Order Summary' }}</h2>
+                </div>
+                <div class="summary-body">
+                    <div class="product-info">
+                        <h3>{{ payment['description'] if payment else 'University Fees' }}</h3>
+                        <p class="ref">REF: #{{ payment['id'] if payment else 'N/A' }}</p>
+                    </div>
+                    <div class="price-breakdown">
+                        <div class="price-row">
+                            <span>{{ 'المبلغ الأساسي' if session.get('lang') == 'ar' else 'Base Amount' }}</span>
+                            <span>{{ (payment['amount'] / 100)|round(2) if payment else '0.00' }} EGP</span>
+                        </div>
+                        <div class="price-row">
+                            <span>{{ 'الضرائب والرسوم' if session.get('lang') == 'ar' else 'Fees & Taxes' }}</span>
+                            <span>0.00 EGP</span>
+                        </div>
+                        <div class="total-row">
+                            <span>{{ 'الإجمالي' if session.get('lang') == 'ar' else 'Total' }}</span>
+                            <span class="total-amount">{{ (payment['amount'] / 100)|round(2) if payment else '0.00' }} EGP</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="secure-badge">
+                    <i class="fas fa-shield-alt"></i> {{ 'دفع آمن بنسبة 100%' if session.get('lang') == 'ar' else '100% Secure Payment' }}
+                </div>
+                <div class="payment-logos">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/2/2a/Mastercard-logo.svg" alt="Mastercard">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/b/b5/PayPal.svg" alt="PayPal" style="height: 20px;">
+                    <img src="https://fawry.com/wp-content/uploads/2021/04/Fawry-Logo-1.png" alt="Fawry" style="height: 25px;">
+                </div>
+            </div>
+        </div>
+
+        <!-- Payment Method Side -->
+        <div class="payment-area">
+            <div class="payment-card">
+                <div class="tabs">
+                    <button class="tab-btn active" onclick="switchMethod('card')">
+                        <i class="far fa-credit-card"></i> {{ 'بطاقة ائتمان' if session.get('lang') == 'ar' else 'Credit Card' }}
+                    </button>
+                    <button class="tab-btn" onclick="switchMethod('fawry')">
+                        <i class="fas fa-university"></i> {{ 'فوري' if session.get('lang') == 'ar' else 'Fawry' }}
+                    </button>
+                </div>
+
+                <div id="card-iframe-container" class="method-container active">
+                    {% if payment and payment['payment_token'] %}
+                        <iframe src="https://egypt.paymob.com/api/acceptance/iframes/{{ payment['iframe_id'] }}?payment_token={{ payment['payment_token'] }}" 
+                                frameborder="0" width="100%" height="600" id="paymob_iframe"></iframe>
+                    {% else %}
+                        <div class="payment-error">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <p>{{ 'خطأ في إنشاء رابط الدفع. برجاء المحاولة لاحقاً.' if session.get('lang') == 'ar' else 'Error generating payment link. Please try again later.' }}</p>
+                            <a href="{{ url_for('payments_page') }}" class="btn-primary-sm">{{ 'العودة للمدفوعات' if session.get('lang') == 'ar' else 'Back to Payments' }}</a>
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div id="fawry-container" class="method-container">
+                    <div class="fawry-instruction">
+                        <img src="https://fawry.com/wp-content/uploads/2021/04/Fawry-Logo-1.png" alt="Fawry">
+                        <h3>{{ 'الدفع عبر فوري' if session.get('lang') == 'ar' else 'Pay via Fawry' }}</h3>
+                        <p>{{ 'استخدم الكود التالي للدفع في أي فرع فوري أو عبر تطبيق MyFawry.' if session.get('lang') == 'ar' else 'Use the following code to pay at any Fawry branch or via MyFawry app.' }}</p>
+                        
+                        <div class="fawry-code-box">
+                            <span class="label">{{ 'كود الدفع' if session.get('lang') == 'ar' else 'Payment Code' }}</span>
+                            <span class="code">9988776655</span>
+                        </div>
+                        
+                        <ul class="steps-list">
+                            <li>{{ '1. توجه لأي منفذ فوري.' if session.get('lang') == 'ar' else '1. Go to any Fawry outlet.' }}</li>
+                            <li>{{ '2. اطلب خدمة "مدفوعات كود".' if session.get('lang') == 'ar' else '2. Request "Code Payment" service.' }}</li>
+                            <li>{{ '3. ادخل كود الدفع الموضح أعلاه.' if session.get('lang') == 'ar' else '3. Enter the payment code shown above.' }}</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.checkout-wrapper { padding: 20px 0; }
+.checkout-container { display: grid; grid-template-columns: 1fr 2fr; gap: 30px; align-items: start; }
+
+.summary-card { background: white; border-radius: 24px; padding: 30px; border: 1px solid #f1f5f9; box-shadow: 0 4px 6px rgba(0,0,0,0.02); }
+.summary-header h2 { font-size: 1.2rem; font-weight: 800; color: #1e293b; margin-bottom: 25px; }
+.product-info h3 { font-size: 1.1rem; color: #1e293b; margin-bottom: 5px; }
+.product-info .ref { font-size: 0.8rem; color: #94a3b8; margin-bottom: 20px; }
+
+.price-breakdown { border-top: 1px dashed #e2e8f0; padding-top: 20px; }
+.price-row { display: flex; justify-content: space-between; margin-bottom: 12px; color: #64748b; font-size: 0.95rem; }
+.total-row { display: flex; justify-content: space-between; margin-top: 20px; padding-top: 15px; border-top: 1px solid #f1f5f9; }
+.total-row span { font-size: 1.1rem; font-weight: 800; color: #1e293b; }
+.total-amount { color: #1e3a8a !important; font-size: 1.4rem !important; }
+
+.secure-badge { background: #f0fdf4; color: #15803d; padding: 12px; border-radius: 12px; text-align: center; font-size: 0.85rem; font-weight: 700; margin: 25px 0; border: 1px solid #bbf7d0; }
+.payment-logos { display: flex; justify-content: center; gap: 20px; align-items: center; opacity: 0.6; }
+
+.payment-card { background: white; border-radius: 24px; padding: 0; border: 1px solid #f1f5f9; box-shadow: 0 10px 15px rgba(0,0,0,0.05); overflow: hidden; }
+.tabs { display: flex; background: #f8fafc; border-bottom: 1px solid #f1f5f9; }
+.tab-btn { flex: 1; padding: 20px; border: none; background: none; font-weight: 700; color: #64748b; cursor: pointer; transition: all 0.3s; display: flex; align-items: center; justify-content: center; gap: 10px; }
+.tab-btn.active { background: white; color: #1e3a8a; position: relative; }
+.tab-btn.active::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 3px; background: #1e3a8a; }
+
+.method-container { display: none; padding: 30px; }
+.method-container.active { display: block; }
+
+.payment-error { text-align: center; padding: 50px 20px; }
+.payment-error i { font-size: 3rem; color: #ef4444; margin-bottom: 20px; }
+.payment-error p { margin-bottom: 25px; color: #64748b; }
+
+.fawry-instruction { text-align: center; padding: 20px; }
+.fawry-instruction img { width: 120px; margin-bottom: 20px; }
+.fawry-instruction h3 { margin-bottom: 10px; color: #1e293b; }
+.fawry-code-box { background: #f1f5f9; padding: 25px; border-radius: 20px; margin: 30px 0; border: 2px dashed #cbd5e1; }
+.fawry-code-box .label { display: block; font-size: 0.8rem; color: #64748b; text-transform: uppercase; margin-bottom: 10px; font-weight: 700; }
+.fawry-code-box .code { font-size: 2.2rem; font-weight: 900; color: #1e3a8a; letter-spacing: 5px; }
+
+.steps-list { text-align: left; list-style: none; padding: 0; max-width: 300px; margin: 0 auto; color: #64748b; font-size: 0.9rem; }
+[dir="rtl"] .steps-list { text-align: right; }
+.steps-list li { margin-bottom: 10px; }
+
+@media (max-width: 992px) {
+    .checkout-container { grid-template-columns: 1fr; }
+    .order-summary { order: 2; }
+    .payment-area { order: 1; }
+}
+</style>
+
+<script>
+function switchMethod(method) {
+    document.querySelectorAll('.method-container').forEach(c => c.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    
+    if(method === 'card') {
+        document.getElementById('card-iframe-container').classList.add('active');
+        event.currentTarget.classList.add('active');
+    } else {
+        document.getElementById('fawry-container').classList.add('active');
+        event.currentTarget.classList.add('active');
+    }
+}
+</script>
+{% endblock %}
+{% extends "base.html" %}
+
+{% block content %}
+<div class="contact-container">
+    <div class="contact-grid">
+        <!-- Contact Info Side -->
+        <div class="contact-info-card">
+            <h1>{{ 'تواصل معنا' if session.get('lang') == 'ar' else 'Get in Touch' }}</h1>
+            <p>{{ 'نحن هنا لمساعدتك في أي وقت. لا تتردد في مراسلتنا.' if session.get('lang') == 'ar' else "We're here to help anytime. Feel free to drop us a message." }}</p>
+            
+            <div class="info-list-premium">
+                <div class="info-item">
+                    <div class="icon-box"><i class="fas fa-map-marker-alt"></i></div>
+                    <div class="text">
+                        <h4>{{ 'المقر الرئيسي' if session.get('lang') == 'ar' else 'Headquarters' }}</h4>
+                        <p>Cairo, Egypt - Smart Village</p>
+                    </div>
+                </div>
+                <div class="info-item">
+                    <div class="icon-box"><i class="fas fa-envelope"></i></div>
+                    <div class="text">
+                        <h4>{{ 'البريد الإلكتروني' if session.get('lang') == 'ar' else 'Email' }}</h4>
+                        <p>support@edyguide.com</p>
+                    </div>
+                </div>
+                <div class="info-item">
+                    <div class="icon-box"><i class="fas fa-phone-alt"></i></div>
+                    <div class="text">
+                        <h4>{{ 'رقم الهاتف' if session.get('lang') == 'ar' else 'Phone' }}</h4>
+                        <p>+20 123 456 7890</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="social-links-premium">
+                <a href="#"><i class="fab fa-facebook-f"></i></a>
+                <a href="#"><i class="fab fa-linkedin-in"></i></a>
+                <a href="#"><i class="fab fa-twitter"></i></a>
+            </div>
+        </div>
+
+        <!-- Contact Form Side -->
+        <div class="contact-form-card">
+            <form action="{{ url_for('contact_send') }}" method="POST" class="premium-form">
+                <div class="form-group">
+                    <label>{{ 'الاسم بالكامل' if session.get('lang') == 'ar' else 'Full Name' }}</label>
+                    <input type="text" name="full_name" placeholder="e.g. Ahmed Ali" required>
+                </div>
+                <div class="form-group">
+                    <label>{{ 'البريد الإلكتروني' if session.get('lang') == 'ar' else 'Email Address' }}</label>
+                    <input type="email" name="email" placeholder="ahmed@example.com" required>
+                </div>
+                <div class="form-group">
+                    <label>{{ 'الرسالة' if session.get('lang') == 'ar' else 'Message' }}</label>
+                    <textarea name="message" rows="5" placeholder="{{ 'اكتب رسالتك هنا...' if session.get('lang') == 'ar' else 'Write your message here...' }}" required></textarea>
+                </div>
+                <button type="submit" class="btn-send-premium">
+                    {{ 'إرسال الرسالة' if session.get('lang') == 'ar' else 'Send Message' }} <i class="fas fa-paper-plane"></i>
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+.contact-container { padding-bottom: 50px; }
+.contact-grid { display: grid; grid-template-columns: 1fr 1.5fr; gap: 40px; }
+
+.contact-info-card { background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%); color: white; padding: 50px; border-radius: 32px; box-shadow: 0 20px 40px rgba(30, 58, 138, 0.2); }
+.contact-info-card h1 { font-size: 2.2rem; font-weight: 800; margin-bottom: 15px; }
+.contact-info-card p { opacity: 0.8; margin-bottom: 40px; }
+
+.info-list-premium { display: flex; flex-direction: column; gap: 30px; }
+.info-item { display: flex; gap: 20px; align-items: center; }
+.icon-box { width: 50px; height: 50px; background: rgba(255,255,255,0.1); border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; }
+.info-item h4 { font-size: 0.9rem; font-weight: 700; opacity: 0.7; text-transform: uppercase; margin-bottom: 5px; }
+.info-item p { font-size: 1.1rem; font-weight: 600; opacity: 1; margin: 0; }
+
+.social-links-premium { display: flex; gap: 15px; margin-top: 50px; }
+.social-links-premium a { width: 45px; height: 45px; background: rgba(255,255,255,0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; text-decoration: none; transition: 0.3s; }
+.social-links-premium a:hover { background: white; color: #1e3a8a; transform: translateY(-5px); }
+
+.contact-form-card { background: white; padding: 50px; border-radius: 32px; border: 1px solid #f1f5f9; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
+.premium-form { display: flex; flex-direction: column; gap: 25px; }
+.form-group { display: flex; flex-direction: column; gap: 10px; }
+.form-group label { font-weight: 700; color: #1e293b; }
+.form-group input, .form-group textarea { padding: 15px; border-radius: 12px; border: 1px solid #e2e8f0; background: #f8fafc; transition: 0.3s; }
+.form-group input:focus, .form-group textarea:focus { border-color: #3b82f6; outline: none; background: white; box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1); }
+
+.btn-send-premium { background: #1e3a8a; color: white; border: none; padding: 18px; border-radius: 16px; font-weight: 800; cursor: pointer; transition: 0.3s; display: flex; align-items: center; justify-content: center; gap: 12px; }
+.btn-send-premium:hover { background: #1e40af; transform: translateY(-2px); box-shadow: 0 10px 20px rgba(30, 58, 138, 0.2); }
+
+@media (max-width: 992px) {
+    .contact-grid { grid-template-columns: 1fr; }
+}
+</style>
+{% endblock %}
+{% extends "base.html" %}
+
+{% block content %}
+<div class="optimizer-container">
+    <div class="optimizer-card">
+        <div class="card-header">
+            <div class="header-icon"><i class="fas fa-magic"></i></div>
+            <h1>{{ 'مُحسّن السيرة الذاتية الذكي' if session.get('lang') == 'ar' else 'Smart CV Optimizer' }}</h1>
+            <p>{{ 'ارفع ملفك الآن واحصل على تقييم شامل واقتراحات للتحسين باستخدام الذكاء الاصطناعي.' if session.get('lang') == 'ar' else 'Upload your CV and get a comprehensive AI-powered analysis and improvement suggestions.' }}</p>
+        </div>
+
+        <div class="upload-area" id="drop-zone">
+            <div class="upload-icon"><i class="fas fa-cloud-upload-alt"></i></div>
+            <p>{{ 'اسحب الملف هنا أو اضغط للاختيار' if session.get('lang') == 'ar' else 'Drag & Drop your file here or click to browse' }}</p>
+            <span class="file-hint">PDF, DOCX (Max 5MB)</span>
+            <input type="file" id="file-input" hidden>
+            <button class="btn-browse" onclick="document.getElementById('file-input').click()">{{ 'اختر ملف' if session.get('lang') == 'ar' else 'Browse File' }}</button>
+        </div>
+
+        <div class="analysis-preview" style="display: none;">
+            <div class="progress-bar-container">
+                <div class="progress-bar"></div>
+            </div>
+            <p class="status-text">{{ 'جاري تحليل ملفك...' if session.get('lang') == 'ar' else 'Analyzing your file...' }}</p>
+        </div>
+    </div>
+
+    <div class="optimizer-tips">
+        <h3><i class="fas fa-lightbulb"></i> {{ 'نصائح هامة' if session.get('lang') == 'ar' else 'Important Tips' }}</h3>
+        <div class="tips-grid">
+            <div class="tip-item">
+                <i class="fas fa-check"></i>
+                <span>{{ 'استخدم كلمات مفتاحية قوية.' if session.get('lang') == 'ar' else 'Use strong action keywords.' }}</span>
+            </div>
+            <div class="tip-item">
+                <i class="fas fa-check"></i>
+                <span>{{ 'اجعل التصميم بسيطاً وواضحاً.' if session.get('lang') == 'ar' else 'Keep the design clean and simple.' }}</span>
+            </div>
+            <div class="tip-item">
+                <i class="fas fa-check"></i>
+                <span>{{ 'ركز على الإنجازات وليس فقط المهام.' if session.get('lang') == 'ar' else 'Focus on achievements, not just tasks.' }}</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.optimizer-container { max-width: 800px; margin: 0 auto; padding-bottom: 50px; }
+.optimizer-card { background: white; border-radius: 32px; padding: 50px; text-align: center; border: 1px solid #f1f5f9; box-shadow: 0 10px 30px rgba(0,0,0,0.05); margin-bottom: 30px; }
+.header-icon { width: 70px; height: 70px; background: #eff6ff; color: #3b82f6; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; margin: 0 auto 20px; }
+.card-header h1 { font-size: 1.8rem; font-weight: 800; color: #1e293b; margin-bottom: 10px; }
+.card-header p { color: #64748b; margin-bottom: 40px; line-height: 1.5; }
+
+.upload-area { 
+    border: 3px dashed #e2e8f0; padding: 50px; border-radius: 24px; background: #f8fafc;
+    transition: all 0.3s; cursor: pointer; display: flex; flex-direction: column; align-items: center;
+}
+.upload-area:hover { border-color: #3b82f6; background: #eff6ff; }
+.upload-icon { font-size: 3rem; color: #3b82f6; margin-bottom: 15px; }
+.upload-area p { font-weight: 700; color: #1e293b; margin-bottom: 5px; }
+.file-hint { font-size: 0.8rem; color: #94a3b8; margin-bottom: 20px; }
+.btn-browse { background: #1e3a8a; color: white; border: none; padding: 12px 30px; border-radius: 12px; font-weight: 700; cursor: pointer; transition: 0.3s; }
+.btn-browse:hover { background: #1e40af; }
+
+.optimizer-tips { background: white; padding: 30px; border-radius: 24px; border: 1px solid #f1f5f9; }
+.optimizer-tips h3 { font-size: 1.1rem; color: #1e293b; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
+.tips-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; }
+.tip-item { display: flex; align-items: center; gap: 10px; font-size: 0.9rem; color: #475569; }
+.tip-item i { color: #10b981; }
+
+.analysis-preview { margin-top: 30px; }
+.progress-bar-container { width: 100%; height: 8px; background: #f1f5f9; border-radius: 4px; overflow: hidden; margin-bottom: 10px; }
+.progress-bar { width: 60%; height: 100%; background: #3b82f6; border-radius: 4px; }
+.status-text { font-size: 0.9rem; color: #3b82f6; font-weight: 700; }
+</style>
+{% endblock %}
+{% extends "base.html" %}
+
+{% block content %}
+<div class="dashboard-wrapper">
+    <!-- Welcome Section -->
+    <div class="welcome-banner">
+        <div class="banner-content">
+            <h1>{{ 'أهلاً بك،' if session.get('lang') == 'ar' else 'Welcome back,' }} {{ session.get('user_name', 'Student') }} 👋</h1>
+            <p>{{ 'إليك نظرة سريعة على حالتك الأكاديمية اليوم.' if session.get('lang') == 'ar' else 'Here is a quick overview of your academic status today.' }}</p>
+        </div>
+        <div class="banner-stats">
+            <div class="quick-stat">
+                <span class="stat-label">{{ 'المعدل التراكمي' if session.get('lang') == 'ar' else 'Current GPA' }}</span>
+                <span class="stat-value">3.85</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stats Grid -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-icon" style="background: rgba(59, 130, 246, 0.1); color: #3b82f6;">
+                <i class="fas fa-book-open"></i>
+            </div>
+            <div class="stat-info">
+                <h3>{{ 'المواد المسجلة' if session.get('lang') == 'ar' else 'Enrolled Courses' }}</h3>
+                <p class="value">6</p>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon" style="background: rgba(16, 185, 129, 0.1); color: #10b981;">
+                <i class="fas fa-calendar-check"></i>
+            </div>
+            <div class="stat-info">
+                <h3>{{ 'محاضرات اليوم' if session.get('lang') == 'ar' else "Today's Lectures" }}</h3>
+                <p class="value">3</p>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon" style="background: rgba(245, 158, 11, 0.1); color: #f59e0b;">
+                <i class="fas fa-file-invoice-dollar"></i>
+            </div>
+            <div class="stat-info">
+                <h3>{{ 'الطلبات المعلقة' if session.get('lang') == 'ar' else 'Pending Requests' }}</h3>
+                <p class="value">2</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="dashboard-grid">
+        <!-- Upcoming Schedule -->
+        <div class="dashboard-card main-card">
+            <div class="card-header">
+                <h2><i class="fas fa-clock"></i> {{ 'الجدول القادم' if session.get('lang') == 'ar' else 'Upcoming Classes' }}</h2>
+                <a href="{{ url_for('schedule_page') }}" class="view-all">{{ 'عرض الكل' if session.get('lang') == 'ar' else 'View All' }}</a>
+            </div>
+            <div class="card-body">
+                <div class="timeline-list">
+                    <div class="timeline-item">
+                        <div class="time">09:00 AM</div>
+                        <div class="details">
+                            <h4>Advanced Mathematics</h4>
+                            <p>Dr. Sarah Kamal • Hall B</p>
+                        </div>
+                    </div>
+                    <div class="timeline-item active">
+                        <div class="time">11:30 AM</div>
+                        <div class="details">
+                            <h4>Microeconomics</h4>
+                            <p>Dr. Ahmed Mansour • Hall A</p>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="time">02:00 PM</div>
+                        <div class="details">
+                            <h4>Business Ethics</h4>
+                            <p>Dr. Mohamed Ali • Lab 2</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Requests -->
+        <div class="dashboard-card side-card">
+            <div class="card-header">
+                <h2><i class="fas fa-clipboard-list"></i> {{ 'أحدث الطلبات' if session.get('lang') == 'ar' else 'Recent Requests' }}</h2>
+            </div>
+            <div class="card-body">
+                <div class="request-list">
+                    <div class="request-mini-item">
+                        <div class="req-type">Enrollment Letter</div>
+                        <div class="req-status approved">Approved</div>
+                    </div>
+                    <div class="request-mini-item">
+                        <div class="req-type">Grade Appeal</div>
+                        <div class="req-status pending">Pending</div>
+                    </div>
+                </div>
+                <div class="quick-action">
+                    <a href="{{ url_for('new_request_page') }}" class="btn-primary-sm">
+                        <i class="fas fa-plus"></i> {{ 'طلب جديد' if session.get('lang') == 'ar' else 'New Request' }}
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.dashboard-wrapper { display: flex; flex-direction: column; gap: 30px; }
+.welcome-banner { 
+    background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+    padding: 40px;
+    border-radius: 24px;
+    color: white;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 10px 25px rgba(30, 58, 138, 0.2);
+}
+.welcome-banner h1 { font-size: 2.2rem; margin-bottom: 8px; font-weight: 800; }
+.welcome-banner p { opacity: 0.9; font-size: 1.1rem; }
+.banner-stats .quick-stat { 
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(10px);
+    padding: 15px 25px;
+    border-radius: 16px;
+    text-align: center;
+}
+.quick-stat .stat-label { display: block; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 5px; }
+.quick-stat .stat-value { font-size: 1.8rem; font-weight: 800; }
+
+.stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; }
+.stat-card { 
+    background: white;
+    padding: 25px;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+    border: 1px solid #f1f5f9;
+    transition: transform 0.3s ease;
+}
+.stat-card:hover { transform: translateY(-5px); box-shadow: 0 10px 15px rgba(0,0,0,0.05); }
+.stat-icon { width: 60px; height: 60px; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; }
+.stat-info h3 { font-size: 0.9rem; color: #64748b; margin-bottom: 5px; }
+.stat-info .value { font-size: 1.5rem; font-weight: 700; color: #1e293b; }
+
+.dashboard-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 25px; }
+.dashboard-card { background: white; border-radius: 20px; padding: 25px; border: 1px solid #f1f5f9; box-shadow: 0 4px 6px rgba(0,0,0,0.02); }
+.card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
+.card-header h2 { font-size: 1.2rem; font-weight: 700; color: #1e293b; display: flex; align-items: center; gap: 10px; }
+.card-header h2 i { color: #3b82f6; }
+.view-all { color: #3b82f6; text-decoration: none; font-size: 0.9rem; font-weight: 600; }
+
+.timeline-list { display: flex; flex-direction: column; gap: 15px; }
+.timeline-item { 
+    display: flex; gap: 20px; padding: 15px; border-radius: 12px; border: 1px solid #f1f5f9;
+    position: relative;
+}
+.timeline-item.active { background: #eff6ff; border-color: #bfdbfe; }
+.timeline-item.active::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; background: #3b82f6; border-radius: 4px 0 0 4px; }
+.timeline-item .time { font-weight: 700; color: #3b82f6; font-size: 0.9rem; min-width: 80px; }
+.timeline-item h4 { font-size: 1rem; color: #1e293b; margin-bottom: 4px; }
+.timeline-item p { font-size: 0.85rem; color: #64748b; }
+
+.request-list { display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px; }
+.request-mini-item { 
+    display: flex; justify-content: space-between; align-items: center; 
+    padding: 12px; background: #f8fafc; border-radius: 10px;
+}
+.req-type { font-size: 0.9rem; font-weight: 600; color: #1e293b; }
+.req-status { font-size: 0.75rem; padding: 4px 10px; border-radius: 20px; font-weight: 700; text-transform: uppercase; }
+.req-status.approved { background: #dcfce7; color: #166534; }
+.req-status.pending { background: #fef9c3; color: #854d0e; }
+
+.btn-primary-sm { 
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    background: #1e3a8a; color: white; border: none; padding: 12px; border-radius: 10px;
+    width: 100%; text-decoration: none; font-weight: 600; transition: background 0.3s;
+}
+.btn-primary-sm:hover { background: #1e40af; }
+
+@media (max-width: 992px) {
+    .dashboard-grid { grid-template-columns: 1fr; }
+    .welcome-banner { flex-direction: column; text-align: center; gap: 20px; }
+}
+</style>
+{% endblock %}
+{% extends "base.html" %}
+{% block content %}
+<div class="profile-edit-container">
+    <div class="edit-card">
+        <h2>✏️ {{ 'تعديل الملف الشخصي' if session.get('lang') == 'ar' else 'Edit Profile' }}</h2>
+        
+     
+<truncated 3519 bytes>
+{% extends "base.html" %}
+
+{% block content %}
+<div class="result-container">
+    <div class="result-card error">
+        <div class="result-icon pulse-error">
+            <i class="fas fa-exclamation-triangle"></i>
+        </div>
+        <h1>{{ 'عذراً، فشلت عملية الدفع' if session.get('lang') == 'ar' else 'Payment Failed' }}</h1>
+        <p>{{ msg or ('لم نتمكن من إتمام عملية الدفع. يرجى التأكد من بيانات البطاقة أو المحاولة لاحقاً.' if session.get('lang') == 'ar' else 'We could not process your payment. Please check your card details or try again later.') }}</p>
+        
+        <div class="error-details">
+            <p><i class="fas fa-info-circle"></i> {{ 'إذا تم خصم المبلغ من حسابك، يرجى التواصل مع الدعم الفني فوراً.' if session.get('lang') == 'ar' else 'If any amount was deducted, please contact support immediately.' }}</p>
+        </div>
+
+        <div class="result-actions">
+            <a href="{{ url_for('payments_page') }}" class="btn-primary-lg danger">{{ 'المحاولة مرة أخرى' if session.get('lang') == 'ar' else 'Try Again' }}</a>
+            <a href="{{ url_for('dashboard_page') }}" class="btn-outline-lg">{{ 'العودة للرئيسية' if session.get('lang') == 'ar' else 'Go to Dashboard' }}</a>
+        </div>
+    </div>
+</div>
+
+<style>
+.result-container { display: flex; justify-content: center; align-items: center; min-height: 60vh; padding: 20px; }
+.result-card { background: white; width: 100%; max-width: 500px; padding: 50px 40px; border-radius: 32px; text-align: center; box-shadow: 0 20px 40px rgba(0,0,0,0.05); border: 1px solid #f1f5f9; }
+.result-icon { width: 100px; height: 100px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 3.5rem; margin: 0 auto 30px; }
+.result-card.error .result-icon { background: #fef2f2; color: #ef4444; }
+
+.result-card h1 { font-size: 1.8rem; font-weight: 800; color: #1e293b; margin-bottom: 15px; }
+.result-card p { color: #64748b; margin-bottom: 30px; line-height: 1.6; }
+
+.error-details { background: #fdf2f2; padding: 15px; border-radius: 16px; margin-bottom: 40px; border: 1px solid #fee2e2; color: #b91c1c; font-size: 0.85rem; font-weight: 600; }
+
+.result-actions { display: flex; flex-direction: column; gap: 15px; }
+.btn-primary-lg.danger { background: #ef4444; color: white; border: none; padding: 16px; border-radius: 16px; font-weight: 700; text-decoration: none; transition: background 0.3s; }
+.btn-primary-lg.danger:hover { background: #dc2626; }
+.btn-outline-lg { background: white; color: #64748b; border: 2px solid #f1f5f9; padding: 16px; border-radius: 16px; font-weight: 700; text-decoration: none; transition: all 0.3s; }
+.btn-outline-lg:hover { background: #f8fafc; color: #1e293b; border-color: #e2e8f0; }
+
+.pulse-error { animation: pulse-error-animation 2s infinite; }
+@keyframes pulse-error-animation {
+  0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
+  70% { transform: scale(1); box-shadow: 0 0 0 20px rgba(239, 68, 68, 0); }
+  100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+}
+</style>
+{% endblock %}
+{% extends "base.html" %}
+
+{% block content %}
+<div class="exams-container">
+    <div class="page-header-premium">
+        <div class="header-content">
+            <h1><i class="fas fa-file-signature"></i> {{ 'الامتحانات' if session.get('lang') == 'ar' else 'Upcoming Exams' }}</h1>
+            <p>{{ 'جدول امتحاناتك الرسمية للفصل الدراسي الحالي.' if session.get('lang') == 'ar' else 'Your official exam schedule for the current semester.' }}</p>
+        </div>
+        <div class="header-stats">
+            <div class="stat-pill">
+                <span class="val">{{ exams|length if exams else 0 }}</span>
+                <span class="lbl">{{ 'امتحانات متبقية' if session.get('lang') == 'ar' else 'Exams Left' }}</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="exams-grid">
+        {% if exams %}
+            {% for exam in exams %}
+            <div class="exam-card-premium">
+                <div class="exam-date-box">
+                    <span class="month">{{ exam['exam_date'].strftime('%b') if exam['exam_date'] else '---' }}</span>
+                    <span class="day">{{ exam['exam_date'].strftime('%d') if exam['exam_date'] else '--' }}</span>
+                </div>
+                <div class="exam-main-info">
+                    <div class="subject-tag">{{ 'مادة أساسية' if session.get('lang') == 'ar' else 'Core Subject' }}</div>
+                    <h3>{{ exam['subject_name'] }}</h3>
+                    <div class="exam-meta">
+                        <span class="meta-item"><i class="far fa-clock"></i> {{ exam['exam_time'] }}</span>
+                        <span class="meta-item"><i class="fas fa-map-marker-alt"></i> {{ exam['location'] }}</span>
+                    </div>
+                </div>
+                <div class="exam-actions">
+                    <a href="#" class="btn-outline-sm">{{ 'التفاصيل' if session.get('lang') == 'ar' else 'Details' }}</a>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <!-- Mock Data if no real data found -->
+            <div class="exam-card-premium">
+                <div class="exam-date-box">
+                    <span class="month">MAY</span>
+                    <span class="day">15</span>
+                </div>
+                <div class="exam-main-info">
+                    <div class="subject-tag">Core Subject</div>
+                    <h3>Advanced Accounting</h3>
+                    <div class="exam-meta">
+                        <span class="meta-item"><i class="far fa-clock"></i> 10:00 AM</span>
+                        <span class="meta-item"><i class="fas fa-map-marker-alt"></i> Building C, Hall 4</span>
+                    </div>
+                </div>
+                <div class="exam-actions">
+                    <button class="btn-outline-sm">Details</button>
+                </div>
+            </div>
+            <div class="exam-card-premium">
+                <div class="exam-date-box danger">
+                    <span class="month">MAY</span>
+                    <span class="day">18</span>
+                </div>
+                <div class="exam-main-info">
+                    <div class="subject-tag">Final Project</div>
+                    <h3>Business Analysis</h3>
+                    <div class="exam-meta">
+                        <span class="meta-item"><i class="far fa-clock"></i> 01:00 PM</span>
+                        <span class="meta-item"><i class="fas fa-map-marker-alt"></i> Lab 102</span>
+                    </div>
+                </div>
+                <div class="exam-actions">
+                    <button class="btn-outline-sm">Details</button>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<style>
+.exams-container { max-width: 1200px; margin: 0 auto; padding-bottom: 50px; }
+.page-header-premium { 
+    display: flex; justify-content: space-between; align-items: center; 
+    margin-bottom: 40px; background: white; padding: 30px; border-radius: 20px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.02); border: 1px solid #f1f5f9;
+}
+.header-content h1 { font-size: 1.8rem; font-weight: 800; color: #1e293b; margin-bottom: 5px; }
+.header-content p { color: #64748b; }
+.stat-pill { background: #eff6ff; padding: 10px 20px; border-radius: 30px; text-align: center; border: 1px solid #bfdbfe; }
+.stat-pill .val { display: block; font-size: 1.4rem; font-weight: 800; color: #1e3a8a; }
+.stat-pill .lbl { font-size: 0.75rem; color: #3b82f6; text-transform: uppercase; font-weight: 700; }
+
+.exams-grid { display: flex; flex-direction: column; gap: 20px; }
+.exam-card-premium { 
+    background: white; border-radius: 20px; padding: 20px; display: flex; align-items: center; gap: 30px;
+    border: 1px solid #f1f5f9; box-shadow: 0 4px 6px rgba(0,0,0,0.02); transition: all 0.3s ease;
+}
+.exam-card-premium:hover { transform: scale(1.01); box-shadow: 0 10px 20px rgba(0,0,0,0.05); border-color: #3b82f6; }
+
+.exam-date-box { 
+    width: 80px; height: 90px; background: #f8fafc; border-radius: 16px; border: 1px solid #e2e8f0;
+    display: flex; flex-direction: column; overflow: hidden; text-align: center;
+}
+.exam-date-box .month { background: #3b82f6; color: white; font-size: 0.75rem; font-weight: 800; padding: 5px; text-transform: uppercase; }
+.exam-date-box .day { font-size: 1.8rem; font-weight: 800; color: #1e293b; display: flex; align-items: center; justify-content: center; flex-grow: 1; }
+.exam-date-box.danger .month { background: #ef4444; }
+
+.exam-main-info { flex-grow: 1; }
+.subject-tag { display: inline-block; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; color: #3b82f6; background: #eff6ff; padding: 4px 10px; border-radius: 20px; margin-bottom: 10px; }
+.exam-main-info h3 { font-size: 1.3rem; font-weight: 700; color: #1e293b; margin-bottom: 10px; }
+.exam-meta { display: flex; gap: 25px; color: #64748b; font-size: 0.95rem; }
+.meta-item { display: flex; align-items: center; gap: 8px; }
+.meta-item i { color: #3b82f6; }
+
+.btn-outline-sm { 
+    padding: 10px 20px; border-radius: 12px; border: 1px solid #e2e8f0; background: white; 
+    color: #1e293b; font-weight: 600; text-decoration: none; font-size: 0.9rem; transition: all 0.3s;
+}
+.btn-outline-sm:hover { background: #1e3a8a; color: white; border-color: #1e3a8a; }
+
+@media (max-width: 768px) {
+    .exam-card-premium { flex-direction: column; text-align: center; gap: 20px; }
+    .exam-meta { justify-content: center; flex-wrap: wrap; }
+    .page-header-premium { flex-direction: column; text-align: center; gap: 20px; }
+}
+</style>
+{% endblock %}
+{% extends "base.html" %}
+{% block content %}
+<div class="page-header">
+    <div class="header-text">
+        <h1>🔍 {{ 'تفاصيل الامتحان' if session.get('lang') == 'ar' else 'Exam Details' }}</h1>
+        <p>{{ exam.subject_name
+<truncated 3031 bytes>
+{% extends "base.html" %}
+
+{% block content %}
+<div class="gpa-wrapper">
+    <div class="page-header-premium">
+        <div class="header-content">
+            <h1><i class="fas fa-chart-line"></i> {{ 'المعدل التراكمي (GPA)' if session.get('lang') == 'ar' else 'Cumulative GPA' }}</h1>
+            <p>{{ 'راقب أداءك الأكاديمي وتطور درجاتك عبر السنوات.' if session.get('lang') == 'ar' else 'Monitor your academic performance and grade progress over the years.' }}</p>
+        </div>
+        <div class="gpa-badge-premium">
+            <span class="label">{{ 'المعدل الحالي' if session.get('lang') == 'ar' else 'Current GPA' }}</span>
+            <span class="value">{{ user.gpa or '3.85' }}</span>
+        </div>
+    </div>
+
+    <div class="gpa-overview-grid">
+        <div class="gpa-card main">
+            <h3>{{ 'إحصائيات الأداء' if session.get('lang') == 'ar' else 'Performance Stats' }}</h3>
+            <div class="stats-container">
+                <div class="stat-circle-box">
+                    <svg viewBox="0 0 36 36" class="circular-chart blue">
+                        <path class="circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                        <path class="circle" stroke-dasharray="{{ (user.gpa|float / 4.0 * 100) if user.gpa else 85 }}, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                        <text x="18" y="20.35" class="percentage">{{ user.gpa or '3.85' }}</text>
+                    </svg>
+                </div>
+                <div class="stats-details">
+                    <div class="detail-item">
+                        <span class="lbl">{{ 'المستوى الحالي' if session.get('lang') == 'ar' else 'Current Level' }}</span>
+                        <span class="val">{{ user.level or 'Year 3' }}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="lbl">{{ 'الساعات المعتمدة' if session.get('lang') == 'ar' else 'Credit Hours' }}</span>
+                        <span class="val">96 / 132</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="lbl">{{ 'الكلية' if session.get('lang') == 'ar' else 'Faculty' }}</span>
+                        <span class="val">{{ user.faculty or 'Commerce' }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="gpa-card timeline-card">
+            <h3>{{ 'سجل السنوات الدراسية' if session.get('lang') == 'ar' else 'Academic History' }}</h3>
+            <div class="semester-accordion">
+                {% if years %}
+                    {% for year_num, year_data in years.items() %}
+                    <div class="year-group">
+                        <div class="year-header">
+                            <span>{{ year_data.label }}</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                        <div class="year-content">
+                            {% for sem_name, courses in year_data.semesters.items() %}
+                            <div class="semester-table-box">
+                                <h4>{{ sem_name }} Semester</h4>
+                                <table class="premium-table-sm">
+                                    <thead>
+                                        <tr>
+                                            <th>{{ 'المادة' if session.get('lang') == 'ar' else 'Subject' }}</th>
+                                            <th>{{ 'التقدير' if session.get('lang') == 'ar' else 'Grade' }}</th>
+                                            <th>{{ 'النقاط' if session.get('lang') == 'ar' else 'Points' }}</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for c in courses %}
+                                        <tr>
+                                            <td>{{ c.course_name }}</td>
+                                            <td><span class="grade-pill {{ c.grade[0]|lower if c.grade else 'a' }}">{{ c.grade }}</span></td>
+                                            <td>{{ c.points }}</td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <!-- Mock Data -->
+                    <div class="year-group">
+                        <div class="year-header">
+                            <span>Year 2 (2024/2025)</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                        <div class="year-content active">
+                            <div class="semester-table-box">
+                                <h4>Fall Semester</h4>
+                                <table class="premium-table-sm">
+                                    <thead>
+                                        <tr>
+                                            <th>Subject</th>
+                                            <th>Grade</th>
+                                            <th>Points</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr><td>Macroeconomics</td><td><span class="grade-pill a">A</span></td><td>4.0</td></tr>
+                                        <tr><td>Business Law</td><td><span class="grade-pill b">B+</span></td><td>3.5</td></tr>
+                                        <tr><td>Accounting II</td><td><span class="grade-pill a">A-</span></td><td>3.7</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.gpa-wrapper { padding-bottom: 50px; }
+.page-header-premium { 
+    display: flex; justify-content: space-between; align-items: center; 
+    margin-bottom: 40px; background: white; padding: 30px; border-radius: 24px;
+    border: 1px solid #f1f5f9; box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+}
+.gpa-badge-premium { background: #1e3a8a; color: white; padding: 15px 30px; border-radius: 16px; text-align: center; box-shadow: 0 10px 20px rgba(30, 58, 138, 0.2); }
+.gpa-badge-premium .label { display: block; font-size: 0.75rem; text-transform: uppercase; opacity: 0.8; margin-bottom: 5px; }
+.gpa-badge-premium .value { font-size: 1.8rem; font-weight: 800; }
+
+.gpa-overview-grid { display: grid; grid-template-columns: 1fr 1.5fr; gap: 30px; }
+.gpa-card { background: white; border-radius: 24px; padding: 35px; border: 1px solid #f1f5f9; box-shadow: 0 4px 15px rgba(0,0,0,0.03); }
+.gpa-card h3 { font-size: 1.2rem; font-weight: 800; color: #1e293b; margin-bottom: 30px; border-bottom: 1px solid #f1f5f9; padding-bottom: 15px; }
+
+.stats-container { display: flex; flex-direction: column; align-items: center; gap: 40px; }
+.circular-chart { display: block; margin: 10px auto; max-width: 180px; max-height: 180px; }
+.circle-bg { fill: none; stroke: #f1f5f9; stroke-width: 2.8; }
+.circle { fill: none; stroke-width: 2.8; stroke-linecap: round; stroke: #3b82f6; transition: stroke-dasharray 1s ease; }
+.percentage { fill: #1e293b; font-family: sans-serif; font-size: 0.5rem; text-anchor: middle; font-weight: 800; }
+
+.stats-details { width: 100%; display: flex; flex-direction: column; gap: 20px; }
+.detail-item { display: flex; justify-content: space-between; align-items: center; padding-bottom: 15px; border-bottom: 1px dashed #e2e8f0; }
+.detail-item .lbl { color: #64748b; font-size: 0.9rem; font-weight: 600; }
+.detail-item .val { color: #1e293b; font-weight: 800; }
+
+.year-group { margin-bottom: 15px; border-radius: 16px; border: 1px solid #f1f5f9; overflow: hidden; }
+.year-header { background: #f8fafc; padding: 20px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; font-weight: 700; color: #1e293b; }
+.year-content { padding: 20px; display: none; }
+.year-content.active { display: block; }
+
+.semester-table-box { margin-bottom: 30px; }
+.semester-table-box h4 { font-size: 1rem; color: #3b82f6; margin-bottom: 15px; border-left: 4px solid #3b82f6; padding-left: 10px; }
+[dir="rtl"] .semester-table-box h4 { border-left: none; border-right: 4px solid #3b82f6; padding-left: 0; padding-right: 10px; }
+
+.premium-table-sm { width: 100%; border-collapse: collapse; text-align: left; }
+[dir="rtl"] .premium-table-sm { text-align: right; }
+.premium-table-sm th { color: #94a3b8; font-size: 0.75rem; text-transform: uppercase; padding: 10px; border-bottom: 1px solid #f1f5f9; }
+.premium-table-sm td { padding: 12px 10px; color: #1e293b; font-weight: 600; font-size: 0.95rem; }
+
+.grade-pill { padding: 4px 12px; border-radius: 8px; font-weight: 800; font-size: 0.8rem; }
+.grade-pill.a { background: #dcfce7; color: #166534; }
+.grade-pill.b { background: #eff6ff; color: #1e40af; }
+.grade-pill.c { background: #fef9c3; color: #854d0e; }
+
+@media (max-width: 992px) {
+    .gpa-overview-grid { grid-template-columns: 1fr; }
+}
+</style>
+
+<script>
+document.querySelectorAll('.year-header').forEach(header => {
+    header.addEventListener('click', () => {
+        header.nextElementSibling.classList.toggle('active');
+        header.querySelector('i').classList.toggle('fa-chevron-up');
+        header.querySelector('i').classList.toggle('fa-chevron-down');
+    });
+});
+</script>
+{% endblock %}
+<!DOCTYPE html>
+<html lang="{{ 'ar' if session.get('lang', 'en') == 'ar' else 'en' }}" dir="{{ 'rtl' if session.get('lang', 'en') == 'ar' else 'ltr' }}">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ 'EDUGUIDE | الرئيسية' if session.get('lang', 'en') == 'ar' else 'EDUGUIDE | Smart Student Platform' }}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=10">
+</head>
+<body class="landing-body-clean">
+  {% set is_ar = session.get('lang', 'en') == 'ar' %}
+
+  <!-- NAVBAR -->
+  <nav class="clean-nav">
+    <div class="brand-clean">
+      <div class="brand-icon-clean">
+        <img src="https://cdn-icons-png.flaticon.com/512/8074/8074804.png" alt="EduGuide" style="width: 32px; height: 32px;">
+      </div>
+      <div class="brand-name-clean">EDUGUIDE</div>
+    </div>
+    <div class="nav-links-clean">
+      <a href="{{ url_for('landing') }}">{{ 'الرئيسية' if is_ar else 'Home' }}</a>
+      <a href="{{ url_for('about') }}">{{ 'من نحن' if is_ar else 'About' }}</a>
+      <a href="{{ url_for('contact') }}">{{ 'تواصل معنا' if is_ar else 'Contact' }}</a>
+      <a href="{{ url_for('set_language', lang='en' if is_ar else 'ar', next=request.path) }}" class="lang-switch-clean">
+        🌐 <span>{{ 'EN' if is_ar else 'العربية' }}</span>
+      </a>
+      <a href="{{ url_for('login') }}" class="btn-login-clean">
+        {{ 'دخول' if is_ar else 'Login →' }}
+      </a>
+    </div>
+  </nav>
+
+  <!-- HERO SECTION -->
+  <section class="hero-clean">
+    <div class="hero-content-clean">
+      <div class="tag-clean">
+        <span class="dot-clean"></span>
+        {{ 'خدمات أكاديمية من الجيل القادم' if is_ar else 'Next-Gen Academic Services' }}
+      </div>
+      <h1 class="title-clean">
+        {{ 'جامعتك،' if is_ar else 'Your University,' }}<br>
+        <span class="text-blue">{{ 'أذكى.' if is_ar else 'Smarter.' }}</span>
+      </h1>
+      <p class="lead-clean">
+        {{ 'تعيد إديوجايد تعريف التجربة الجامعية في مصر من خلال دمج الذكاء الاصطناعي في كل تفاصيل حياتك الأكاديمية اليومية.' if is_ar else 'EDUGUIDE redefines the university experience in Egypt by integrating AI into every detail of your daily academic life.' }}
+      </p>
+      <div class="hero-actions-clean">
+        <a href="{{ url_for('login') }}" class="btn-primary-clean">{{ 'ابدأ الآن مجانًا' if is_ar else 'Start Now for Free' }}</a>
+        <a href="{{ url_for('about') }}" class="btn-secondary-clean">{{ 'كيف نعمل؟' if is_ar else 'How we work?' }}</a>
+      </div>
+    </div>
+
+    <div class="hero-graphic-clean">
+      <!-- The Dashboard Graphic -->
+      <div class="dashboard-mockup">
+        <div class="dash-sidebar">
+          <div class="dash-logo-mini">🎓</div>
+          <div class="dash-lines"></div>
+          <div class="dash-lines"></div>
+          <div class="dash-lines"></div>
+        </div>
+        <div class="dash-main">
+          <div class="dash-top-cards">
+            <div class="dtc">📈</div>
+            <div class="dtc">📅</div>
+            <div class="dtc">🤖</div>
+          </div>
+          <div class="dash-content-area">Dashboard Preview</div>
+        </div>
+      </div>
+
+      <!-- Floating Animated Badges -->
+      <div class="float-badge fb-1">🎓 EDUGUIDE</div>
+      <div class="float-badge fb-2">🤖 AI Concierge</div>
+      <div class="float-badge fb-3">💳 Payments</div>
+      <div class="float-badge fb-4">📊 Smart GPA</div>
+      <div class="float-badge fb-5">🕒 Live Timetable</div>
+      <div class="float-badge fb-6">📄 CV Optimizer</div>
+    </div>
+  </section>
+
+  <!-- FEATURES SECTION -->
+  <section class="features-clean">
+    <div class="section-header-clean">
+      <div class="section-tag-clean">WHY EDUGUIDE?</div>
+      <h2 class="section-title-clean">Integrated Solutions for Modern Education</h2>
+    </div>
+    
+    <div class="features-grid-clean">
+      <div class="feature-card-clean">
+        <div class="fc-icon">🤖</div>
+        <h3>AI Academic Concierge</h3>
+        <p>A smart chat system that understands your needs and answers questions about university regulations instantly.</p>
+      </div>
+      <div class="feature-card-clean">
+        <div class="fc-icon">📈</div>
+        <h3>Academic Performance</h3>
+        <p>Track your cumulative GPA and accurately understand graduation requirements and targeted grades.</p>
+      </div>
+      <div class="feature-card-clean">
+        <div class="fc-icon">🎯</div>
+        <h3>Career Path</h3>
+        <p>Smart tools to build your CV and practice interviews to connect you with the job market.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- BLUE BANNER SECTION -->
+  <section class="blue-banner-clean">
+    <div class="banner-content">
+      <h2>Discover the Story Behind EDUGUIDE</h2>
+      <p>Learn about our vision, goals, and how we strive to develop higher education in Egypt using technology.</p>
+      <a href="{{ url_for('about') }}" class="btn-banner-clean">About the Platform</a>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="footer-clean">
+    <div class="footer-brand">🎓 EDUGUIDE</div>
+    <div class="footer-links">
+      <a href="#">About</a>
+      <a href="#">Contact</a>
+    </div>
+    <div class="footer-copy">© 2026 EDUGUIDE. All rights reserved.</div>
+  </footer>
+
+</body>
+</html>
+<!DOCTYPE html>
+<html lang="{{ session.get('lang', 'en') }}" dir="{{ 'rtl' if session.get('lang', 'en') == 'ar' else 'ltr' }}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EDUGUIDE | Smart Student Platform</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body class="public-body">
+    <nav class="public-nav">
+        <div class="nav-brand">
+            <img src="{{ url_for('static', filename='logo.png') }}" class="nav-logo-icon">
+            <span class="nav-logo-name">EDUGUIDE</span>
+        </div>
+        <div class="nav-links-pub">
+            <a href="{{ url_for('landing') }}">{{ 'الرئيسية' if session.get('lang') == 'ar' else 'Home' }}</a>
+            <a href="{{ url_for('about') }}">{{ 'عن المنصة' if session.get('lang') == 'ar' else 'About' }}</a>
+            <a href="{{ url_for('contact') }}">{{ 'اتصل بنا' if session.get('lang') == 'ar' else 'Contact' }}</a>
+            <a href="{{ url_for('login') }}" class="btn-nav-login">{{ 'دخول' if session.get('lang') == 'ar' else 'Login' }}</a>
+        </div>
+    </nav>
+
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="public-footer">
+        <p>© 2026 EDUGUIDE. All rights reserved.</p>
+    </footer>
+
+    <script src="{{ url_for('static', filename='js/theme.js') }}"></script>
+</body>
+</html>
+<!DOCTYPE html>
+<html lang="{{ 'ar' if session.get('lang', 'en') == 'ar' else 'en' }}" dir="{{ 'rtl' if session.get('lang', 'en') == 'ar' else 'ltr' }}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EDYGUIDE | Login</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=15">
+</head>
+<body class="login-body">
+    <div class="login-container">
+        <div class="login-box">
+            <div class="login-header">
+                <div class="brand-logo">🎓</div>
+                <h1>{{ 'تسجيل الدخول' if session.get('lang', 'en') == 'ar' else 'Welcome Back' }}</h1>
+                <p>{{ 'ادخل إلى حسابك في EDYGUIDE' if session.get('lang', 'en') == 'ar' else 'Login to your EDYGUIDE account' }}</p>
+            </div>
+
+            {% with messages = get_flashed_messages(with_categories=true) %}
+              {% if messages %}
+                {% for category, message in messages %}
+                  <div class="alert alert-{{ category }}">{{ message }}</div>
+                {% endfor %}
+              {% endif %}
+            {% endwith %}
+
+            <form action="{{ url_for('login') }}" method="POST" class="login-form">
+                <div class="form-group">
+                    <label>{{ 'البريد الإلكتروني' if session.get('lang', 'en') == 'ar' else 'Email / ID' }}</label>
+                    <input type="text" name="identifier" placeholder="e.g. student@edyguide.com" required>
+                </div>
+
+                <div class="form-group">
+                    <label>{{ 'كلمة المرور' if session.get('lang', 'en') == 'ar' else 'Password' }}</label>
+                    <input type="password" name="password" placeholder="••••••••" required>
+                </div>
+
+                <div class="form-group">
+                    <label>{{ 'نوع الحساب' if session.get('lang', 'en') == 'ar' else 'I am a...' }}</label>
+                    <select name="role">
+                        <option value="student">{{ 'طالب' if session.get('lang', 'en') == 'ar' else 'Student' }}</option>
+                        <option value="instructor">{{ 'دكتور / محاضر' if session.get('lang', 'en') == 'ar' else 'Instructor' }}</option>
+                        <option value="system">{{ 'مسؤول نظام' if session.get('lang', 'en') == 'ar' else 'System Admin' }}</option>
+                    </select>
+                </div>
+
+                <button type="submit" class="login-btn">
+                    {{ 'دخول' if session.get('lang', 'en') == 'ar' else 'Login Now' }}
+                </button>
+            </form>
+
+            <div class="login-footer">
+                <p>{{ 'هل واجهت مشكلة؟' if session.get('lang', 'en') == 'ar' else 'Having trouble?' }} <a href="{{ url_for('contact') }}">{{ 'تواصل معنا' if session.get('lang', 'en') == 'ar' else 'Contact Support' }}</a></p>
+                <a href="{{ url_for('landing') }}" class="back-link">← {{ 'العودة للرئيسية' if session.get('lang', 'en') == 'ar' else 'Back to Home' }}</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+{% extends "base.html" if base_exists else "layout_pub.html" %}
+{% block content %}
+<div class="marketplace-container">
+    <div class="page-header">
+        <h1>{{ 'السوق الطلابي' if session.get('lang') == 'ar' else 'Student Marketplace' }}</h1>
+        <p>{{ 'احصل على الكتب، الملازم، والدورات التدريبية الموصى بها لمستواك الأكاديمي.' if session.get('lang') == 'ar' else 'Get books, notes, and training courses recommended for your academic level.' }}</p>
+    </div>
+
+    <!-- Recommended for your level -->
+    <section class="market-section">
+        <h3 class="section-title">{{ 'موصى به لمستواك' if session.get('lang') == 'ar' else 'Recommended for You' }}</h3>
+        <div class="product-grid">
+            {% if recommended %}
+                {% for p in recommended %}
+                <div class="product-card">
+                    <div class="product-badge">{{ p.category }}</div>
+                    <img src="{{ url_for('static', filename='uploads/' + p.image) }}" alt="{{ p.title }}" onerror="this.src='https://placehold.co/300x200?text=Product'">
+                    <div class="product-info">
+                        <h3>{{ p.title }}</h3>
+                        <p class="summary">{{ p.summary[:100] }}...</p>
+                        <div class="product-footer">
+                            <span class="price">{{ p.price }}</span>
+                            <a href="{{ url_for('marketplace_product_details', product_id=p.id) }}" class="btn-details">{{ 'التفاصيل' if session.get('lang') == 'ar' else 'Details' }}</a>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <p class="empty-msg">{{ 'لا توجد توصيات متاحة حالياً.' if session.get('lang') == 'ar' else 'No recommendations available yet.' }}</p>
+            {% endif %}
+        </div>
+    </section>
+
+    <!-- All Products -->
+    <section class="market-section">
+        <h3 class="section-title">{{ 'كل المنتجات' if session.get('lang') == 'ar' else 'All Products' }}</h3>
+        <div class="product-grid">
+            {% if products %}
+                {% for p in products %}
+                <div class="product-card">
+                    <div class="product-badge">{{ p.category }}</div>
+                    <img src="{{ url_for('static', filename='uploads/' + p.image) }}" alt="{{ p.title }}" onerror="this.src='https://placehold.co/300x200?text=Product'">
+                    <div class="product-info">
+                        <h3>{{ p.title }}</h3>
+                        <p class="summary">{{ p.summary[:100] }}...</p>
+                        <div class="product-footer">
+                            <span class="price">{{ p.price }}</span>
+                            <a href="{{ url_for('marketplace_product_details', product_id=p.id) }}" class="btn-details">{{ 'التفاصيل' if session.get('lang') == 'ar' else 'Details' }}</a>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <p class="empty-msg">{{ 'السوق فارغ حالياً.' if session.get('lang') == 'ar' else 'Marketplace is currently empty.' }}</p>
+            {% endif %}
+        </div>
+    </section>
+</div>
+{% endblock %}
+<!DOCTYPE html>
+<html lang="{{ 'ar' if session.get('lang', 'en') == 'ar' else 'en' }}" dir="{{ 'rtl' if session.get('lang', 'en') == 'ar' else 'ltr' }}">
+<head>
+  <meta charset="UTF-8">
+  <title>{{ product.title }}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=120">
+</head>
+<body class="dashboard-body">
+
+{% set is_ar = session.get('lang', 'en') == 'ar' %}
+
+<div class="market-details-shell">
+  <div class="market-details-card">
+
+    <div class="market-details-image">
+      <img src="{{ url_for('static', filename='uploads/' + product.image) }}" alt="{{ product.title }}">
+    </div>
+
+    <div class="market-details-content">
+      <span class="market-category">{{ product.category }}</span>
+      <h1>{{ product.title }}</h1>
+
+      <div class="market-details-summary">
+        <h3>{{ 'الملخص' if is_ar else 'Summary' }}</h3>
+        <p>{{ product.summary }}</p>
+      </div>
+
+      <div class="market-actions">
+        <a href="{{ url_for('marketplace_page') }}" class="market-secondary-btn">
+          {{ 'رجوع' if is_ar else 'Back' }}
+        </a>
+
+        {% if product.pdf_file %}
+        <a href="{{ url_for('static', filename='uploads/' + product.pdf_file) }}" target="_blank" class="market-primary-btn">
+          {{ 'فتح ملف PDF' if is_ar else 'Open PDF' }}
+        </a>
+        {% endif %}
+      </div>
+    </div>
+
+  </div>
+</div>
+
+</body>
+</html>
+{% extends "base.html" %}
+
+{% block content %}
+<div class="interview-container">
+    <div class="interview-header">
+        <div class="header-main">
+            <h1><i class="fas fa-headset"></i> {{ 'المقابلة التجريبية الذكية' if session.get('lang') == 'ar' else 'Smart Mock Interview' }}</h1>
+            <p>{{ 'تدرب على أسئلة المقابلات الحقيقية واحصل على تقييم فوري لمستواك.' if session.get('lang') == 'ar' else 'Practice real interview questions and get instant feedback on your performance.' }}</p>
+        </div>
+        <div class="session-timer" id="timer">00:00</div>
+    </div>
+
+    <div class="interview-workspace">
+        <!-- AI Interviewer Side -->
+        <div class="interviewer-card">
+            <div class="ai-avatar">
+                <div class="avatar-circle pulse-blue">
+                    <i class="fas fa-user-astronaut"></i>
+                </div>
+                <span class="ai-name">AI Assistant</span>
+            </div>
+            <div class="chat-bubble">
+                <p id="ai-question">{{ 'أهلاً بك! أنا مستعد لبدء المقابلة معك. هل أنت مستعد للسؤال الأول؟' if session.get('lang') == 'ar' else "Hello! I'm ready to start the interview with you. Are you ready for the first question?" }}</p>
+            </div>
+        </div>
+
+        <!-- Student Response Side -->
+        <div class="response-area">
+            <div class="controls-card">
+                <div class="mic-status">
+                    <div class="wave-animation" style="display: none;">
+                        <span></span><span></span><span></span><span></span>
+                    </div>
+                    <p id="status-label">{{ 'اضغط على الميكروفون للبدء' if session.get('lang') == 'ar' else 'Click the microphone to start' }}</p>
+                </div>
+                <div class="action-buttons">
+                    <button class="btn-mic" id="mic-btn"><i class="fas fa-microphone"></i></button>
+                    <button class="btn-next">{{ 'السؤال التالي' if session.get('lang') == 'ar' else 'Next Question' }} <i class="fas fa-arrow-right"></i></button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.interview-container { max-width: 1000px; margin: 0 auto; padding-bottom: 50px; }
+.interview-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; }
+.header-main h1 { font-size: 1.8rem; font-weight: 800; color: #1e293b; margin-bottom: 10px; }
+.header-main p { color: #64748b; }
+.session-timer { background: #0f172a; color: #3b82f6; padding: 10px 20px; border-radius: 12px; font-family: monospace; font-size: 1.4rem; font-weight: 700; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+
+.interview-workspace { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; }
+
+.interviewer-card { background: white; border-radius: 32px; padding: 40px; border: 1px solid #f1f5f9; box-shadow: 0 10px 30px rgba(0,0,0,0.05); display: flex; flex-direction: column; align-items: center; text-align: center; }
+.ai-avatar { margin-bottom: 30px; }
+.avatar-circle { width: 100px; height: 100px; background: #1e3a8a; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 3rem; margin: 0 auto 15px; }
+.ai-name { font-weight: 800; color: #1e3a8a; text-transform: uppercase; letter-spacing: 1px; font-size: 0.8rem; }
+
+.chat-bubble { background: #f8fafc; padding: 25px; border-radius: 24px; border-top-left-radius: 0; position: relative; border: 1px solid #e2e8f0; }
+[dir="rtl"] .chat-bubble { border-top-left-radius: 24px; border-top-right-radius: 0; }
+.chat-bubble p { color: #1e293b; font-size: 1.1rem; line-height: 1.6; margin: 0; font-weight: 600; }
+
+.response-area { display: flex; flex-direction: column; justify-content: center; }
+.controls-card { background: white; border-radius: 32px; padding: 40px; border: 1px solid #f1f5f9; box-shadow: 0 10px 30px rgba(0,0,0,0.05); text-align: center; }
+.mic-status { margin-bottom: 40px; }
+.mic-status p { color: #64748b; font-weight: 600; }
+
+.btn-mic { width: 80px; height: 80px; border-radius: 50%; border: none; background: #3b82f6; color: white; font-size: 2rem; cursor: pointer; transition: all 0.3s; margin-bottom: 25px; box-shadow: 0 10px 20px rgba(59, 130, 246, 0.3); }
+.btn-mic:hover { transform: scale(1.1); background: #2563eb; }
+.btn-mic.recording { background: #ef4444; animation: pulse-red 1.5s infinite; }
+
+.btn-next { background: #1e293b; color: white; border: none; padding: 15px 30px; border-radius: 12px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; transition: 0.3s; }
+.btn-next:hover { background: #0f172a; }
+
+/* Pulse Animation */
+.pulse-blue { animation: pulse-blue-anim 2s infinite; }
+@keyframes pulse-blue-anim {
+  0% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.4); }
+  70% { box-shadow: 0 0 0 20px rgba(59, 130, 246, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0); }
+}
+
+@keyframes pulse-red {
+  0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
+  70% { box-shadow: 0 0 0 20px rgba(239, 68, 68, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+}
+
+/* Voice Wave Animation */
+.wave-animation { display: flex; justify-content: center; gap: 4px; height: 30px; margin-bottom: 15px; }
+.wave-animation span { width: 4px; background: #3b82f6; border-radius: 2px; animation: wave 1s infinite ease-in-out; }
+.wave-animation span:nth-child(2) { animation-delay: 0.1s; }
+.wave-animation span:nth-child(3) { animation-delay: 0.2s; }
+.wave-animation span:nth-child(4) { animation-delay: 0.3s; }
+@keyframes wave {
+  0%, 100% { height: 10px; }
+  50% { height: 30px; }
+}
+
+@media (max-width: 768px) {
+    .interview-workspace { grid-template-columns: 1fr; }
+}
+</style>
+{% endblock %}
+{% extends "base.html" %}
+
+{% block content %}
+<div class="requests-container">
+    <div class="page-header-premium">
+        <div class="header-content">
+            <h1><i class="fas fa-tasks"></i> {{ 'طلباتي' if session.get('lang') == 'ar' else 'My Requests' }}</h1>
+            <p>{{ 'تابع حالة طلباتك الأكاديمية والخدمات التي طلبتها.' if session.get('lang') == 'ar' else 'Track the status of your academic requests and services.' }}</p>
+        </div>
+        <div class="header-actions">
+            <a href="{{ url_for('new_request_page') }}" class="btn-primary-premium">
+                <i class="fas fa-plus-circle"></i> {{ 'طلب خدمة جديد' if session.get('lang') == 'ar' else 'New Request' }}
+            </a>
+        </div>
+    </div>
+
+    <div class="requests-list">
+        {% if all_requests %}
+            {% for req in all_requests %}
+            <div class="request-card-premium">
+                <div class="request-status-side">
+                    <div class="status-indicator {{ req['status'].lower() }}"></div>
+                </div>
+                <div class="request-main-content">
+                    <div class="request-top">
+                        <span class="request-id">#REQ-{{ req['id'] }}</span>
+                        <span class="request-date">{{ req['created_at'].strftime('%Y-%m-%d') if req['created_at'] else '---' }}</span>
+                    </div>
+                    <h3>{{ req['title'] }}</h3>
+                    <p class="request-desc">{{ req['message']|truncate(150) }}</p>
+                    
+                    {% if req['admin_reply'] %}
+                    <div class="admin-reply-box">
+                        <span class="reply-label"><i class="fas fa-reply"></i> {{ 'رد الإدارة:' if session.get('lang') == 'ar' else 'Admin Reply:' }}</span>
+                        <p>{{ req['admin_reply'] }}</p>
+                    </div>
+                    {% endif %}
+                </div>
+                <div class="request-meta-side">
+                    <div class="status-tag {{ req['status'].lower() }}">{{ req['status'] }}</div>
+                    <button class="btn-icon-view"><i class="far fa-eye"></i></button>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="empty-state-premium">
+                <div class="empty-icon"><i class="fas fa-clipboard"></i></div>
+                <h3>{{ 'لا يوجد طلبات حالياً' if session.get('lang') == 'ar' else 'No requests found' }}</h3>
+                <p>{{ 'لم تقم بتقديم أي طلبات خدمة بعد.' if session.get('lang') == 'ar' else 'You haven\'t submitted any service requests yet.' }}</p>
+                <a href="{{ url_for('new_request_page') }}" class="btn-outline-premium">{{ 'اطلب أول خدمة الآن' if session.get('lang') == 'ar' else 'Request your first service' }}</a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<style>
+.requests-container { max-width: 1100px; margin: 0 auto; padding-bottom: 50px; }
+.page-header-premium { display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; }
+.btn-primary-premium { background: #1e3a8a; color: white; padding: 12px 25px; border-radius: 12px; text-decoration: none; font-weight: 700; display: flex; align-items: center; gap: 10px; box-shadow: 0 4px 15px rgba(30, 58, 138, 0.2); transition: all 0.3s; }
+.btn-primary-premium:hover { background: #1e40af; transform: translateY(-2px); }
+
+.requests-list { display: flex; flex-direction: column; gap: 20px; }
+.request-card-premium { 
+    background: white; border-radius: 20px; display: flex; overflow: hidden;
+    border: 1px solid #f1f5f9; box-shadow: 0 4px 6px rgba(0,0,0,0.02); transition: all 0.3s;
+}
+.request-card-premium:hover { transform: scale(1.01); box-shadow: 0 10px 20px rgba(0,0,0,0.05); }
+
+.request-status-side { width: 6px; }
+.status-indicator.pending { background: #f59e0b; }
+.status-indicator.approved { background: #10b981; }
+.status-indicator.rejected { background: #ef4444; }
+
+.request-main-content { flex-grow: 1; padding: 25px; }
+.request-top { display: flex; justify-content: space-between; margin-bottom: 15px; }
+.request-id { font-size: 0.8rem; font-weight: 800; color: #94a3b8; }
+.request-date { font-size: 0.8rem; color: #94a3b8; }
+.request-main-content h3 { font-size: 1.2rem; font-weight: 700; color: #1e293b; margin-bottom: 10px; }
+.request-desc { color: #64748b; font-size: 0.95rem; line-height: 1.5; margin-bottom: 20px; }
+
+.admin-reply-box { background: #f8fafc; padding: 15px; border-radius: 12px; border-left: 4px solid #3b82f6; }
+[dir="rtl"] .admin-reply-box { border-left: none; border-right: 4px solid #3b82f6; }
+.reply-label { display: block; font-size: 0.75rem; font-weight: 800; color: #3b82f6; margin-bottom: 5px; text-transform: uppercase; }
+.admin-reply-box p { font-size: 0.9rem; color: #475569; margin: 0; }
+
+.request-meta-side { padding: 25px; display: flex; flex-direction: column; justify-content: space-between; align-items: flex-end; border-left: 1px solid #f1f5f9; min-width: 140px; }
+[dir="rtl"] .request-meta-side { border-left: none; border-right: 1px solid #f1f5f9; align-items: flex-start; }
+
+.status-tag { padding: 6px 12px; border-radius: 20px; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; }
+.status-tag.pending { background: #fffbeb; color: #92400e; }
+.status-tag.approved { background: #f0fdf4; color: #166534; }
+.status-tag.rejected { background: #fef2f2; color: #991b1b; }
+
+.btn-icon-view { background: #f1f5f9; border: none; width: 40px; height: 40px; border-radius: 10px; color: #64748b; cursor: pointer; transition: all 0.3s; }
+.btn-icon-view:hover { background: #e2e8f0; color: #1e293b; }
+
+.empty-state-premium { text-align: center; padding: 100px 20px; background: white; border-radius: 32px; border: 2px dashed #e2e8f0; }
+.empty-icon { font-size: 4rem; color: #cbd5e1; margin-bottom: 20px; }
+.empty-state-premium h3 { font-size: 1.5rem; color: #1e293b; margin-bottom: 10px; }
+.empty-state-premium p { color: #64748b; margin-bottom: 30px; }
+.btn-outline-premium { text-decoration: none; padding: 12px 30px; border: 2px solid #1e3a8a; color: #1e3a8a; border-radius: 12px; font-weight: 700; transition: all 0.3s; }
+.btn-outline-premium:hover { background: #1e3a8a; color: white; }
+
+@media (max-width: 768px) {
+    .request-card-premium { flex-direction: column; }
+    .request-meta-side { border-left: none; border-top: 1px solid #f1f5f9; flex-direction: row; align-items: center; min-width: auto; }
+}
+</style>
+{% endblock %}
+<header class="site-header">
+  <div class="header-inner">
+
+    <!-- LEFT -->
+    <a href="{{ url_for('landing') }}" class="brand">
+      <div class="brand-logo">🎓</div>
+      <div class="brand-text">
+        <span class="brand-top">UNIVERSITY LOGO</span>
+        <span class="brand-name">EDYGUIDE</span>
+      </div>
+    </a>
+
+    <!-- CENTER -->
+    <nav class="top-nav">
+      <a href="{{ url_for('landing') }}">Home</a>
+      <a href="#">About</a>
+      <a href="#">Services</a>
+      <a href="#">Contact</a>
+    </nav>
+
+    <!-- RIGHT -->
+    <div class="header-actions">
+      {% if session.get("user_id") %}
+        <a href="{{ url_for('dashboard') }}" class="btn btn-primary">Dashboard</a>
+        <a href="{{ url_for('logout') }}" class="btn btn-outline">Logout</a>
+      {% else %}
+        
+      {% endif %}
+    </div>
+
+  </div>
+</header>
+{% extends "base.html" %}
+
+{% block content %}
+<div class="new-request-wrapper">
+    <div class="form-container-premium">
+        <div class="form-header">
+            <div class="icon-circle"><i class="fas fa-edit"></i></div>
+            <h1>{{ 'تقديم طلب خدمة' if session.get('lang') == 'ar' else 'Submit New Request' }}</h1>
+            <p>{{ 'اختر نوع الخدمة واشرح طلبك بالتفصيل لسرعة الرد.' if session.get('lang') == 'ar' else 'Select service type and explain your request in detail.' }}</p>
+        </div>
+
+        <form action="{{ url_for('new_request_page') }}" method="POST" class="premium-form">
+            <div class="form-group">
+                <label for="title">{{ 'عنوان الطلب / نوع الخدمة' if session.get('lang') == 'ar' else 'Request Title / Service Type' }}</label>
+                <div class="input-with-icon">
+                    <i class="fas fa-tag"></i>
+                    <select name="title" id="title" required>
+                        <option value="" disabled selected>{{ 'اختر الخدمة...' if session.get('lang') == 'ar' else 'Select Service...' }}</option>
+                        <option value="Enrollment Certificate">{{ 'إثبات قيد' if session.get('lang') == 'ar' else 'Enrollment Certificate' }}</option>
+                        <option value="Grade Appeal">{{ 'تظلم على نتيجة' if session.get('lang') == 'ar' else 'Grade Appeal' }}</option>
+                        <option value="ID Card Replacement">{{ 'بدل فاقد كارنيه' if session.get('lang') == 'ar' else 'ID Card Replacement' }}</option>
+                        <option value="Course Withdrawal">{{ 'انسحاب من مادة' if session.get('lang') == 'ar' else 'Course Withdrawal' }}</option>
+                        <option value="Other">{{ 'طلب آخر' if session.get('lang') == 'ar' else 'Other' }}</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="message">{{ 'تفاصيل الطلب' if session.get('lang') == 'ar' else 'Request Details' }}</label>
+                <textarea name="message" id="message" rows="6" placeholder="{{ 'اكتب تفاصيل طلبك هنا...' if session.get('lang') == 'ar' else 'Write your request details here...' }}" required></textarea>
+            </div>
+
+            <div class="form-footer">
+                <button type="submit" class="btn-submit-premium">
+                    <span>{{ 'إرسال الطلب الآن' if session.get('lang') == 'ar' else 'Submit Request Now' }}</span>
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+                <a href="{{ url_for('my_requests_page') }}" class="btn-cancel-premium">{{ 'إلغاء' if session.get('lang') == 'ar' else 'Cancel' }}</a>
+            </div>
+        </form>
+    </div>
+
+    <div class="help-sidebar-premium">
+        <div class="help-card">
+            <h3><i class="fas fa-lightbulb"></i> {{ 'نصائح لسرعة الرد' if session.get('lang') == 'ar' else 'Quick Tips' }}</h3>
+            <ul>
+                <li>{{ 'تأكد من اختيار نوع الخدمة الصحيح.' if session.get('lang') == 'ar' else 'Ensure selecting the correct service type.' }}</li>
+                <li>{{ 'اشرح سبب الطلب بوضوح.' if session.get('lang') == 'ar' else 'Explain the reason clearly.' }}</li>
+                <li>{{ 'سيتم الرد عليك خلال 48 ساعة عمل.' if session.get('lang') == 'ar' else 'Responses within 48 working hours.' }}</li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<style>
+.new-request-wrapper { display: grid; grid-template-columns: 2fr 1fr; gap: 30px; align-items: start; }
+.form-container-premium { background: white; border-radius: 32px; padding: 50px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); border: 1px solid #f1f5f9; }
+.form-header { text-align: center; margin-bottom: 40px; }
+.icon-circle { width: 70px; height: 70px; background: #eff6ff; color: #1e3a8a; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; margin: 0 auto 20px; }
+.form-header h1 { font-size: 1.8rem; font-weight: 800; color: #1e293b; margin-bottom: 10px; }
+.form-header p { color: #64748b; }
+
+.premium-form { display: flex; flex-direction: column; gap: 25px; }
+.form-group { display: flex; flex-direction: column; gap: 10px; }
+.form-group label { font-weight: 700; color: #1e293b; font-size: 0.95rem; }
+
+.input-with-icon { position: relative; }
+.input-with-icon i { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: #94a3b8; }
+[dir="rtl"] .input-with-icon i { left: auto; right: 15px; }
+
+.premium-form select, .premium-form textarea {
+    width: 100%; padding: 15px; padding-left: 45px; border-radius: 16px; border: 1px solid #e2e8f0;
+    background: #f8fafc; font-size: 1rem; color: #1e293b; transition: all 0.3s;
+}
+[dir="rtl"] .premium-form select { padding-left: 15px; padding-right: 45px; }
+.premium-form textarea { padding-left: 15px; }
+
+.premium-form select:focus, .premium-form textarea:focus { border-color: #3b82f6; background: white; outline: none; box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1); }
+
+.form-footer { display: flex; flex-direction: column; gap: 15px; margin-top: 20px; }
+.btn-submit-premium { 
+    background: #1e3a8a; color: white; border: none; padding: 18px; border-radius: 16px;
+    font-weight: 800; font-size: 1.1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 15px;
+    transition: all 0.3s;
+}
+.btn-submit-premium:hover { background: #1e40af; transform: translateY(-2px); box-shadow: 0 10px 20px rgba(30, 58, 138, 0.2); }
+
+.btn-cancel-premium { text-align: center; color: #64748b; text-decoration: none; font-weight: 600; font-size: 0.95rem; }
+
+.help-card { background: #fffbeb; border: 1px solid #fef3c7; padding: 30px; border-radius: 24px; }
+.help-card h3 { color: #92400e; font-size: 1.1rem; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
+.help-card ul { list-style: none; padding: 0; display: flex; flex-direction: column; gap: 15px; }
+.help-card li { font-size: 0.9rem; color: #b45309; position: relative; padding-left: 20px; }
+[dir="rtl"] .help-card li { padding-left: 0; padding-right: 20px; }
+.help-card li::before { content: '•'; position: absolute; left: 0; color: #f59e0b; font-weight: 800; }
+[dir="rtl"] .help-card li::before { left: auto; right: 0; }
+
+@media (max-width: 992px) {
+    .new-request-wrapper { grid-template-columns: 1fr; }
+    .help-sidebar-premium { order: 2; }
+    .form-container-premium { order: 1; padding: 30px; }
+}
+</style>
+{% endblock %}
+{% extends "base.html" %}
+
+{% block content %}
+<div class="notifications-container">
+    <div class="page-header-premium">
+        <div class="header-content">
+            <h1><i class="fas fa-bell"></i> {{ 'مركز التنبيهات' if session.get('lang') == 'ar' else 'Notification Center' }}</h1>
+            <p>{{ 'ابقَ على اطلاع بأحدث التحديثات والمواعيد الهامة.' if session.get('lang') == 'ar' else 'Stay updated with the latest alerts and important deadlines.' }}</p>
+        </div>
+        <div class="header-actions">
+            <button class="btn-clean-all">{{ 'مسح الكل' if session.get('lang') == 'ar' else 'Clear All' }}</button>
+        </div>
+    </div>
+
+    <div class="notifications-list">
+        {% if notifications %}
+            {% for note in notifications %}
+            <div class="notification-item {{ 'unread' if not note['is_read'] else '' }}">
+                <div class="note-icon {{ note['category'].lower() }}">
+                    <i class="fas {% if note['category'] == 'Exams' %}fa-file-signature{% elif note['category'] == 'Payments' %}fa-money-check-alt{% else %}fa-info-circle{% endif %}"></i>
+                </div>
+                <div class="note-content">
+                    <div class="note-header">
+                        <span class="note-category">{{ note['category'] }}</span>
+                        <span class="note-time">{{ note['created_at'].strftime('%H:%M %p') if note['created_at'] else 'Now' }}</span>
+                    </div>
+                    <h3>{{ note['title'] }}</h3>
+                    <p>{{ note['message'] }}</p>
+                </div>
+                <div class="note-actions">
+                    <button class="btn-mark-read" title="Mark as read"><i class="fas fa-check"></i></button>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <!-- Mock Notifications -->
+            <div class="notification-item unread">
+                <div class="note-icon exams">
+                    <i class="fas fa-file-signature"></i>
+                </div>
+                <div class="note-content">
+                    <div class="note-header">
+                        <span class="note-category">Exams</span>
+                        <span class="note-time">10:30 AM</span>
+                    </div>
+                    <h3>Final Exam Schedule Released</h3>
+                    <p>The official schedule for the Spring 2026 final exams has been published. Check the exams tab for details.</p>
+                </div>
+                <div class="note-actions">
+                    <button class="btn-mark-read"><i class="fas fa-check"></i></button>
+                </div>
+            </div>
+            <div class="notification-item">
+                <div class="note-icon payments">
+                    <i class="fas fa-money-check-alt"></i>
+                </div>
+                <div class="note-content">
+                    <div class="note-header">
+                        <span class="note-category">Payments</span>
+                        <span class="note-time">Yesterday</span>
+                    </div>
+                    <h3>Payment Received Successfully</h3>
+                    <p>Your payment for the Monthly Bus Subscription (#5088) has been processed. Download your receipt now.</p>
+                </div>
+                <div class="note-actions">
+                    <button class="btn-mark-read"><i class="fas fa-check"></i></button>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<style>
+.notifications-container { max-width: 900px; margin: 0 auto; padding-bottom: 50px; }
+.page-header-premium { display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; }
+.btn-clean-all { background: none; border: 1px solid #e2e8f0; padding: 8px 16px; border-radius: 8px; color: #64748b; font-weight: 600; cursor: pointer; transition: all 0.3s; }
+.btn-clean-all:hover { background: #fee2e2; color: #ef4444; border-color: #fecaca; }
+
+.notifications-list { display: flex; flex-direction: column; gap: 15px; }
+.notification-item { 
+    background: white; border-radius: 20px; padding: 25px; display: flex; gap: 20px;
+    border: 1px solid #f1f5f9; transition: all 0.3s; position: relative;
+}
+.notification-item.unread { border-left: 5px solid #3b82f6; background: #f0f9ff; }
+[dir="rtl"] .notification-item.unread { border-left: none; border-right: 5px solid #3b82f6; }
+
+.note-icon { width: 50px; height: 50px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; flex-shrink: 0; }
+.note-icon.exams { background: #eff6ff; color: #3b82f6; }
+.note-icon.payments { background: #ecfdf5; color: #10b981; }
+.note-icon.info { background: #f1f5f9; color: #64748b; }
+
+.note-content { flex-grow: 1; }
+.note-header { display: flex; justify-content: space-between; margin-bottom: 8px; }
+.note-category { font-size: 0.75rem; font-weight: 800; text-transform: uppercase; color: #94a3b8; }
+.note-time { font-size: 0.75rem; color: #94a3b8; }
+
+.note-content h3 { font-size: 1.1rem; font-weight: 700; color: #1e293b; margin-bottom: 8px; }
+.note-content p { font-size: 0.95rem; color: #64748b; line-height: 1.5; margin: 0; }
+
+.note-actions { display: flex; align-items: center; }
+.btn-mark-read { background: none; border: none; color: #cbd5e1; font-size: 1.2rem; cursor: pointer; transition: color 0.3s; }
+.btn-mark-read:hover { color: #3b82f6; }
+
+@media (max-width: 600px) {
+    .notification-item { flex-direction: column; gap: 15px; }
+    .note-actions { justify-content: flex-end; }
+}
+</style>
+{% endblock %}
+{% extends "base.html" %}
+
+{% block content %}
+<div class="payments-container">
+    <div class="page-header-premium">
+        <div class="header-content">
+            <h1><i class="fas fa-wallet"></i> {{ 'المدفوعات والرسوم' if session.get('lang') == 'ar' else 'Payments & Fees' }}</h1>
+            <p>{{ 'إدارة مدفوعاتك الجامعية والرسوم الدراسية.' if session.get('lang') == 'ar' else 'Manage your university payments and tuition fees.' }}</p>
+        </div>
+        <div class="header-actions">
+            <div class="balance-card">
+                <span class="lbl">{{ 'إجمالي المدفوعات' if session.get('lang') == 'ar' else 'Total Paid' }}</span>
+                <span class="val">12,500 EGP</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="payments-card">
+        <div class="table-responsive-premium">
+            <table class="premium-table">
+                <thead>
+                    <tr>
+                        <th>{{ 'رقم الطلب' if session.get('lang') == 'ar' else 'Order ID' }}</th>
+                        <th>{{ 'الوصف' if session.get('lang') == 'ar' else 'Description' }}</th>
+                        <th>{{ 'المبلغ' if session.get('lang') == 'ar' else 'Amount' }}</th>
+                        <th>{{ 'الحالة' if session.get('lang') == 'ar' else 'Status' }}</th>
+                        <th>{{ 'التاريخ' if session.get('lang') == 'ar' else 'Date' }}</th>
+                        <th>{{ 'الإجراء' if session.get('lang') == 'ar' else 'Action' }}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if payments %}
+                        {% for payment in payments %}
+                        <tr>
+                            <td>#{{ payment['id'] }}</td>
+                            <td class="desc-cell">{{ payment['description'] }}</td>
+                            <td class="amount-cell">{{ (payment['amount'] / 100)|round(2) }} EGP</td>
+                            <td>
+                                <span class="status-badge {{ payment['status'].lower() }}">
+                                    {{ payment['status'] }}
+                                </span>
+                            </td>
+                            <td>{{ payment['created_at'].strftime('%Y-%m-%d') if payment['created_at'] else '---' }}</td>
+                            <td>
+                                {% if payment['status'].lower() == 'pending' %}
+                                    <a href="{{ url_for('process_payment_api', payment_id=payment['id']) }}" class="btn-pay-now">
+                                        {{ 'ادفع الآن' if session.get('lang') == 'ar' else 'Pay Now' }}
+                                    </a>
+                                {% else %}
+                                    <a href="{{ url_for('receipt_page', payment_id=payment['id']) }}" class="btn-receipt">
+                                        <i class="fas fa-file-download"></i>
+                                    </a>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    {% else %}
+                        <!-- Mock Data -->
+                        <tr>
+                            <td>#5021</td>
+                            <td class="desc-cell">Tuition Fees - Semester 1</td>
+                            <td class="amount-cell">10,000.00 EGP</td>
+                            <td><span class="status-badge paid">PAID</span></td>
+                            <td>2026-02-15</td>
+                            <td><button class="btn-receipt"><i class="fas fa-file-download"></i></button></td>
+                        </tr>
+                        <tr>
+                            <td>#5088</td>
+                            <td class="desc-cell">Bus Fees - Monthly</td>
+                            <td class="amount-cell">2,500.00 EGP</td>
+                            <td><span class="status-badge pending">PENDING</span></td>
+                            <td>2026-04-01</td>
+                            <td><button class="btn-pay-now">Pay Now</button></td>
+                        </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<style>
+.payments-container { max-width: 1200px; margin: 0 auto; padding-bottom: 50px; }
+.page-header-premium { 
+    display: flex; justify-content: space-between; align-items: center; 
+    margin-bottom: 35px; background: white; padding: 30px; border-radius: 20px;
+    border: 1px solid #f1f5f9; box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+}
+.balance-card { background: #1e3a8a; color: white; padding: 15px 30px; border-radius: 16px; text-align: right; box-shadow: 0 4px 15px rgba(30, 58, 138, 0.2); }
+[dir="ltr"] .balance-card { text-align: left; }
+.balance-card .lbl { display: block; font-size: 0.75rem; text-transform: uppercase; opacity: 0.8; margin-bottom: 5px; }
+.balance-card .val { font-size: 1.5rem; font-weight: 800; }
+
+.payments-card { background: white; border-radius: 24px; border: 1px solid #f1f5f9; box-shadow: 0 10px 15px rgba(0,0,0,0.05); overflow: hidden; }
+.premium-table { width: 100%; border-collapse: collapse; text-align: left; }
+[dir="rtl"] .premium-table { text-align: right; }
+
+.premium-table th { background: #f8fafc; padding: 20px; color: #64748b; font-size: 0.85rem; font-weight: 700; text-transform: uppercase; border-bottom: 1px solid #f1f5f9; }
+.premium-table td { padding: 20px; border-bottom: 1px solid #f8fafc; color: #1e293b; font-size: 0.95rem; }
+
+.desc-cell { font-weight: 600; color: #1e3a8a; }
+.amount-cell { font-weight: 800; }
+
+.status-badge { padding: 6px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 800; text-transform: uppercase; }
+.status-badge.paid { background: #dcfce7; color: #166534; }
+.status-badge.pending { background: #fef9c3; color: #854d0e; }
+.status-badge.failed { background: #fee2e2; color: #b91c1c; }
+
+.btn-pay-now { background: #3b82f6; color: white; border: none; padding: 8px 16px; border-radius: 8px; font-weight: 700; cursor: pointer; text-decoration: none; display: inline-block; transition: background 0.3s; }
+.btn-pay-now:hover { background: #2563eb; }
+
+.btn-receipt { background: #f1f5f9; color: #64748b; border: none; padding: 10px; border-radius: 8px; cursor: pointer; transition: all 0.3s; }
+.btn-receipt:hover { background: #e2e8f0; color: #1e293b; }
+
+@media (max-width: 768px) {
+    .page-header-premium { flex-direction: column; text-align: center; gap: 20px; }
+    .balance-card { text-align: center !important; width: 100%; }
+    .premium-table th:nth-child(5), .premium-table td:nth-child(5) { display: none; }
+}
+</style>
+{% endblock %}
+{% extends "base.html" if base_exists else "layout_pub.html" %}
+{% block content %}
+<div class="profile-container">
+    <div class="profile-header-card">
+        <div class="profile-avatar-large">
+            {{ user.full_name[0] if user.full_name else 'S' }}
+        </div>
+        <div class="profile-main-info">
+            <h1>{{ user.full_name }}</h1>
+            <p class="email">{{ user.email }}</p>
+            <div class="profile-badges">
+                <span class="badge">{{ user.faculty or 'Faculty of Commerce' }}</span>
+                <span class="badge secondary">{{ 'المستوى' if session.get('lang') == 'ar' else 'Level' }} {{ user.level or '1' }}</span>
+            </div>
+        </div>
+        <div class="profile-actions">
+            <a href="{{ url_for('edit_profile') }}" class="btn-edit"><i class="fas fa-edit"></i> {{ 'تعديل البروفايل' if session.get('lang') == 'ar' else 'Edit Profile' }}</a>
+        </div>
+    </div>
+
+    <div class="profile-content-grid">
+        <!-- Academic Summary -->
+        <div class="profile-card">
+            <h3>{{ 'الملخص الأكاديمي' if session.get('lang') == 'ar' else 'Academic Summary' }}</h3>
+            <div class="stats-list">
+                <div class="stat-item">
+                    <span class="label">{{ 'كود الطالب' if session.get('lang') == 'ar' else 'Student Code' }}</span>
+                    <span class="value">{{ user.student_code or 'N/A' }}</span>
+                </div>
+                <div class="stat-item">
+                    <span class="label">{{ 'المعدل التراكمي' if session.get('lang') == 'ar' else 'Current GPA' }}</span>
+                    <span class="value highlight">{{ user.gpa or '0.00' }}</span>
+                </div>
+                <div class="stat-item">
+                    <span class="label">{{ 'المواد المسجلة' if session.get('lang') == 'ar' else 'Registered Subjects' }}</span>
+                    <span class="value">{{ subject_count.total_subjects if subject_count else 0 }}</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Latest Activities -->
+        <div class="profile-card">
+            <h3>{{ 'آخر الأنشطة' if session.get('lang') == 'ar' else 'Recent Activities' }}</h3>
+            <div class="activity-list">
+                <div class="activity-item">
+                    <div class="act-icon"><i class="fas fa-file-invoice-dollar"></i></div>
+                    <div class="act-info">
+                        <span class="title">{{ 'آخر عملية دفع' if session.get('lang') == 'ar' else 'Latest Payment' }}</span>
+                        <span class="sub">{{ latest_payment.payment_type if latest_payment else 'No payments yet' }} | {{ latest_payment.amount if latest_payment else '0' }} EGP</span>
+                    </div>
+                    <span class="status {{ 'paid' if latest_payment and latest_payment.payment_status == 'paid' else 'pending' }}">
+                        {{ latest_payment.payment_status if latest_payment else '-' }}
+                    </span>
+                </div>
+                <div class="activity-item">
+                    <div class="act-icon"><i class="fas fa-envelope-open-text"></i></div>
+                    <div class="act-info">
+                        <span class="title">{{ 'الطلبات الأكاديمية' if session.get('lang') == 'ar' else 'Academic Requests' }}</span>
+                        <span class="sub">{{ req_count.total_requests if req_count else 0 }} {{ 'طلب مقدم' if session.get('lang') == 'ar' else 'requests submitted' }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% extends "base.html" %}
+
+{% block content %}
+<div class="receipt-container">
+    <div class="receipt-paper">
+        <div class="receipt-header">
+            <div class="university-brand">
+                <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo" class="receipt-logo">
+                <div class="brand-text">
+                    <h2>EDYGUIDE UNIVERSITY</h2>
+                    <p>{{ 'إيصال دفع رسمي' if session.get('lang') == 'ar' else 'Official Payment Receipt' }}</p>
+                </div>
+            </div>
+            <div class="receipt-status-badge">
+                {{ payment['status'] if payment else 'PAID' }}
+            </div>
+        </div>
+
+        <div class="receipt-body">
+            <div class="receipt-info-grid">
+                <div class="info-item">
+                    <span class="label">{{ 'رقم العملية' if session.get('lang') == 'ar' else 'Transaction ID' }}</span>
+                    <span class="value">#{{ payment['id'] if payment else '12345678' }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="label">{{ 'تاريخ الدفع' if session.get('lang') == 'ar' else 'Payment Date' }}</span>
+                    <span class="value">{{ payment['created_at'].strftime('%Y-%m-%d %H:%M') if payment and payment['created_at'] else '2026-04-30 10:00' }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="label">{{ 'اسم الطالب' if session.get('lang') == 'ar' else 'Student Name' }}</span>
+                    <span class="value">{{ user['full_name'] if user else 'Student User' }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="label">{{ 'طريقة الدفع' if session.get('lang') == 'ar' else 'Payment Method' }}</span>
+                    <span class="value">Credit Card / Paymob</span>
+                </div>
+            </div>
+
+            <div class="receipt-table">
+                <div class="table-row header">
+                    <span>{{ 'الوصف' if session.get('lang') == 'ar' else 'Description' }}</span>
+                    <span>{{ 'المبلغ' if session.get('lang') == 'ar' else 'Amount' }}</span>
+                </div>
+                <div class="table-row item">
+                    <span>{{ payment['description'] if payment else 'University Tuition Fees' }}</span>
+                    <span>{{ (payment['amount'] / 100)|round(2) if payment else '0.00' }} EGP</span>
+                </div>
+                <div class="table-total">
+                    <span>{{ 'الإجمالي المدفوع' if session.get('lang') == 'ar' else 'Total Paid' }}</span>
+                    <span class="amount">{{ (payment['amount'] / 100)|round(2) if payment else '0.00' }} EGP</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="receipt-footer">
+            <p>{{ 'شكراً لك على إتمام عملية الدفع. تم إرسال نسخة من هذا الإيصال إلى بريدك الإلكتروني.' if session.get('lang') == 'ar' else 'Thank you for your payment. A copy of this receipt has been sent to your email.' }}</p>
+            <div class="footer-actions no-print">
+                <button onclick="window.print()" class="btn-print"><i class="fas fa-print"></i> {{ 'طباعة' if session.get('lang') == 'ar' else 'Print' }}</button>
+                <a href="{{ url_for('payments_page') }}" class="btn-back">{{ 'العودة للمدفوعات' if session.get('lang') == 'ar' else 'Back' }}</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.receipt-container { display: flex; justify-content: center; padding: 40px 0; }
+.receipt-paper { 
+    background: white; width: 100%; max-width: 800px; padding: 50px; 
+    border-radius: 8px; box-shadow: 0 15px 35px rgba(0,0,0,0.1); border-top: 8px solid #1e3a8a;
+}
+.receipt-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #f1f5f9; padding-bottom: 30px; margin-bottom: 40px; }
+.university-brand { display: flex; align-items: center; gap: 20px; }
+.receipt-logo { height: 60px; }
+.brand-text h2 { color: #1e3a8a; margin: 0; font-size: 1.5rem; font-weight: 800; }
+.brand-text p { color: #64748b; margin: 0; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; font-size: 0.8rem; }
+
+.receipt-status-badge { background: #dcfce7; color: #166534; padding: 10px 25px; border-radius: 30px; font-weight: 800; font-size: 0.9rem; border: 1px solid #bbf7d0; }
+
+.receipt-info-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 30px; margin-bottom: 50px; }
+.info-item .label { display: block; color: #64748b; font-size: 0.8rem; text-transform: uppercase; margin-bottom: 5px; font-weight: 700; }
+.info-item .value { font-weight: 700; color: #1e293b; font-size: 1rem; }
+
+.receipt-table { border: 1px solid #f1f5f9; border-radius: 12px; overflow: hidden; }
+.table-row { display: flex; justify-content: space-between; padding: 20px; }
+.table-row.header { background: #f8fafc; font-weight: 700; color: #64748b; font-size: 0.85rem; }
+.table-row.item { border-bottom: 1px solid #f1f5f9; }
+.table-total { display: flex; justify-content: space-between; padding: 25px 20px; background: #f1f5f9; }
+.table-total span { font-size: 1.1rem; font-weight: 800; color: #1e293b; }
+.table-total .amount { color: #1e3a8a; font-size: 1.4rem; }
+
+.receipt-footer { text-align: center; margin-top: 50px; }
+.receipt-footer p { color: #64748b; font-size: 0.9rem; margin-bottom: 30px; }
+.footer-actions { display: flex; justify-content: center; gap: 20px; }
+.btn-print { background: #1e3a8a; color: white; border: none; padding: 12px 30px; border-radius: 12px; font-weight: 700; cursor: pointer; transition: background 0.3s; }
+.btn-print:hover { background: #1e40af; }
+.btn-back { background: #f1f5f9; color: #64748b; text-decoration: none; padding: 12px 30px; border-radius: 12px; font-weight: 700; transition: background 0.3s; }
+.btn-back:hover { background: #e2e8f0; color: #1e293b; }
+
+@media print {
+    .no-print { display: none; }
+    .receipt-container { padding: 0; }
+    .receipt-paper { box-shadow: none; border: none; max-width: 100%; }
+}
+</style>
+{% endblock %}
+{% extends "base.html" %}
+{% block content %}
+<div class="page-header">
+    <div class="header-text">
+        <h1>📋 {{ 'تسجيل المواد' if session.get('lang') == 'ar' else 'Course Registration' }}</h1>
+        <p>{{ 'اختر الم
+<truncated 4263 bytes>
+{% extends "base.html" %}
+
+{% block content %}
+<div class="schedule-container">
+    <div class="page-header-premium">
+        <div class="header-content">
+            <h1><i class="fas fa-calendar-alt"></i> {{ 'الجدول الدراسي' if session.get('lang') == 'ar' else 'Weekly Schedule' }}</h1>
+            <p>{{ 'استعرض محاضراتك الأسبوعية ومواعيد القاعات.' if session.get('lang') == 'ar' else 'Review your weekly lectures and hall locations.' }}</p>
+        </div>
+        <div class="day-selector-premium">
+            <button class="day-btn active">{{ 'الأحد' if session.get('lang') == 'ar' else 'Sun' }}</button>
+            <button class="day-btn">{{ 'الاثنين' if session.get('lang') == 'ar' else 'Mon' }}</button>
+            <button class="day-btn">{{ 'الثلاثاء' if session.get('lang') == 'ar' else 'Tue' }}</button>
+            <button class="day-btn">{{ 'الأربعاء' if session.get('lang') == 'ar' else 'Wed' }}</button>
+            <button class="day-btn">{{ 'الخميس' if session.get('lang') == 'ar' else 'Thu' }}</button>
+        </div>
+    </div>
+
+    <div class="timeline-container-premium">
+        {% if schedules %}
+            {% for schedule in schedules %}
+            <div class="timeline-lecture-card">
+                <div class="lecture-time-side">
+                    <span class="start">{{ schedule['start_time'] }}</span>
+                    <div class="duration-line"></div>
+                    <span class="end">{{ schedule['end_time'] }}</span>
+                </div>
+                <div class="lecture-content-card">
+                    <div class="lecture-header">
+                        <span class="hall-tag"><i class="fas fa-door-open"></i> {{ schedule['room'] }}</span>
+                        <span class="type-tag">{{ 'محاضرة' if session.get('lang') == 'ar' else 'Lecture' }}</span>
+                    </div>
+                    <h3>{{ schedule['subject_name'] }}</h3>
+                    <p class="instructor"><i class="fas fa-user-tie"></i> {{ schedule['doctor_name'] }}</p>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <!-- Mock Data -->
+            <div class="timeline-lecture-card">
+                <div class="lecture-time-side">
+                    <span class="start">10:00 AM</span>
+                    <div class="duration-line"></div>
+                    <span class="end">12:00 PM</span>
+                </div>
+                <div class="lecture-content-card">
+                    <div class="lecture-header">
+                        <span class="hall-tag"><i class="fas fa-door-open"></i> Hall A</span>
+                        <span class="type-tag">Lecture</span>
+                    </div>
+                    <h3>Advanced Statistics</h3>
+                    <p class="instructor"><i class="fas fa-user-tie"></i> Dr. Ahmed Mansour</p>
+                </div>
+            </div>
+            <div class="timeline-lecture-card active">
+                <div class="lecture-time-side">
+                    <span class="start">12:30 PM</span>
+                    <div class="duration-line"></div>
+                    <span class="end">02:30 PM</span>
+                </div>
+                <div class="lecture-content-card highlight">
+                    <div class="lecture-header">
+                        <span class="hall-tag"><i class="fas fa-door-open"></i> Lab 204</span>
+                        <span class="type-tag">Lab</span>
+                    </div>
+                    <h3>Database Management</h3>
+                    <p class="instructor"><i class="fas fa-user-tie"></i> Dr. Sarah Kamal</p>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<style>
+.schedule-container { max-width: 1200px; margin: 0 auto; padding-bottom: 50px; }
+.page-header-premium { 
+    background: white; padding: 30px; border-radius: 24px; margin-bottom: 40px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.02); border: 1px solid #f1f5f9;
+    display: flex; flex-direction: column; gap: 25px;
+}
+.header-content h1 { font-size: 1.8rem; font-weight: 800; color: #1e293b; margin-bottom: 5px; }
+.header-content p { color: #64748b; }
+
+.day-selector-premium { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 5px; }
+.day-btn { 
+    padding: 10px 25px; border-radius: 12px; border: 1px solid #e2e8f0; background: white;
+    color: #64748b; font-weight: 700; cursor: pointer; transition: all 0.3s; white-space: nowrap;
+}
+.day-btn.active { background: #1e3a8a; color: white; border-color: #1e3a8a; box-shadow: 0 4px 10px rgba(30, 58, 138, 0.2); }
+.day-btn:hover:not(.active) { background: #f8fafc; border-color: #cbd5e1; }
+
+.timeline-container-premium { display: flex; flex-direction: column; gap: 0; padding-left: 20px; border-left: 2px dashed #e2e8f0; }
+[dir="rtl"] .timeline-container-premium { border-left: none; border-right: 2px dashed #e2e8f0; padding-left: 0; padding-right: 20px; }
+
+.timeline-lecture-card { display: flex; gap: 40px; margin-bottom: 30px; position: relative; }
+.timeline-lecture-card::before { 
+    content: ''; position: absolute; left: -27px; top: 10px; width: 12px; height: 12px; 
+    background: white; border: 3px solid #3b82f6; border-radius: 50%; z-index: 2;
+}
+[dir="rtl"] .timeline-lecture-card::before { left: auto; right: -27px; }
+
+.lecture-time-side { display: flex; flex-direction: column; align-items: center; min-width: 80px; padding-top: 5px; }
+.lecture-time-side .start { font-weight: 800; color: #1e293b; font-size: 0.95rem; }
+.lecture-time-side .end { font-weight: 600; color: #94a3b8; font-size: 0.85rem; }
+.duration-line { width: 2px; height: 30px; background: #e2e8f0; margin: 5px 0; }
+
+.lecture-content-card { 
+    flex-grow: 1; background: white; padding: 25px; border-radius: 20px; 
+    border: 1px solid #f1f5f9; box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+    transition: all 0.3s ease;
+}
+.lecture-content-card.highlight { background: #eff6ff; border-color: #bfdbfe; }
+.lecture-content-card:hover { transform: translateX(10px); box-shadow: 0 10px 20px rgba(0,0,0,0.05); }
+[dir="rtl"] .lecture-content-card:hover { transform: translateX(-10px); }
+
+.lecture-header { display: flex; gap: 15px; margin-bottom: 15px; }
+.hall-tag { font-size: 0.8rem; font-weight: 700; color: #1e3a8a; background: #dbeafe; padding: 4px 12px; border-radius: 8px; }
+.type-tag { font-size: 0.8rem; font-weight: 700; color: #059669; background: #dcfce7; padding: 4px 12px; border-radius: 8px; }
+
+.lecture-content-card h3 { font-size: 1.2rem; font-weight: 800; color: #1e293b; margin-bottom: 8px; }
+.instructor { color: #64748b; font-size: 0.95rem; display: flex; align-items: center; gap: 8px; }
+
+@media (max-width: 768px) {
+    .timeline-lecture-card { gap: 20px; }
+    .lecture-time-side { min-width: 60px; }
+    .lecture-time-side .start { font-size: 0.8rem; }
+}
+</style>
+{% endblock %}
+{% extends "base.html" %}
+{% block content %}
+<div class="page-header">
+    <div class="header-text">
+        <h1>📅 {{ 'تفاصيل المحاضرة' if session.get('lang') == 'ar' else 'Lecture Details' }}</h1>
+        <p>{{ schedule.subje
+<truncated 1912 bytes>
+{% extends "base.html" %}
+
+{% block content %}
+<div class="result-container">
+    <div class="result-card success">
+        <div class="result-icon pulse">
+            <i class="fas fa-check-circle"></i>
+        </div>
+        <h1>{{ 'تم الدفع بنجاح!' if session.get('lang') == 'ar' else 'Payment Successful!' }}</h1>
+        <p>{{ 'شكراً لك. لقد استلمنا دفعتك بنجاح. يمكنك الآن مراجعة إيصال الدفع الخاص بك.' if session.get('lang') == 'ar' else 'Thank you. We have received your payment successfully. You can now review your payment receipt.' }}</p>
+        
+        <div class="txn-info">
+            <span class="lbl">{{ 'رقم العملية' if session.get('lang') == 'ar' else 'Transaction ID' }}</span>
+            <span class="val">#{{ txn_id if txn_id else 'TXN-998877' }}</span>
+        </div>
+
+        <div class="result-actions">
+            <a href="{{ url_for('payments_page') }}" class="btn-primary-lg">{{ 'عرض المدفوعات' if session.get('lang') == 'ar' else 'View My Payments' }}</a>
+            <a href="{{ url_for('dashboard_page') }}" class="btn-outline-lg">{{ 'العودة للرئيسية' if session.get('lang') == 'ar' else 'Go to Dashboard' }}</a>
+        </div>
+    </div>
+</div>
+
+<style>
+.result-container { display: flex; justify-content: center; align-items: center; min-height: 60vh; padding: 20px; }
+.result-card { background: white; width: 100%; max-width: 500px; padding: 50px 40px; border-radius: 32px; text-align: center; box-shadow: 0 20px 40px rgba(0,0,0,0.05); border: 1px solid #f1f5f9; }
+.result-icon { width: 100px; height: 100px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 4rem; margin: 0 auto 30px; }
+.result-card.success .result-icon { background: #f0fdf4; color: #22c55e; }
+
+.result-card h1 { font-size: 1.8rem; font-weight: 800; color: #1e293b; margin-bottom: 15px; }
+.result-card p { color: #64748b; margin-bottom: 30px; line-height: 1.6; }
+
+.txn-info { background: #f8fafc; padding: 15px; border-radius: 16px; margin-bottom: 40px; border: 1px dashed #e2e8f0; }
+.txn-info .lbl { display: block; font-size: 0.75rem; color: #94a3b8; text-transform: uppercase; margin-bottom: 5px; font-weight: 700; }
+.txn-info .val { font-size: 1.1rem; font-weight: 800; color: #1e3a8a; }
+
+.result-actions { display: flex; flex-direction: column; gap: 15px; }
+.btn-primary-lg { background: #1e3a8a; color: white; border: none; padding: 16px; border-radius: 16px; font-weight: 700; text-decoration: none; transition: background 0.3s; }
+.btn-primary-lg:hover { background: #1e40af; }
+.btn-outline-lg { background: white; color: #64748b; border: 2px solid #f1f5f9; padding: 16px; border-radius: 16px; font-weight: 700; text-decoration: none; transition: all 0.3s; }
+.btn-outline-lg:hover { background: #f8fafc; color: #1e293b; border-color: #e2e8f0; }
+
+.pulse { animation: pulse-animation 2s infinite; }
+@keyframes pulse-animation {
+  0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.4); }
+  70% { transform: scale(1); box-shadow: 0 0 0 20px rgba(34, 197, 94, 0); }
+  100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); }
+}
+</style>
+{% endblock %}
+<!DOCTYPE html>
+<html lang="{{ 'ar' if session.get('lang','en')=='ar' else 'en' }}"
+      dir="{{ 'rtl' if session.get('lang','en')=='ar' else 'ltr' }}">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EDYGUIDE | {{ 'لوحة تحكم النظام' if session.get('lang','en')=='ar' else 'System Dashboard' }}</title>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=15">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    .system-body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; transition: 0.3s; }
+    .sys-layout { display: flex; min-height: 100vh; }
+    
+    .sys-sidebar {
+        width: 280px; background: var(--sidebar-grad);
+        padding: 30px 20px; display: flex; flex-direction: column; gap: 40px;
+    }
+    .sys-logo { font-size: 20px; font-weight: 900; color: #fff; display: flex; align-items: center; gap: 10px; }
+    .sys-nav { display: flex; flex-direction: column; gap: 10px; }
+    .sys-nav-item {
+        padding: 14px 20px; border-radius: 12px; color: rgba(255,255,255,0.7); text-decoration: none;
+        font-weight: 600; transition: 0.3s; display: flex; align-items: center; gap: 12px; cursor: pointer;
+    }
+    .sys-nav-item:hover, .sys-nav-item.active { background: rgba(255,255,255,0.1); color: #fff; }
+    
+    .sys-main { flex: 1; padding: 40px; overflow-y: auto; }
+    .sys-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; }
+    .sys-status {
+        display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 700;
+        background: rgba(34, 197, 94, 0.1); color: #22c55e; padding: 8px 16px; border-radius: 20px;
+    }
+    .pulse { width: 8px; height: 8px; background: #22c55e; border-radius: 50%; box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7); animation: pulse 2s infinite; }
+    @keyframes pulse { 0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7); } 70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(34, 197, 94, 0); } 100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); } }
+
+    .sys-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px; margin-bottom: 24px; }
+    .sys-card {
+        background: var(--surface); border: 1px solid var(--border);
+        border-radius: 24px; padding: 24px; position: relative; overflow: hidden;
+        transition: 0.3s;
+    }
+    .sys-card h3 { font-size: 14px; color: var(--muted); margin: 0 0 8px 0; text-transform: uppercase; letter-spacing: 1px; font-weight: 800; }
+    .sys-card p.sub { font-size: 12px; color: var(--muted); margin: 0 0 20px 0; }
+    .sys-card .value { font-size: 32px; font-weight: 900; color: var(--text); }
+    .sys-card .footer { margin-top: 16px; font-size: 11px; color: var(--muted); font-family: 'JetBrains Mono', monospace; }
+
+    .chart-container { height: 260px; position: relative; }
+
+    .console-box {
+        background: #000; border-radius: 16px; padding: 20px;
+        font-family: 'JetBrains Mono', monospace; font-size: 13px; color: #22c55e;
+        border: 1px solid var(--border); max-height: 250px; overflow-y: auto;
+    }
+    .console-line { margin-bottom: 6px; }
+    .console-line span { color: #64748b; }
+    
+    table.sys-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    table.sys-table th { padding: 12px; text-align: left; border-bottom: 2px solid var(--border); color: var(--muted); text-transform: uppercase; font-size: 11px; }
+    table.sys-table td { padding: 12px; border-bottom: 1px solid var(--border); color: var(--text); }
+
+    .sys-section { display: none; animation: fadeIn 0.4s ease; }
+    .sys-section.active { display: block; }
+    @keyframes fadeIn { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
+
+    .status-badge { padding: 4px 10px; border-radius: 20px; font-size: 10px; font-weight: 800; text-transform: uppercase; }
+    .status-active { background: #dcfce7; color: #16a34a; }
+    .status-inactive { background: #fee2e2; color: #dc2626; }
+  </style>
+</head>
+<body class="system-body">
+{% set is_ar = session.get('lang', 'en') == 'ar' %}
+
+<div class="sys-layout">
+  <aside class="sys-sidebar">
+    <div class="sys-logo">
+      <span style="font-size:24px;">⚙️</span>
+      <span>SYSTEM CORE</span>
+    </div>
+    <nav class="sys-nav">
+      <div onclick="showSection('overview')" id="nav-overview" class="sys-nav-item active">📊 {{ 'نظرة عامة' if is_ar else 'Overview' }}</div>
+      <div onclick="showSection('users')" id="nav-users" class="sys-nav-item">👥 {{ 'المستخدمين' if is_ar else 'Users' }}</div>
+      <div onclick="showSection('security')" id="nav-security" class="sys-nav-item">🛡️ {{ 'الأمان' if is_ar else 'Security' }}</div>
+      <div onclick="showSection('database')" id="nav-database" class="sys-nav-item">💾 {{ 'قاعدة البيانات' if is_ar else 'Database' }}</div>
+      <a href="{{ url_for('logout') }}" class="sys-nav-item" style="margin-top:auto; color:#ef4444;">⏻ {{ 'خروج' if is_ar else 'Logout' }}</a>
+    </nav>
+  </aside>
+
+  <main class="sys-main">
+    <header class="sys-header">
+      <div>
+        <h1 id="section-title" style="font-size:28px; font-weight:900; margin:0;">{{ 'لوحة تحكم النظام' if is_ar else 'Dashboard' }}</h1>
+        <p id="section-desc" style="color:var(--muted); margin:5px 0 0 0;">{{ 'نظرة عامة على العمليات الأكاديمية للمؤسسة' if is_ar else 'Institution-wide academic operations overview' }}</p>
+      </div>
+      <div style="display:flex; align-items:center; gap:20px;">
+        <button class="theme-toggle-btn" onclick="toggleTheme()" id="themeToggle">🌙</button>
+        <div class="sys-status">
+            <div class="pulse"></div>
+            SYSTEM OPERATIONAL
+        </div>
+      </div>
+    </header>
+
+    <!-- SECTION: OVERVIEW -->
+    <div id="section-overview" class="sys-section active">
+        <!-- Data for Charts -->
+        <div id="analytics-data" data-analytics='{{ analytics | tojson | safe }}' style="display:none;"></div>
+        
+        <div class="sys-grid">
+            <div class="sys-card">
+              <h3>TOTAL USERS</h3>
+              <div class="value">{{ total_users or '0' }}</div>
+              <div class="footer">LIVE_DATABASE_CONNECTED</div>
+            </div>
+            <div class="sys-card">
+              <h3>ACTIVE MODULES</h3>
+              <div class="value">8/8</div>
+              <div class="footer">AI_CORE: STATUS_OK</div>
+            </div>
+            <div class="sys-card">
+              <h3>SEC_SHIELD</h3>
+              <div class="value" style="color:#22c55e;">ENABLED</div>
+              <div class="footer">LAST_SCAN: 5M AGO</div>
+            </div>
+        </div>
+
+        <div class="sys-grid" style="grid-template-columns: 1.5fr 1fr;">
+          <div class="sys-card">
+            <h3>📊 {{ 'الطلاب حسب السنة' if is_ar else 'Students by year' }}</h3>
+            <div class="chart-container">
+              <canvas id="studentsYearChart"></canvas>
+            </div>
+          </div>
+          <div class="sys-card">
+            <h3>🏢 {{ 'الطلاب حسب القسم' if is_ar else 'Students by department' }}</h3>
+            <div class="chart-container">
+              <canvas id="studentsDeptChart"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <div class="sys-grid" style="grid-template-columns: 1fr 1fr 1fr;">
+          <div class="sys-card">
+            <h3>🎓 {{ 'المنح الدراسية' if is_ar else 'Scholarships' }}</h3>
+            <div class="chart-container" style="height: 200px;">
+              <canvas id="scholarshipChart"></canvas>
+            </div>
+          </div>
+          <div class="sys-card">
+            <h3>👫 {{ 'توزيع الجنس' if is_ar else 'Gender distribution' }}</h3>
+            <div class="chart-container" style="height: 200px;">
+              <canvas id="genderChart"></canvas>
+            </div>
+          </div>
+          <div class="sys-card">
+            <h3>💳 {{ 'الإيرادات' if is_ar else 'Revenue' }}</h3>
+            <div class="chart-container" style="height: 200px;">
+              <canvas id="revenueChart"></canvas>
+            </div>
+          </div>
+        </div>
+    </div>
+
+    <!-- SECTION: USERS -->
+    <div id="section-users" class="sys-section">
+        <div class="sys-grid" style="grid-template-columns: repeat(3, 1fr); margin-bottom: 24px;">
+            <div class="sys-card" style="padding: 16px;">
+                <h3 style="font-size:11px;">STUDENTS</h3>
+                <div class="value" style="font-size:24px;">{{ student_count }}</div>
+            </div>
+            <div class="sys-card" style="padding: 16px;">
+                <h3 style="font-size:11px;">INSTRUCTORS</h3>
+                <div class="value" style="font-size:24px;">{{ instructor_count }}</div>
+            </div>
+            <div class="sys-card" style="padding: 16px;">
+                <h3 style="font-size:11px;">ACTIVE NOW</h3>
+                <div class="value" style="font-size:24px; color:#22c55e;">{{ all_users|length }}</div>
+            </div>
+        </div>
+
+        <div class="sys-card">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+                <h3>REAL-TIME USER ACCESS</h3>
+                <div style="display:flex; gap:10px;">
+                    <input type="text" id="userSearch" onkeyup="filterUsers()" placeholder="Search by name or email..." style="padding:10px 16px; border-radius:10px; border:1.5px solid var(--border); background:var(--bg); color:var(--text); font-size:13px; width:280px; outline:none;">
+                    <button class="btn-primary" style="padding:8px 16px; font-size:12px;">EXPORT LIST</button>
+                </div>
+            </div>
+            <div style="overflow-x:auto;">
+                <table class="sys-table" id="userTable">
+                    <thead>
+                        <tr>
+                            <th>NAME</th>
+                            <th>EMAIL</th>
+                            <th>ROLE</th>
+                            <th>JOIN DATE</th>
+                            <th>STATUS</th>
+                            <th>ACTION</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for u in all_users %}
+                        <tr class="user-row">
+                            <td class="user-name" style="font-weight:700;">{{ u.full_name }}</td>
+                            <td class="user-email">{{ u.email }}</td>
+                            <td><span style="padding:4px 10px; border-radius:6px; background:rgba(26,58,159,0.1); color:var(--primary); font-size:10px; font-weight:800;">{{ (u.role or 'USER').upper() }}</span></td>
+                            <td style="color:var(--muted); font-size:12px;">{{ u.created_at or '2024-01-01' }}</td>
+                            <td>
+                                {% set u_status = (u.status or 'Active')|lower %}
+                                {% set is_active = (u_status == 'active') %}
+                                <span class="status-badge {{ 'status-active' if is_active else 'status-inactive' }}">
+                                    {{ 'Active' if is_active else u.status }}
+                                </span>
+                            </td>
+                            <td><button onclick="alert('Viewing: {{ u.full_name }}')" style="background:var(--primary-light); border:none; color:var(--primary); padding:6px 12px; border-radius:6px; cursor:pointer; font-weight:700; font-size:11px;">VIEW PROFILE</button></td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- SECTION: SECURITY -->
+    <div id="section-security" class="sys-section">
+        <div class="sys-grid">
+            <div class="sys-card">
+                <h3>FIREWALL STATUS</h3>
+                <div class="value" style="color:#22c55e;">SHIELD: ON</div>
+                <p class="sub" style="margin-top:10px;">Traffic is being filtered via EDY_SEC_MODULE.</p>
+            </div>
+            <div class="sys-card">
+                <h3>THREAT LEVEL</h3>
+                <div class="value">0.02%</div>
+                <p class="sub" style="margin-top:10px;">Monitoring 14 active API endpoints.</p>
+            </div>
+        </div>
+        <div class="sys-card" style="margin-top:24px;">
+            <h3>LIVE SECURITY ANALYTICS</h3>
+            <div class="console-box" style="margin-top:10px; height:320px;">
+                <div class="console-line"><span>[05:24:10]</span> <span style="color:#22c55e;">[INFO]</span> Integrity check passed for core modules.</div>
+                <div class="console-line"><span>[05:24:11]</span> <span style="color:#38bdf8;">[AUTH]</span> New administrator login detected: SYS_ADMIN_01</div>
+                <div class="console-line"><span>[05:24:12]</span> <span style="color:#facc15;">[WARN]</span> API Latency spike detected on /api/chat. Resolving...</div>
+                <div class="console-line"><span>[05:24:13]</span> <span style="color:#22c55e;">[INFO]</span> SSL Handshake success with client 104.18.23.4</div>
+                <div class="console-line"><span>[05:24:14]</span> <span style="color:#ef4444;">[BLOCK]</span> IP 172.16.0.45 blocked after 5 failed login attempts.</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SECTION: DATABASE -->
+    <div id="section-database" class="sys-section">
+        <div class="sys-grid">
+            <div class="sys-card">
+                <h3>DATABASE ENGINE</h3>
+                <div class="value">MySQL 8.0</div>
+                <p class="sub" style="margin-top:10px;">Connected to edyguide1 via DictCursor.</p>
+            </div>
+            <div class="sys-card">
+                <h3>HEALTH SCORE</h3>
+                <div class="value" style="color:#22c55e;">100%</div>
+                <p class="sub" style="margin-top:10px;">No corrupted tables detected.</p>
+            </div>
+        </div>
+        <div class="sys-card" style="margin-top:24px;">
+            <h3>INFRASTRUCTURE TABLES</h3>
+            <div style="overflow-x:auto;">
+                <table class="sys-table">
+                    <thead>
+                        <tr>
+                            <th>TABLE</th>
+                            <th>RECORDS</th>
+                            <th>DATA SIZE</th>
+                            <th>LAST UPDATED</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>users</td><td>{{ student_count }}</td><td>InnoDB</td><td>Just now</td></tr>
+                        <tr><td>admins</td><td>{{ instructor_count }}</td><td>InnoDB</td><td>Just now</td></tr>
+                        <tr><td>products</td><td>156</td><td>1.2 MB</td><td>15m ago</td></tr>
+                        <tr><td>departments</td><td>12</td><td>12 KB</td><td>1d ago</td></tr>
+                        <tr><td>requests</td><td>42</td><td>256 KB</td><td>5m ago</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <div style="margin-top:24px; display:flex; gap:12px;">
+                <button class="btn-primary" style="background:#15803d; border-radius:12px;">⚡ RE-INDEX TABLES</button>
+                <button class="btn-ghost" style="border-radius:12px;">📂 GENERATE SQL DUMP</button>
+            </div>
+        </div>
+    </div>
+
+  </main>
+</div>
+
+<script>
+// SPA Navigation
+function showSection(id) {
+    document.querySelectorAll('.sys-section').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.sys-nav-item').forEach(n => n.classList.remove('active'));
+    
+    document.getElementById('section-' + id).classList.add('active');
+    document.getElementById('nav-' + id).classList.add('active');
+    
+    const titles = {
+        'overview': '{{ "لوحة تحكم النظام" if is_ar else "Overview" }}',
+        'users': '{{ "إدارة المستخدمين" if is_ar else "User Management" }}',
+        'security': '{{ "أمن النظام" if is_ar else "System Security" }}',
+        'database': '{{ "قاعدة البيانات" if is_ar else "Database Engine" }}'
+    };
+    const descs = {
+        'overview': '{{ "نظرة عامة على العمليات الأكاديمية للمؤسسة" if is_ar else "Institution-wide academic operations overview" }}',
+        'users': '{{ "التحكم في حسابات الطلاب والمحاضرين" if is_ar else "Control student and instructor accounts" }}',
+        'security': '{{ "مراقبة الأمان وجدار الحماية" if is_ar else "Security monitoring and firewall logs" }}',
+        'database': '{{ "إحصاءات الجداول وتحسين الأداء" if is_ar else "Table statistics and performance optimization" }}'
+    };
+    document.getElementById('section-title').innerText = titles[id];
+    document.getElementById('section-desc').innerText = descs[id];
+}
+
+// User Search Logic
+function filterUsers() {
+    const input = document.getElementById('userSearch').value.toLowerCase();
+    const rows = document.querySelectorAll('.user-row');
+    
+    rows.forEach(row => {
+        const name = row.querySelector('.user-name').innerText.toLowerCase();
+        const email = row.querySelector('.user-email').innerText.toLowerCase();
+        if (name.includes(input) || email.includes(input)) {
+            row.style.display = "";
+        } else {
+            row.style.display = "none";
+        }
+    });
+}
+
+// Theme Logic
+function toggleTheme() {
+    const html = document.documentElement;
+    const currentTheme = html.getAttribute('data-theme');
+    const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+    html.setAttribute('data-theme', newTheme);
+    localStorage.setItem('theme', newTheme);
+    updateToggleIcon(newTheme);
+}
+
+function updateToggleIcon(theme) {
+    const btn = document.getElementById('themeToggle');
+    if (btn) btn.innerText = theme === 'dark' ? '☀️' : '🌙';
+}
+
+(function() {
+    const savedTheme = localStorage.getItem('theme') || 'light';
+    document.documentElement.setAttribute('data-theme', savedTheme);
+    updateToggleIcon(savedTheme);
+})();
+
+// Charts Logic
+let analytics = {};
+try {
+    const dataElem = document.getElementById('analytics-data');
+    if (dataElem && dataElem.dataset.analytics) {
+        analytics = JSON.parse(dataElem.dataset.analytics);
+    }
+} catch (e) {
+    console.error("Chart data error:", e);
+}
+const isDark = localStorage.getItem('theme') === 'dark';
+Chart.defaults.color = isDark ? '#94a3b8' : '#64748b';
+Chart.defaults.borderColor = isDark ? '#1e293b' : '#e2e8f0';
+
+new Chart(document.getElementById('studentsYearChart'), {
+    type: 'bar',
+    data: {
+        labels: ['1st Year', '2nd Year', '3rd Year', '4th Year'],
+        datasets: [{
+            label: 'Students',
+            data: analytics.students_by_year,
+            backgroundColor: '#1a3a9f',
+            borderRadius: 8
+        }]
+    },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+});
+
+new Chart(document.getElementById('studentsDeptChart'), {
+    type: 'bar',
+    data: {
+        labels: Object.keys(analytics.students_by_dept),
+        datasets: [{
+            label: 'Enrollment',
+            data: Object.values(analytics.students_by_dept),
+            backgroundColor: '#1a3a9f',
+            borderRadius: 8
+        }]
+    },
+    options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+});
+
+new Chart(document.getElementById('scholarshipChart'), {
+    type: 'pie',
+    data: {
+        labels: Object.keys(analytics.scholarships),
+        datasets: [{
+            data: Object.values(analytics.scholarships),
+            backgroundColor: ['#1a3a9f', '#22c55e', '#0f172a', '#38bdf8']
+        }]
+    },
+    options: { responsive: true, maintainAspectRatio: false }
+});
+
+new Chart(document.getElementById('genderChart'), {
+    type: 'doughnut',
+    data: {
+        labels: Object.keys(analytics.gender),
+        datasets: [{
+            data: Object.values(analytics.gender),
+            backgroundColor: ['#1a3a9f', '#22c55e', '#f43f5e']
+        }]
+    },
+    options: { responsive: true, maintainAspectRatio: false }
+});
+
+new Chart(document.getElementById('revenueChart'), {
+    type: 'bar',
+    data: {
+        labels: analytics.years,
+        datasets: [{
+            label: 'Revenue (k)',
+            data: analytics.revenue,
+            backgroundColor: '#7c2d12',
+            borderRadius: 8
+        }]
+    },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+});
+</script>
+
+</body>
+</html>
+<div class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+        <div class="brand">
+            <div class="brand-icon" style="width: 32px; height: 32px; font-size: 1rem;">🎓</div>
+            <span style="font-size: 1.2rem;">EDYGUIDE</span>
+        </div>
+    </div>
+
+    <div class="sidebar-menu">
+        <div class="menu-group">
+            <div class="menu-label">{{ 'القائمة الرئيسية' if session.get('lang','en')=='ar' else 'Main Menu' }}</div>
+            
+            {% if session.get('role') == 'student' %}
+                <a href="{{ url_for('dashboard') }}" class="nav-item {{ 'active' if request.endpoint == 'dashboard' }}">
+                    <i class="fas fa-th-large"></i>
+                    <span>{{ 'لوحة التحكم' if session.get('lang','en')=='ar' else 'Dashboard' }}</span>
+                </a>
+                <a href="{{ url_for('chat_page') }}" class="nav-item {{ 'active' if request.endpoint == 'chat_page' }}">
+                    <i class="fas fa-robot"></i>
+                    <span>{{ 'المساعد الذكي' if session.get('lang','en')=='ar' else 'AI Concierge' }}</span>
+                </a>
+                <a href="{{ url_for('marketplace_page') }}" class="nav-item {{ 'active' if request.endpoint == 'marketplace_page' }}">
+                    <i class="fas fa-book-reader"></i>
+                    <span>{{ 'المكتبة الرقمية' if session.get('lang','en')=='ar' else 'Library' }}</span>
+                </a>
+                <a href="{{ url_for('my_requests_page') }}" class="nav-item {{ 'active' if request.endpoint == 'my_requests_page' }}">
+                    <i class="fas fa-paper-plane"></i>
+                    <span>{{ 'طلباتي' if session.get('lang','en')=='ar' else 'My Requests' }}</span>
+                </a>
+            {% elif session.get('role') in ['admin', 'instructor'] %}
+                <a href="{{ url_for('admin_dashboard') }}" class="nav-item {{ 'active' if request.endpoint == 'admin_dashboard' }}">
+                    <i class="fas fa-chart-line"></i>
+                    <span>{{ 'لوحة التحكم' if session.get('lang','en')=='ar' else 'Dashboard' }}</span>
+                </a>
+                <a href="{{ url_for('admin_requests') }}" class="nav-item {{ 'active' if request.endpoint == 'admin_requests' }}">
+                    <i class="fas fa-envelope-open-text"></i>
+                    <span>{{ 'طلبات الطلاب' if session.get('lang','en')=='ar' else 'Student Requests' }}</span>
+                </a>
+                <a href="{{ url_for('admin_add_product') }}" class="nav-item {{ 'active' if request.endpoint == 'admin_add_product' }}">
+                    <i class="fas fa-cloud-upload-alt"></i>
+                    <span>{{ 'رفع مواد' if session.get('lang','en')=='ar' else 'Upload Materials' }}</span>
+                </a>
+            {% endif %}
+
+            <div class="menu-label" style="margin-top: 20px;">{{ 'الخدمات الأكاديمية' if session.get('lang','en')=='ar' else 'Academic' }}</div>
+            
+            <a href="{{ url_for('career_page') }}" class="nav-item {{ 'active' if 'career' in request.endpoint }}">
+                <i class="fas fa-briefcase"></i>
+                <span>{{ 'المسار الوظيفي' if session.get('lang','en')=='ar' else 'Career' }}</span>
+            </a>
+            
+            {% if session.get('role') == 'student' %}
+                <a href="{{ url_for('gpa_page') }}" class="nav-item {{ 'active' if request.endpoint == 'gpa_page' }}">
+                    <i class="fas fa-calculator"></i>
+                    <span>{{ 'حساب المعدل' if session.get('lang','en')=='ar' else 'GPA Calc' }}</span>
+                </a>
+            {% endif %}
+        </div>
+
+        <div class="menu-group" style="margin-top: auto; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.1);">
+            <a href="{{ url_for('profile_page') }}" class="nav-item {{ 'active' if request.endpoint == 'profile_page' }}">
+                <i class="fas fa-user-circle"></i>
+                <span>{{ 'الملف الشخصي' if session.get('lang','en')=='ar' else 'Profile' }}</span>
+            </a>
+            <a href="{{ url_for('logout') }}" class="nav-item logout" style="color: #EF4444;">
+                <i class="fas fa-power-off"></i>
+                <span>{{ 'تسجيل الخروج' if session.get('lang','en')=='ar' else 'Logout' }}</span>
+            </a>
+        </div>
+    </div>
+</div>
+
+<style>
+.sidebar {
+    background: #0F172A; /* Match Professional Blue Secondary */
+    border-right: 1px solid rgba(255,255,255,0.05);
+}
+.menu-label {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #64748B;
+    margin-bottom: 10px;
+    padding-left: 1rem;
+}
+.nav-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.8rem 1.2rem;
+    border-radius: 10px;
+    color: #94A3B8;
+    font-weight: 500;
+    transition: all 0.2s;
+    margin-bottom: 4px;
+}
+.nav-item i {
+    font-size: 1.1rem;
+    width: 24px;
+    text-align: center;
+}
+.nav-item:hover {
+    background: rgba(255, 255, 255, 0.05);
+    color: white;
+}
+.nav-item.active {
+    background: #2563EB;
+    color: white;
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+}
+.logout:hover {
+    background: rgba(239, 68, 68, 0.1) !important;
+    color: #EF4444 !important;
+}
+</style>
+<header class="app-topbar">
+  <div class="topbar-left">
+    <button class="mobile-toggle" onclick="toggleSidebar()">☰</button>
+    <div class="topbar-breadcrumb">
+      {{ 'لوحة تحكم الطالب' if session.get('lang','en')=='ar' else 'Student Dashboard' }}
+    </div>
+  </div>
+
+  <div class="topbar-right">
+    <button class="theme-toggle-btn" onclick="toggleTheme()" id="themeToggle">🌙</button>
+    <a href="{{ url_for('notifications_page') }}" class="topbar-icon-btn">
+      <span class="icon">🔔</span>
+      <span class="badge"></span>
+    </a>
+
+    <div class="user-profile-dropdown">
+      <div class="user-info">
+        <span class="user-name">{{ session.get('user_name', 'User') }}</span>
+        <span class="user-role">{{ session.get('role', 'Student').capitalize() }}</span>
+      </div>
+      <img src="https://ui-avatars.com/api/?name={{ session.get('user_name', 'U') }}&background=1a3a9f&color=fff"
+        class="user-avatar">
+    </div>
+  </div>
+</header>

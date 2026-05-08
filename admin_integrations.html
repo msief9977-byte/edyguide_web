@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="{{ 'ar' if session.get('lang', 'en') == 'ar' else 'en' }}" dir="{{ 'rtl' if session.get('lang', 'en') == 'ar' else 'ltr' }}">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EDYGUIDE | Integration Settings</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=96">
+  <style>
+    .settings-shell { width: min(800px, calc(100% - 40px)); margin: 40px auto; }
+    .settings-card { background: white; border-radius: 24px; padding: 40px; border: 1px solid #f1f5f9; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
+    .settings-header { margin-bottom: 30px; border-bottom: 1px solid #f1f5f9; padding-bottom: 20px; }
+    .settings-header h1 { font-size: 24px; font-weight: 800; color: #1e293b; margin-bottom: 8px; }
+    .settings-header p { color: #64748b; font-size: 14px; }
+    
+    .form-group { margin-bottom: 24px; }
+    .form-group label { display: block; font-weight: 700; color: #1e293b; margin-bottom: 8px; font-size: 14px; }
+    .form-group input { width: 100%; padding: 14px 18px; border-radius: 12px; border: 1.5px solid #f1f5f9; background: #f8fafc; color: #1e293b; font-family: inherit; font-size: 14px; transition: 0.3s; }
+    .form-group input:focus { border-color: #3b82f6; outline: none; background: white; box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1); }
+    
+    .submit-btn { width: 100%; background: #3b82f6; color: white; padding: 16px; border-radius: 12px; border: none; font-weight: 800; font-size: 16px; cursor: pointer; transition: 0.3s; }
+    .submit-btn:hover { background: #2563eb; transform: translateY(-2px); box-shadow: 0 10px 20px rgba(37, 99, 235, 0.2); }
+    
+    .back-btn { display: inline-flex; align-items: center; gap: 8px; color: #64748b; text-decoration: none; font-weight: 600; margin-bottom: 20px; font-size: 14px; transition: 0.2s; }
+    .back-btn:hover { color: #3b82f6; }
+    
+    .alert { padding: 16px 20px; border-radius: 12px; background: #dcfce7; color: #166534; margin-bottom: 24px; font-weight: 600; font-size: 14px; display: flex; align-items: center; gap: 10px; }
+  </style>
+</head>
+<body class="dashboard-body">
+
+<div class="settings-shell">
+  <a href="{{ url_for('admin_dashboard') }}" class="back-btn">
+    <i class="fas fa-arrow-left"></i> {{ 'العودة للوحة التحكم' if session.get('lang') == 'ar' else 'Back to Dashboard' }}
+  </a>
+
+  <div class="settings-card">
+    <div class="settings-header">
+      <h1>{{ 'إعدادات الربط (Integrations)' if session.get('lang') == 'ar' else 'Integration Settings' }}</h1>
+      <p>{{ 'إدارة مفاتيح الـ API وربط الخدمات الخارجية بالمنصة.' if session.get('lang') == 'ar' else 'Manage API keys and external service integrations.' }}</p>
+    </div>
+
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        {% for message in messages %}
+          <div class="alert">
+            <i class="fas fa-check-circle"></i> {{ message }}
+          </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <form method="POST">
+      <div class="form-group">
+        <label>Groq AI API Key</label>
+        <input type="text" name="GROQ_API_KEY" value="{{ keys.get('GROQ_API_KEY', '') }}" placeholder="gsk_...">
+      </div>
+
+      <div class="form-group">
+        <label>Google Gemini API Key</label>
+        <input type="text" name="GEMINI_API_KEY" value="{{ keys.get('GEMINI_API_KEY', '') }}" placeholder="AIza...">
+      </div>
+
+      <div class="form-group">
+        <label>Paymob API Key (Secret)</label>
+        <input type="text" name="PAYMOB_API_KEY" value="{{ keys.get('PAYMOB_API_KEY', '') }}" placeholder="ZXlKa...">
+      </div>
+
+      <div class="form-group">
+        <label>Paymob Integration ID (Card)</label>
+        <input type="text" name="PAYMOB_INTEGRATION_ID_CARD" value="{{ keys.get('PAYMOB_INTEGRATION_ID_CARD', '') }}">
+      </div>
+
+      <div class="form-group">
+        <label>Paymob Integration ID (Fawry)</label>
+        <input type="text" name="PAYMOB_INTEGRATION_ID_FAWRY" value="{{ keys.get('PAYMOB_INTEGRATION_ID_FAWRY', '') }}">
+      </div>
+
+      <button type="submit" class="submit-btn">{{ 'حفظ الإعدادات' if session.get('lang') == 'ar' else 'Save Settings' }}</button>
+    </form>
+  </div>
+</div>
+
+</body>
+</html>

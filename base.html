@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EDUGUIDE | {{ session.get('role', 'User').capitalize() }} Portal</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;800&family=Cairo:wght@400;700;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+
+<body>
+    <div class="app-layout">
+        {% include '_sidebar.html' %}
+
+        <main class="app-main">
+            <header class="top-bar">
+                <div class="breadcrumb">
+                    <i class="fas fa-home" style="color: var(--blue); margin-right: 8px; opacity: 0.8;"></i>
+                    <span style="color: var(--muted); opacity: 0.6; font-weight: 500;">Portal</span>
+                    <i class="fas fa-chevron-right" style="font-size: 10px; margin: 0 8px; opacity: 0.3;"></i>
+                    <span style="font-weight: 700; color: var(--text);">{{ request.endpoint.replace('_', '
+                        ').capitalize() }}</span>
+                </div>
+
+                <div class="user-nav">
+                    <div class="topbar-right" style="display: flex; align-items: center; gap: 20px;">
+                        <!-- Utility Icons -->
+                        <div
+                            style="display: flex; gap: 18px; color: var(--muted); font-size: 16px; margin-right: 10px;">
+                            <i class="far fa-bell" style="cursor: pointer; transition: 0.2s;"
+                                onmouseover="this.style.color='var(--blue)'"
+                                onmouseout="this.style.color='var(--muted)'"></i>
+                            <i class="far fa-envelope" style="cursor: pointer; transition: 0.2s;"
+                                onmouseover="this.style.color='var(--blue)'"
+                                onmouseout="this.style.color='var(--muted)'"></i>
+                            <i class="fas fa-cog" style="cursor: pointer; transition: 0.2s;"
+                                onmouseover="this.style.color='var(--blue)'"
+                                onmouseout="this.style.color='var(--muted)'"></i>
+                        </div>
+
+                        <a href="{{ url_for('set_language', lang='en' if session.get('lang') == 'ar' else 'ar', next=request.path) }}"
+                            class="lang-toggle-btn">
+                            {{ 'AR' if session.get('lang') != 'ar' else 'EN' }}
+                        </a>
+                        <button class="theme-toggle-btn" onclick="toggleTheme()">
+                            <i class="fas fa-moon"></i>
+                        </button>
+                    </div>
+
+                    <div style="height: 28px; width: 1px; background: var(--border); margin: 0 10px; opacity: 0.5;">
+                    </div>
+
+                    <div class="profile-pill">
+                        <div style="text-align: right;">
+                            <div style="font-weight: 800; font-size: 13px; color: var(--text); line-height: 1.2;">{{
+                                session.get('name', 'User') }}</div>
+                            <div
+                                style="font-size: 10px; color: var(--blue); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">
+                                {{ session.get('role', 'Student') }}</div>
+                        </div>
+                        <div
+                            style="width: 36px; height: 36px; background: linear-gradient(135deg, var(--blue), var(--blue-dark)); color: white; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 14px; box-shadow: 0 4px 12px rgba(21, 86, 196, 0.25);">
+                            {{ session.get('name', 'U')[0] }}
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <div class="page-content">
+                {% block content %}{% endblock %}
+            </div>
+        </main>
+    </div>
+
+    <script>
+        function toggleTheme() {
+            const body = document.body;
+            const current = body.getAttribute('data-theme');
+            body.setAttribute('data-theme', current === 'dark' ? 'light' : 'dark');
+        }
+    </script>
+</body>
+
+</html>

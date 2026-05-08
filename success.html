@@ -1,0 +1,104 @@
+{% extends "dashboard_layout.html" %}
+
+{% block title %}EDUGUIDE | Success{% endblock %}
+{% block page_title %}{{ 'نجاح العملية' if session.get('lang') == 'ar' else 'Action Successful' }}{% endblock %}
+
+{% block content %}
+<div class="result-container">
+    <div class="result-card success">
+        <div class="result-icon pulse-success">
+            <i class="fas fa-check-circle"></i>
+        </div>
+        <h1>{{ 'تمت عملية الدفع بنجاح!' if session.get('lang') == 'ar' else 'Payment Successful!' }}</h1>
+        <p>{{ message or ('تم تحديث سجلاتك المالية بنجاح. يمكنك الآن تحميل إيصال الدفع.' if session.get('lang') == 'ar' else 'Your financial records have been updated. You can now download your receipt.') }}</p>
+        
+        <div class="success-details">
+            <p><i class="fas fa-shield-alt"></i> {{ 'تم تأمين المعاملة وتحديث المصروفات الدراسية.' if session.get('lang') == 'ar' else 'Transaction secured and tuition fees updated.' }}</p>
+        </div>
+
+        <div class="result-actions">
+            <a href="{{ url_for('payments_page') }}" class="btn-primary-lg">{{ 'عرض سجل المدفوعات' if session.get('lang') == 'ar' else 'View Payment History' }}</a>
+            <a href="{{ url_for('dashboard') }}" class="btn-outline-lg">{{ 'العودة للرئيسية' if session.get('lang') == 'ar' else 'Go to Dashboard' }}</a>
+        </div>
+    </div>
+</div>
+
+<style>
+.result-container { 
+    display: flex; 
+    justify-content: center; 
+    align-items: center; 
+    min-height: 60vh; 
+}
+.result-card { 
+    background: white; 
+    width: 100%; 
+    max-width: 500px; 
+    padding: 50px 40px; 
+    border-radius: 32px; 
+    text-align: center; 
+    box-shadow: 0 10px 30px rgba(0,0,0,0.05); 
+    border: 1px solid #f1f5f9;
+}
+
+.result-icon { 
+    font-size: 80px; 
+    color: #10b981; 
+    margin-bottom: 25px; 
+}
+
+.result-card h1 { 
+    font-size: 24px; 
+    font-weight: 800; 
+    color: #1e293b; 
+    margin-bottom: 12px; 
+}
+.result-card p { 
+    color: #64748b; 
+    margin-bottom: 30px; 
+    line-height: 1.6; 
+}
+
+.success-details { 
+    background: #f8fafc; 
+    padding: 15px; 
+    border-radius: 16px; 
+    margin-bottom: 35px; 
+    border: 1px solid #e2e8f0; 
+    color: #1e3a8a; 
+    font-size: 13px; 
+    font-weight: 600; 
+}
+
+.result-actions { 
+    display: flex; 
+    flex-direction: column; 
+    gap: 12px; 
+}
+.btn-primary-lg { 
+    background: var(--primary); 
+    color: white; 
+    padding: 16px; 
+    border-radius: 14px; 
+    font-weight: 800; 
+    text-decoration: none; 
+    transition: 0.3s;
+}
+.btn-outline-lg { 
+    background: white; 
+    color: var(--text-muted); 
+    border: 2px solid #f1f5f9; 
+    padding: 16px; 
+    border-radius: 14px; 
+    font-weight: 700; 
+    text-decoration: none; 
+}
+
+.pulse-success { animation: pulse-success-animation 2s infinite; }
+@keyframes pulse-success-animation {
+  0% { transform: scale(0.95); }
+  70% { transform: scale(1); }
+  100% { transform: scale(0.95); }
+}
+</style>
+{% endblock %}

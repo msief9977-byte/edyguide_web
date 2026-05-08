@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="{{ 'ar' if session.get('lang', 'en') == 'ar' else 'en' }}" dir="{{ 'rtl' if session.get('lang', 'en') == 'ar' else 'ltr' }}">
+<head>
+  <meta charset="UTF-8">
+  <title>EDYGUIDE | Career Center</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=410">
+</head>
+<body class="dashboard-body">
+
+{% set is_ar = session.get('lang', 'en') == 'ar' %}
+
+<header class="top-nav" style="margin:24px auto 0; width:min(1200px, calc(100% - 40px));">
+  <div class="brand">
+    <div class="brand-icon">🎓</div>
+    <div>
+      <div class="brand-top">UNIVERSITY LOGO</div>
+      <div class="brand-name">EDYGUIDE</div>
+    </div>
+  </div>
+
+  <div class="nav-links">
+    <a href="{{ url_for('dashboard') }}">{{ 'لوحة التحكم' if is_ar else 'Dashboard' }}</a>
+    <a href="{{ url_for('set_language', lang='en' if is_ar else 'ar', next=request.path) }}" class="lang-icon" title="{{ 'English' if is_ar else 'العربية' }}">🌐 <span>{{ 'EN' if is_ar else 'AR' }}</span></a>
+    <a href="{{ url_for('logout') }}" class="mini-btn">{{ 'خروج' if is_ar else 'Logout' }}</a>
+  </div>
+</header>
+
+<div class="career-shell">
+
+  <section class="career-hero">
+    <div>
+      <div class="career-badge">{{ 'مركز التوظيف' if is_ar else 'Career Center' }}</div>
+      <h1>{{ 'مستقبلك المهني يبدأ هنا' if is_ar else 'Your Career Starts Here' }}</h1>
+      <p>
+        {{ 'حلل سيرتك الذاتية، اكتشف التدريبات المناسبة، وتدرب على المقابلات من خلال نظام مرتبط بقاعدة البيانات.'
+        if is_ar else
+        'Analyze your CV, discover suitable internships, and practice interviews through a database-driven system.' }}
+      </p>
+    </div>
+  </section>
+
+  <section class="career-grid">
+    <a href="{{ url_for('cv_optimizer_page') }}" class="career-card career-link-card">
+      <div class="career-card-icon">📄</div>
+      <h2>CV Optimizer</h2>
+      <p>Upload your CV as PDF and get score, strengths, missing skills, and improvement suggestions.</p>
+    </a>
+
+    <a href="{{ url_for('career_matching_page') }}" class="career-card career-link-card">
+      <div class="career-card-icon">🎯</div>
+      <h2>Career Matching</h2>
+      <p>Get internship and company recommendations based on GPA and CV skills.</p>
+    </a>
+
+    <a href="{{ url_for('mock_interview_page') }}" class="career-card career-link-card">
+      <div class="career-card-icon">🎤</div>
+      <h2>Mock Interview</h2>
+      <p>Practice interview questions by field or company and prepare professionally.</p>
+    </a>
+  </section>
+
+</div>
+
+</body>
+</html>

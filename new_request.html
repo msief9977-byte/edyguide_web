@@ -1,0 +1,71 @@
+{% extends "dashboard_layout.html" %}
+
+{% block title %}EDUGUIDE | New Request{% endblock %}
+
+{% block page_title %}{{ 'طلب جديد' if session.get('lang') == 'ar' else 'New Request' }}{% endblock %}
+
+{% block content %}
+<style>
+.requests-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+.requests-header h1 { font-size: 1.8rem; color: var(--text-main); font-weight: 800; margin: 0; }
+.my-requests-btn { background: var(--bg); color: var(--text-main); border: 1px solid var(--border); padding: 10px 20px; border-radius: 12px; text-decoration: none; font-weight: 700; transition: 0.2s; }
+.my-requests-btn:hover { background: var(--border); }
+
+.form-card { background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 32px; box-shadow: 0 10px 20px rgba(0,0,0,0.02); margin-bottom: 24px; }
+.form-card h2 { font-size: 1.3rem; font-weight: 800; color: var(--text-main); margin-top: 0; margin-bottom: 20px; }
+
+.form-group { margin-bottom: 20px; }
+.form-group label { display: block; font-weight: 700; color: var(--text-main); margin-bottom: 8px; font-size: 0.95rem; }
+.form-control { width: 100%; padding: 14px 16px; border-radius: 12px; border: 1px solid var(--border); background: var(--bg); color: var(--text-main); font-family: inherit; font-size: 0.95rem; font-weight: 600; outline: none; transition: 0.2s; }
+.form-control:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(37,99,235,0.1); }
+
+.submit-btn { width: 100%; background: var(--primary); color: #fff; padding: 15px; border-radius: 12px; border: none; font-weight: 800; font-size: 1rem; cursor: pointer; transition: 0.2s; box-shadow: 0 4px 12px rgba(37,99,235,0.2); }
+.submit-btn:hover { background: var(--primary-dark); transform: translateY(-2px); }
+
+.alert { padding: 15px; background: #dcfce7; color: #166534; border-radius: 12px; margin-bottom: 20px; font-weight: 700; font-size: 0.95rem; }
+.notes-card { background: rgba(37,99,235,0.05); border: 1px dashed rgba(37,99,235,0.2); border-radius: 20px; padding: 24px; color: var(--text-main); }
+.notes-card h2 { font-size: 1.1rem; color: var(--primary); margin-top: 0; margin-bottom: 10px; }
+</style>
+
+{% set is_ar = session.get('lang', 'en') == 'ar' %}
+
+<div class="requests-header">
+  <h1>{{ 'طلب جديد' if is_ar else 'New Request' }}</h1>
+  <a href="{{ url_for('my_requests_page') }}" class="my-requests-btn"><i class="fas fa-list"></i> {{ 'عرض طلباتي' if is_ar else 'View My Requests' }}</a>
+</div>
+
+<div class="form-card">
+  <h2>{{ 'أرسل طلبك' if is_ar else 'Send Your Request' }}</h2>
+
+
+
+  <form method="POST">
+    <div class="form-group">
+      <label for="instructor_id">{{ 'اختر الدكتور' if is_ar else 'Select Doctor' }}</label>
+      <select name="instructor_id" id="instructor_id" class="form-control" required>
+        <option value="">{{ 'اختر الدكتور الذي تريد مراسلته' if is_ar else 'Select the doctor you want to message' }}</option>
+        {% for doc in instructors %}
+        <option value="{{ doc.id }}">Dr. {{ doc.full_name }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label for="message">{{ 'تفاصيل الطلب' if is_ar else 'Request Details' }}</label>
+      <textarea name="message" id="message" rows="6" class="form-control" required placeholder="{{ 'اكتب تفاصيل الطلب هنا...' if is_ar else 'Write your request details here...' }}"></textarea>
+    </div>
+
+    <button type="submit" class="submit-btn">
+      <i class="fas fa-paper-plane"></i> {{ 'إرسال الطلب' if is_ar else 'Submit Request' }}
+    </button>
+  </form>
+</div>
+
+<div class="notes-card">
+  <h2><i class="fas fa-info-circle"></i> {{ 'ملاحظات هامة' if is_ar else 'Important Notes' }}</h2>
+  <p style="margin:0; font-weight:500; font-size:0.95rem; opacity:0.8;">
+    {{ 'اكتب الطلب بشكل واضح وحدد المشكلة أو الخدمة التي تحتاجها حتى يسهل الرد عليك بسرعة.' if is_ar
+       else 'Write your request clearly and describe the issue or service you need so it can be answered faster.' }}
+  </p>
+</div>
+{% endblock %}

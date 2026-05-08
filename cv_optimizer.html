@@ -1,0 +1,254 @@
+{% extends "dashboard_layout.html" %}
+
+{% block title %}EDYGUIDE | CV Optimizer{% endblock %}
+{% block page_title %}{{ 'تحليل السيرة الذاتية' if session.get('lang') == 'ar' else 'CV Optimizer' }}{% endblock %}
+
+{% block content %}
+<style>
+  .career-container { max-width: 860px; margin: 0 auto; animation: fadeIn 0.5s ease; }
+
+  .career-hero {
+    background: linear-gradient(135deg, #1e293b, #0f172a);
+    border-radius: 24px;
+    padding: 44px;
+    color: white;
+    margin-bottom: 32px;
+    position: relative;
+    overflow: hidden;
+  }
+  .career-hero::after {
+    content: '📄';
+    position: absolute;
+    right: 40px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 80px;
+    opacity: 0.1;
+  }
+  .career-hero h1 { font-size: 30px; font-weight: 800; margin-bottom: 10px; }
+  .career-hero p { opacity: 0.8; line-height: 1.7; max-width: 560px; font-size: 15px; }
+
+  .upload-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 24px;
+    padding: 32px;
+    margin-bottom: 28px;
+    box-sizing: border-box;
+    overflow: hidden;
+  }
+
+  .upload-zone {
+    border: 2px dashed var(--border);
+    border-radius: 20px;
+    padding: 50px 30px;
+    text-align: center;
+    cursor: pointer;
+    transition: 0.3s;
+    background: var(--bg);
+    display: block;
+    width: 100%;
+    box-sizing: border-box;
+    position: relative;
+  }
+  .upload-zone:hover, .upload-zone.dragover {
+    border-color: var(--primary);
+    background: rgba(37, 99, 235, 0.03);
+  }
+  .upload-zone i { font-size: 48px; color: var(--primary); margin-bottom: 18px; opacity: 0.7; display: block; }
+  .upload-zone h3 { font-size: 18px; font-weight: 800; color: var(--text-main); margin-bottom: 8px; }
+  .upload-zone p { color: var(--text-muted); font-size: 14px; }
+  .upload-zone .file-name { color: var(--primary); font-weight: 700; margin-top: 15px; font-size: 14px; }
+
+  .analyze-btn {
+    width: 100%;
+    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+    color: white;
+    border: none;
+    padding: 18px;
+    border-radius: 16px;
+    font-weight: 800;
+    font-size: 16px;
+    margin-top: 24px;
+    cursor: pointer;
+    transition: 0.3s;
+    box-shadow: 0 10px 20px rgba(37, 99, 235, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+  }
+  .analyze-btn:hover { transform: translateY(-2px); box-shadow: 0 15px 30px rgba(37, 99, 235, 0.3); }
+  .analyze-btn:disabled { background: var(--border); color: var(--text-muted); box-shadow: none; transform: none; cursor: not-allowed; }
+
+  .result-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 24px;
+    padding: 40px;
+    display: none;
+    animation: fadeIn 0.5s ease;
+  }
+  .result-header { display: flex; gap: 30px; align-items: flex-start; margin-bottom: 32px; }
+  .score-ring {
+    width: 110px;
+    height: 110px;
+    border-radius: 50%;
+    border: 8px solid var(--primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 26px;
+    font-weight: 900;
+    color: var(--primary);
+    flex-shrink: 0;
+    box-shadow: 0 8px 20px rgba(37, 99, 235, 0.15);
+    background: var(--surface);
+  }
+
+  .skills-section { margin-top: 20px; }
+  .skills-section h4 { font-size: 14px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 14px; }
+  .pills { display: flex; flex-wrap: wrap; gap: 10px; }
+  .pill { padding: 7px 16px; border-radius: 12px; font-size: 13px; font-weight: 700; }
+  .pill.good { background: #dcfce7; color: #166534; }
+  .pill.missing { background: #fee2e2; color: #991b1b; }
+
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+</style>
+
+{% set is_ar = session.get('lang', 'en') == 'ar' %}
+
+<div class="career-container">
+  <div class="career-hero">
+    <h1>{{ 'محلل السيرة الذاتية بالذكاء الاصطناعي' if is_ar else 'AI-Powered CV Analyzer' }}</h1>
+    <p>{{ 'ارفع ملف PDF وسيقوم نظامنا بتحليل مهاراتك مقارنةً بمتطلبات سوق العمل ويعطيك تقريراً فورياً.' if is_ar else 'Upload your PDF CV and our system will instantly analyze your skills against market requirements and give you a detailed report.' }}</p>
+  </div>
+
+  <div class="upload-card">
+    <form id="cvForm" enctype="multipart/form-data">
+      <div class="upload-zone" id="uploadZone" onclick="document.getElementById('cvFile').click()">
+        <i class="fas fa-cloud-upload-alt"></i>
+        <h3 id="uploadTitle">{{ 'اسحب وأفلت ملف الـ PDF هنا' if is_ar else 'Drag & Drop your PDF here' }}</h3>
+        <p>{{ 'أو اضغط لاختيار الملف' if is_ar else 'Or click to browse your files' }}</p>
+        <div class="file-name" id="fileNameDisplay" style="display:none;"></div>
+        <input type="file" name="cv_file" id="cvFile" accept="application/pdf" required style="display:none;">
+      </div>
+      <button type="submit" class="analyze-btn" id="analyzeBtn" disabled>
+        <i class="fas fa-magic"></i> {{ 'بدء التحليل الذكي' if is_ar else 'Analyze My CV' }}
+      </button>
+    </form>
+  </div>
+
+  <div class="result-card" id="resultCard">
+    <div class="result-header">
+      <div class="score-ring" id="scoreDisplay">0%</div>
+      <div>
+        <h2 style="font-size: 22px; font-weight: 800; color: var(--text-main); margin-bottom: 8px;">{{ 'نتيجة تحليل سيرتك الذاتية' if is_ar else 'Your CV Analysis Result' }}</h2>
+        <p id="fileNameResult" style="color: var(--text-muted); font-size: 14px;"></p>
+        <p id="scoreDesc" style="margin-top: 10px; font-size: 15px; font-weight: 600; color: var(--text-main);"></p>
+      </div>
+    </div>
+
+    <div class="skills-section">
+      <h4><i class="fas fa-check-circle" style="color: #10b981; margin-right: 6px;"></i> {{ 'المهارات المكتشفة' if is_ar else 'Detected Skills' }}</h4>
+      <div class="pills" id="foundSkills"></div>
+    </div>
+
+    <div class="skills-section" style="margin-top: 28px;">
+      <h4><i class="fas fa-lightbulb" style="color: #f59e0b; margin-right: 6px;"></i> {{ 'مهارات مقترحة لتقوية ملفك' if is_ar else 'Recommended Skills to Add' }}</h4>
+      <div class="pills" id="missingSkills"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+const cvFile = document.getElementById('cvFile');
+const uploadZone = document.getElementById('uploadZone');
+const fileNameDisplay = document.getElementById('fileNameDisplay');
+const analyzeBtn = document.getElementById('analyzeBtn');
+const cvForm = document.getElementById('cvForm');
+const resultCard = document.getElementById('resultCard');
+const isAr = {{ 'true' if is_ar else 'false' }};
+
+// Drag and drop
+uploadZone.addEventListener('dragover', (e) => { e.preventDefault(); uploadZone.classList.add('dragover'); });
+uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('dragover'));
+uploadZone.addEventListener('drop', (e) => {
+  e.preventDefault();
+  uploadZone.classList.remove('dragover');
+  const file = e.dataTransfer.files[0];
+  if (file && file.type === 'application/pdf') {
+    const dataTransfer = new DataTransfer();
+    dataTransfer.items.add(file);
+    cvFile.files = dataTransfer.files;
+    onFileSelected(file.name);
+  }
+});
+
+cvFile.addEventListener('change', () => {
+  if (cvFile.files.length > 0) onFileSelected(cvFile.files[0].name);
+});
+
+function onFileSelected(name) {
+  fileNameDisplay.textContent = '📄 ' + name;
+  fileNameDisplay.style.display = 'block';
+  analyzeBtn.disabled = false;
+}
+
+cvForm.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  analyzeBtn.disabled = true;
+  analyzeBtn.innerHTML = `<i class="fas fa-circle-notch fa-spin"></i> ${isAr ? 'جاري التحليل...' : 'Analyzing...'}`;
+  resultCard.style.display = 'none';
+
+  const formData = new FormData();
+  formData.append('cv_file', cvFile.files[0]);
+
+  try {
+    const res = await fetch('/cv/analyze-pdf', { method: 'POST', body: formData });
+    const data = await res.json();
+
+    if (!data.success) {
+      alert(data.error || (isAr ? 'حدث خطأ' : 'An error occurred'));
+      return;
+    }
+
+    document.getElementById('scoreDisplay').textContent = data.score + '%';
+    document.getElementById('fileNameResult').textContent = (isAr ? 'الملف: ' : 'File: ') + data.file_name + (data.total_words ? ` · ${data.total_words} ${isAr ? 'كلمة' : 'words'}` : '');
+
+    // Dynamic score ring color
+    const scoreRing = document.getElementById('scoreDisplay');
+    const score = data.score;
+    if (score >= 75) {
+      scoreRing.style.borderColor = '#10b981';
+      scoreRing.style.color = '#10b981';
+    } else if (score >= 50) {
+      scoreRing.style.borderColor = '#f59e0b';
+      scoreRing.style.color = '#f59e0b';
+    } else {
+      scoreRing.style.borderColor = '#ef4444';
+      scoreRing.style.color = '#ef4444';
+    }
+
+    const desc = score >= 75 ? (isAr ? '✅ ممتاز! سيرتك الذاتية قوية جداً.' : '✅ Excellent! Your CV is very strong.')
+                : score >= 50 ? (isAr ? '⚠️ جيد. يمكن تحسين بعض النقاط.' : '⚠️ Good. There are areas to improve.')
+                : (isAr ? '❌ يحتاج تطوير. أضف المهارات الناقصة.' : '❌ Needs work. Add the missing skills below.');
+    document.getElementById('scoreDesc').textContent = desc;
+
+    document.getElementById('foundSkills').innerHTML = data.found_skills.map(s =>
+      `<span class="pill good"><i class="fas fa-check" style="margin-right:5px;"></i>${s}</span>`).join('');
+    document.getElementById('missingSkills').innerHTML = data.missing_skills.slice(0, 8).map(s =>
+      `<span class="pill missing"><i class="fas fa-plus" style="margin-right:5px;"></i>${s}</span>`).join('');
+
+    resultCard.style.display = 'block';
+    resultCard.scrollIntoView({ behavior: 'smooth' });
+
+  } catch(err) {
+    alert(isAr ? 'خطأ في الاتصال بالسيرفر' : 'Connection error. Please try again.');
+  } finally {
+    analyzeBtn.disabled = false;
+    analyzeBtn.innerHTML = `<i class="fas fa-magic"></i> ${isAr ? 'تحليل مرة أخرى' : 'Analyze Again'}`;
+  }
+});
+</script>
+{% endblock %}

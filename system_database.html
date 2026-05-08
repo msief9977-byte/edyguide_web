@@ -1,0 +1,48 @@
+{% extends "system_layout.html" %}
+
+{% block title %}EDUGUIDE | System Database{% endblock %}
+{% block page_title %}{{ 'قاعدة البيانات' if session.get('lang', 'en') == 'ar' else 'Database Management' }}{% endblock %}
+
+{% block content %}
+<style>
+  .sys-header { margin-bottom: 30px; }
+  .sys-header h1 { font-size: 26px; font-weight: 800; color: var(--text-main); margin-bottom: 8px; letter-spacing: -0.5px; }
+  .sys-header p { color: var(--text-muted); font-size: 15px; font-weight: 500; }
+
+  .db-card { background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 30px; box-shadow: 0 4px 15px rgba(0,0,0,0.02); margin-bottom: 20px; }
+  .db-status { display: inline-flex; align-items: center; gap: 8px; background: rgba(16, 185, 129, 0.1); color: #10b981; padding: 8px 16px; border-radius: 20px; font-weight: 800; font-size: 14px; margin-bottom: 20px; }
+  
+  .db-info { font-size: 16px; font-weight: 600; color: var(--text-main); margin-bottom: 12px; }
+  .db-info span { color: var(--text-muted); width: 120px; display: inline-block; }
+
+  .btn-primary { background: var(--primary); color: white; padding: 12px 24px; border: none; border-radius: 12px; font-weight: 700; font-size: 14px; cursor: pointer; transition: 0.2s; display: inline-flex; align-items: center; gap: 8px; text-decoration: none; margin-top: 20px; }
+  .btn-primary:hover { background: var(--primary-dark); }
+</style>
+
+{% set is_ar = session.get('lang', 'en') == 'ar' %}
+
+<div class="sys-header">
+  <h1>{{ 'حالة قاعدة البيانات' if is_ar else 'Database Status' }}</h1>
+  <p>{{ 'مراقبة وإدارة خوادم البيانات الخاصة بالمنصة' if is_ar else 'Monitor and manage platform database servers.' }}</p>
+</div>
+
+<div class="db-card">
+  <div class="db-status"><i class="fas fa-check-circle"></i> {{ 'متصل وتعمل بكفاءة' if is_ar else 'Online & Healthy' }}</div>
+  
+  <div class="db-info"><span>{{ 'نوع الخادم:' if is_ar else 'Server Type:' }}</span> MySQL 8.0</div>
+  <div class="db-info"><span>{{ 'المنفذ:' if is_ar else 'Port:' }}</span> 3306</div>
+  <div class="db-info"><span>{{ 'اسم القاعدة:' if is_ar else 'Database:' }}</span> edyguide1</div>
+  <div class="db-info"><span>{{ 'زمن الاستجابة:' if is_ar else 'Latency:' }}</span> 12ms</div>
+
+  <button class="btn-primary" onclick="alert('Backup process initiated.')">
+    <i class="fas fa-download"></i> {{ 'نسخ احتياطي للبيانات' if is_ar else 'Backup Database' }}
+  </button>
+</div>
+
+<div class="db-card" style="border-left: 4px solid #f59e0b;">
+  <h3 style="margin-bottom:10px; font-size:18px;"><i class="fas fa-exclamation-triangle" style="color:#f59e0b;"></i> {{ 'تحذير أمني' if is_ar else 'Security Warning' }}</h3>
+  <p style="color:var(--text-muted); font-size:14px; line-height:1.6; font-weight:500;">
+    {{ 'يرجى الحذر عند التعامل مع خيارات قاعدة البيانات. أي تغيير غير مدروس قد يؤدي إلى فقدان بيانات المستخدمين الحالية. يرجى دائماً إجراء نسخة احتياطية قبل التعديل المباشر.' if is_ar else 'Please exercise caution when interacting with database options. Unintended changes may lead to data loss. Always perform a backup before direct modifications.' }}
+  </p>
+</div>
+{% endblock %} 

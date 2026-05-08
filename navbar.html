@@ -1,0 +1,32 @@
+<header class="site-header">
+  <div class="header-inner">
+
+    <!-- LEFT -->
+    <a href="{{ url_for('landing') }}" class="brand">
+      <div class="brand-logo">🎓</div>
+      <div class="brand-text">
+        <span class="brand-top">UNIVERSITY LOGO</span>
+        <span class="brand-name">EDYGUIDE</span>
+      </div>
+    </a>
+
+    <!-- CENTER -->
+    <nav class="top-nav">
+      <a href="{{ url_for('landing') }}">Home</a>
+      <a href="#">About</a>
+      <a href="#">Services</a>
+      <a href="#">Contact</a>
+    </nav>
+
+    <!-- RIGHT -->
+    <div class="header-actions">
+      {% if session.get("user_id") %}
+        <a href="{{ url_for('dashboard') }}" class="btn btn-primary">Dashboard</a>
+        <a href="{{ url_for('logout') }}" class="btn btn-outline">Logout</a>
+      {% else %}
+        
+      {% endif %}
+    </div>
+
+  </div>
+</header>

@@ -1,0 +1,599 @@
+{% extends "dashboard_layout.html" %}
+
+{% block title %}EDUGUIDE Elite | AI Assistant{% endblock %}
+{% block page_title %}{{ 'المساعد الذكي' if session.get('lang') == 'ar' else 'AI Assistant' }}{% endblock %}
+
+{% block head %}
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<style>
+  /* ── CHAT WRAPPER ── */
+  .chat-wrapper {
+    display: flex;
+    flex-direction: column;
+    height: calc(100vh - 140px);
+    background: var(--surface);
+    border-radius: 24px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    margin: 0;
+    transition: background 0.3s, border-color 0.3s;
+  }
+
+  /* ── CHAT HEADER (online status) ── */
+  .chat-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px 24px;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface);
+    flex-shrink: 0;
+  }
+  .ai-avatar-header {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    flex-shrink: 0;
+    position: relative;
+  }
+  .online-dot {
+    position: absolute;
+    bottom: 1px;
+    right: 1px;
+    width: 12px;
+    height: 12px;
+    background: #22c55e;
+    border-radius: 50%;
+    border: 2px solid var(--surface);
+    animation: pulse-dot 2s infinite;
+  }
+  @keyframes pulse-dot {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.5); }
+    50%       { box-shadow: 0 0 0 6px rgba(34, 197, 94, 0); }
+  }
+  .chat-header-info { flex: 1; }
+  .chat-header-name {
+    font-weight: 800;
+    font-size: 15px;
+    color: var(--text-main);
+    line-height: 1.2;
+  }
+  .chat-header-status {
+    font-size: 12px;
+    color: #22c55e;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .chat-header-status::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #22c55e;
+    display: inline-block;
+  }
+
+  /* ── MESSAGES ── */
+  .ai-messages {
+    flex: 1;
+    padding: 20px 24px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    background: var(--surface);
+  }
+  .ai-messages::-webkit-scrollbar { width: 4px; }
+  .ai-messages::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+  .message-row {
+    display: flex;
+    align-items: flex-end;
+    gap: 8px;
+    width: 100%;
+    animation: fadeIn 0.25s ease;
+  }
+  .message-row.student { justify-content: flex-end; }
+  .message-row.bot     { justify-content: flex-start; }
+
+  /* AI mini avatar */
+  .bot-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    flex-shrink: 0;
+    margin-bottom: 2px;
+  }
+
+  .message-bubble {
+    max-width: 72%;
+    padding: 11px 16px;
+    border-radius: 18px;
+    font-size: 14.5px;
+    line-height: 1.6;
+    word-break: break-word;
+  }
+  .student .message-bubble {
+    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+    color: white;
+    border-bottom-right-radius: 4px;
+    box-shadow: 0 4px 14px rgba(30, 77, 183, 0.25);
+  }
+  .bot .message-bubble {
+    background: var(--bg);
+    color: var(--text-main);
+    border-bottom-left-radius: 4px;
+    border: 1px solid var(--border);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  }
+  .bot .message-bubble p { margin: 0 0 6px 0; }
+  .bot .message-bubble p:last-child { margin-bottom: 0; }
+  .bot .message-bubble ul { margin: 6px 0; padding-left: 18px; }
+  .bot .message-bubble li { margin-bottom: 3px; }
+
+  /* ── TYPING INDICATOR ── */
+  .typing-row {
+    display: flex;
+    align-items: flex-end;
+    gap: 8px;
+    animation: fadeIn 0.25s ease;
+  }
+  .typing-bubble {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    border-bottom-left-radius: 4px;
+    padding: 12px 18px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .typing-dot {
+    width: 8px;
+    height: 8px;
+    background: var(--primary);
+    border-radius: 50%;
+    opacity: 0.5;
+    animation: typing-bounce 1.2s infinite ease-in-out;
+  }
+  .typing-dot:nth-child(1) { animation-delay: 0s; }
+  .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+  .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+  @keyframes typing-bounce {
+    0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+    30%            { transform: translateY(-6px); opacity: 1; }
+  }
+
+  /* ── INPUT AREA ── */
+  .chat-input-area {
+    padding: 16px 24px 20px;
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+  .quick-tags {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 12px;
+    justify-content: center;
+  }
+  .tag-btn {
+    padding: 6px 15px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    font-size: 13px;
+    color: var(--primary);
+    font-weight: 700;
+    cursor: pointer;
+    transition: 0.2s;
+    font-family: inherit;
+  }
+  .tag-btn:hover { background: var(--primary); color: white; border-color: var(--primary); }
+
+  .input-container {
+    display: flex;
+    gap: 10px;
+    background: var(--bg);
+    padding: 10px 16px;
+    border-radius: 20px;
+    align-items: center;
+    border: 1.5px solid var(--border);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.04);
+    transition: 0.2s;
+  }
+  .input-container:focus-within {
+    border-color: var(--primary);
+    box-shadow: 0 4px 24px rgba(30, 77, 183, 0.12);
+  }
+  .input-container textarea {
+    flex: 1;
+    background: transparent;
+    border: none;
+    outline: none;
+    padding: 6px 0;
+    font-size: 14.5px;
+    resize: none;
+    max-height: 100px;
+    color: var(--text-main);
+    font-family: inherit;
+    line-height: 1.5;
+  }
+  .send-btn {
+    width: 40px;
+    height: 40px;
+    background: var(--primary);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: 0.2s;
+    flex-shrink: 0;
+  }
+  .send-btn:active { transform: scale(0.95); }
+
+  .mic-btn {
+    width: 40px;
+    height: 40px;
+    background: var(--surface);
+    color: var(--text-muted);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: 0.2s;
+    flex-shrink: 0;
+  }
+  .mic-btn.listening {
+    background: #fee2e2;
+    color: #ef4444;
+    border-color: #ef4444;
+    animation: pulseMic 1.5s infinite;
+  }
+  @keyframes pulseMic { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
+  .mic-btn:hover { border-color: var(--primary); color: var(--primary); }
+
+  /* ── WELCOME ── */
+  .welcome-state {
+    text-align: center;
+    margin: auto;
+    color: var(--text-muted);
+    padding: 40px 20px;
+  }
+  .welcome-state .ai-icon {
+    width: 72px; height: 72px;
+    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 32px;
+    margin: 0 auto 20px;
+    box-shadow: 0 8px 30px rgba(30, 77, 183, 0.3);
+  }
+  .welcome-state h2 { color: var(--text-main); font-size: 20px; font-weight: 800; margin-bottom: 8px; }
+  .welcome-state p  { font-size: 14px; color: var(--text-muted); }
+
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* RTL fixes */
+  [dir="rtl"] .message-row.student { flex-direction: row-reverse; }
+  [dir="rtl"] .student .message-bubble { border-bottom-right-radius: 18px; border-bottom-left-radius: 4px; }
+  [dir="rtl"] .bot .message-bubble    { border-bottom-left-radius: 18px; border-bottom-right-radius: 4px; }
+
+  /* Copy button */
+  .copy-btn {
+    position: absolute;
+    bottom: -10px;
+    right: 8px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    width: 28px; height: 28px;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 12px;
+    color: var(--text-muted);
+    transition: 0.2s;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  }
+  .copy-btn:hover { background: var(--primary); color: white; border-color: var(--primary); }
+  .message-bubble:hover .copy-btn { display: flex; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="chat-wrapper">
+
+  <!-- HEADER: Online Status -->
+  <div class="chat-header">
+    <div class="ai-avatar-header">
+      🤖
+      <div class="online-dot"></div>
+    </div>
+    <div class="chat-header-info">
+      <div class="chat-header-name">EDUGUIDE AI</div>
+      <div class="chat-header-status">{{ 'متصل الآن' if session.get('lang') == 'ar' else 'Online now' }}</div>
+    </div>
+    <button onclick="clearChat()" title="Clear Chat" style="margin-left:auto; background:none; border:1px solid var(--border); border-radius:10px; padding:7px 14px; cursor:pointer; font-size:13px; color:var(--text-muted); font-weight:700; transition:0.2s; font-family:inherit; display:flex; align-items:center; gap:6px;" onmouseover="this.style.background='#fee2e2';this.style.color='#dc2626';this.style.borderColor='#fca5a5'" onmouseout="this.style.background='none';this.style.color='var(--text-muted)';this.style.borderColor='var(--border)'">
+      <i class="fas fa-trash-alt"></i> {{ 'مسح' if session.get('lang') == 'ar' else 'Clear' }}
+    </button>
+  </div>
+
+  <!-- MESSAGES -->
+  <div class="ai-messages" id="chatMessages">
+    <div class="welcome-state" id="welcome-state">
+      <div class="ai-icon">🤖</div>
+      <h2>{{ 'أهلاً! أنا EDUGUIDE AI 👋' if session.get('lang') == 'ar' else "Hey! I'm EDUGUIDE AI 👋" }}</h2>
+      <p>{{ 'اسألني عن أي حاجة، أنا هساعدك في كل خطوة.' if session.get('lang') == 'ar' else 'Ask me anything, I\'m here to help you every step of the way.' }}</p>
+    </div>
+  </div>
+
+  <!-- INPUT AREA -->
+  <div class="chat-input-area">
+    <div class="input-container">
+      <button class="mic-btn" id="micBtn" title="Speak">
+        <i class="fas fa-microphone"></i>
+      </button>
+      <textarea id="chatInput" placeholder="{{ 'اسألني أي شيء...' if session.get('lang') == 'ar' else 'Ask me anything...' }}" rows="1"></textarea>
+      <button class="send-btn" id="sendBtn">
+        <i class="fas fa-paper-plane"></i>
+      </button>
+    </div>
+  </div>
+
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  var currentUserId = Number("{{ user.id if user else 0 }}");
+  var isTyping = false;
+
+  function showWelcome(show) {
+    const w = document.getElementById("welcome-state");
+    if (w) w.style.display = show ? 'block' : 'none';
+  }
+
+  const micBtn = document.getElementById("micBtn");
+  const chatInput = document.getElementById("chatInput");
+
+  // ELITE AI VOICE RECORDING (GROQ WHISPER)
+  let mediaRecorder;
+  let audioChunks = [];
+
+  micBtn.onclick = async () => {
+    if (mediaRecorder && mediaRecorder.state === "recording") {
+      mediaRecorder.stop();
+      micBtn.classList.remove("listening");
+      return;
+    }
+
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      mediaRecorder = new MediaRecorder(stream);
+      audioChunks = [];
+
+      mediaRecorder.ondataavailable = (event) => {
+        if (event.data.size > 0) audioChunks.push(event.data);
+      };
+      
+      mediaRecorder.onstart = () => {
+        micBtn.classList.add("listening");
+        chatInput.placeholder = "{{ 'أنا بسمعك... بتركيز عالي' if session.get('lang') == 'ar' else 'Listening... high precision' }}";
+      };
+
+      mediaRecorder.onstop = async () => {
+        const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+        const formData = new FormData();
+        formData.append('file', audioBlob, 'rec.webm');
+
+        micBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+        chatInput.placeholder = "{{ 'جاري الفهم والتحليل...' if session.get('lang') == 'ar' else 'Understanding and analyzing...' }}";
+        
+        try {
+          const res = await fetch('/speech-to-text', { method: 'POST', body: formData });
+          const data = await res.json();
+          if (data.text) {
+            chatInput.value = data.text;
+            chatInput.focus();
+            showToast("{{ 'تم التحويل! راجع رسالتك' if session.get('lang') == 'ar' else 'Transcribed! Review your message' }}", "success", 2000);
+          } else {
+            showToast("{{ 'عذراً، لم أسمعك جيداً' if session.get('lang') == 'ar' else 'Sorry, I couldn\'t hear you clearly' }}", "error");
+          }
+        } catch (e) {
+          console.error("Transcription error:", e);
+          showToast("Network Error", "error");
+        }
+        micBtn.innerHTML = '<i class="fas fa-microphone"></i>';
+        chatInput.placeholder = "{{ 'اسألني عن أي شيء...' if session.get('lang') == 'ar' else 'Ask me anything...' }}";
+        
+        // Stop all tracks to release mic
+        stream.getTracks().forEach(track => track.stop());
+      };
+
+      mediaRecorder.start();
+    } catch (err) {
+      console.error("Mic access error:", err);
+      showToast("Mic permission denied", "error");
+    }
+  };
+
+  function appendMessage(sender, message) {
+    showWelcome(false);
+    const box = document.getElementById("chatMessages");
+
+    const row = document.createElement("div");
+    row.className = "message-row " + sender;
+
+    // Add bot avatar + copy button for AI messages
+    if (sender === "bot") {
+      const avatar = document.createElement("div");
+      avatar.className = "bot-avatar";
+      avatar.textContent = "🤖";
+      row.appendChild(avatar);
+    }
+
+    const bubble = document.createElement("div");
+    bubble.className = "message-bubble";
+    bubble.style.position = "relative";
+
+    if (sender === "bot") {
+      bubble.innerHTML = marked.parse(message);
+      // Add copy button
+      const copyBtn = document.createElement("button");
+      copyBtn.className = "copy-btn";
+      copyBtn.innerHTML = '<i class="fas fa-copy"></i>';
+      copyBtn.title = "Copy";
+      copyBtn.onclick = () => {
+        navigator.clipboard.writeText(bubble.innerText).then(() => {
+          copyBtn.innerHTML = '<i class="fas fa-check"></i>';
+          copyBtn.style.color = '#22c55e';
+          if (window.showToast) showToast('Copied!', 'success', 2000);
+          setTimeout(() => { copyBtn.innerHTML = '<i class="fas fa-copy"></i>'; copyBtn.style.color = ''; }, 2000);
+        });
+      };
+      bubble.appendChild(copyBtn);
+
+      // Add Speak button
+      const speakBtn = document.createElement("button");
+      speakBtn.className = "copy-btn";
+      speakBtn.style.right = "45px"; 
+      speakBtn.innerHTML = '<i class="fas fa-volume-up"></i>';
+      speakBtn.title = "Listen";
+      speakBtn.onclick = () => window.speakText(bubble.innerText);
+      bubble.appendChild(speakBtn);
+    } else {
+      bubble.textContent = message;
+    }
+
+    row.appendChild(bubble);
+    box.appendChild(row);
+    box.scrollTop = box.scrollHeight;
+  }
+
+  function showTyping() {
+    if (isTyping) return;
+    isTyping = true;
+    showWelcome(false);
+    const box = document.getElementById("chatMessages");
+
+    const row = document.createElement("div");
+    row.className = "typing-row";
+    row.id = "typingIndicator";
+
+    const avatar = document.createElement("div");
+    avatar.className = "bot-avatar";
+    avatar.textContent = "🤖";
+
+    const bubble = document.createElement("div");
+    bubble.className = "typing-bubble";
+    bubble.innerHTML = '<div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div>';
+
+    row.appendChild(avatar);
+    row.appendChild(bubble);
+    box.appendChild(row);
+    box.scrollTop = box.scrollHeight;
+  }
+
+  function hideTyping() {
+    isTyping = false;
+    const t = document.getElementById("typingIndicator");
+    if (t) t.remove();
+  }
+
+  async function sendMessage() {
+    const input = document.getElementById("chatInput");
+    const btn = document.getElementById("sendBtn");
+    const message = input.value.trim();
+    if (!message) return;
+
+    appendMessage("student", message);
+    input.value = "";
+    input.style.height = "auto";
+    btn.disabled = true;
+
+    showTyping();
+
+    try {
+      const response = await fetch("/chat/send", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message: message })
+      });
+      const data = await response.json();
+      hideTyping();
+      if (data.bot_reply) {
+        appendMessage("bot", data.bot_reply);
+      }
+    } catch (e) {
+      hideTyping();
+      appendMessage("bot", "⚠️ خطأ في الاتصال، جرب تاني.");
+    } finally {
+      btn.disabled = false;
+    }
+  }
+
+  function sendSuggested(msg) {
+    document.getElementById("chatInput").value = msg;
+    sendMessage();
+  }
+
+  document.getElementById("sendBtn").onclick = sendMessage;
+
+  // Auto-resize textarea
+  document.getElementById("chatInput").addEventListener("input", function () {
+    this.style.height = "auto";
+    this.style.height = Math.min(this.scrollHeight, 100) + "px";
+  });
+
+  document.getElementById("chatInput").addEventListener("keydown", (e) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      sendMessage();
+    }
+  });
+
+  async function clearChat() {
+    if (!confirm('Clear all chat history?')) return;
+    try {
+      await fetch('/chat/clear', { method: 'POST' });
+    } catch(e) {}
+    const box = document.getElementById("chatMessages");
+    box.innerHTML = `<div class="welcome-state" id="welcome-state">
+      <div class="ai-icon">🤖</div>
+      <h2>Chat cleared 👋</h2>
+      <p>Start a new conversation below.</p>
+    </div>`;
+    if (window.showToast) showToast('Chat cleared!', 'info', 2500);
+  }
+
+  async function loadHistory() {
+    const res = await fetch("/chat/history");
+    const data = await res.json();
+    if (Array.isArray(data) && data.length > 0) {
+      showWelcome(false);
+      data.forEach(m => appendMessage(m.sender, m.message));
+    }
+  }
+  loadHistory();
+</script>
+{% endblock %}

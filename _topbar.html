@@ -1,0 +1,43 @@
+{% set is_ar = session.get('lang', 'en') == 'ar' %}
+
+<header class="global-header">
+  <div class="header-left">
+    <a href="{{ url_for('landing') }}" class="header-brand">
+      <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Logo" class="logo-img">
+      <span>EDUGUIDE</span>
+    </a>
+    <div class="page-title">
+      <i class="fas fa-chevron-right" style="font-size: 10px; opacity: 0.3;"></i>
+      {% block page_title %}{{ 'Dashboard' }}{% endblock %}
+    </div>
+  </div>
+
+  <!-- GLOBAL SEARCH -->
+  <div class="header-search" style="flex:1; max-width:400px; margin:0 20px; position:relative;">
+    <i class="fas fa-search" style="position:absolute; left:16px; top:50%; transform:translateY(-50%); color:var(--text-muted);"></i>
+    <input type="text" id="global-search" placeholder="{{ 'ابحث (Ctrl+K)' if session.get('lang') == 'ar' else 'Search (Ctrl+K)...' }}" style="width:100%; background:var(--bg); border:1px solid var(--border); border-radius:16px; padding:12px 16px 12px 42px; font-family:inherit; font-size:14px; color:var(--text-main); outline:none; transition:0.2s;">
+  </div>
+
+  <div class="header-right">
+    <a href="{{ url_for('notifications_page') }}" class="h-btn" id="notif-toggle"
+      style="position: relative; text-decoration: none;">
+      <i class="fas fa-bell"></i>
+      <div class="h-badge {% if notifications %}active{% endif %}"></div>
+    </a>
+    <div class="h-btn" id="theme-toggle">
+      <i class="fas fa-moon" id="theme-icon"></i>
+    </div>
+    <a href="{{ url_for('set_language', lang='en' if is_ar else 'ar', next=request.path) }}" class="h-btn"
+      style="text-decoration: none; font-weight: 800; font-size: 11px;">
+      {{ 'EN' if is_ar else 'AR' }}
+    </a>
+    <div class="user-pill">
+      <div class="nm">{{ session.get('name', 'User') }}</div>
+      {% if session.get('profile_pic') %}
+      <img src="{{ url_for('static', filename='uploads/' + session.get('profile_pic')) }}" alt="Avatar" class="av" style="object-fit:cover;">
+      {% else %}
+      <div class="av">{{ session.get('name', 'U')[0] }}</div>
+      {% endif %}
+    </div>
+  </div>
+</header>

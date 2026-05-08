@@ -1,0 +1,168 @@
+{% extends "system_layout.html" %}
+
+{% block title %}EDUGUIDE | Admin - Interview Management{% endblock %}
+{% block page_title %}{{ 'إدارة المقابلات الذكية' if session.get('lang') == 'ar' else 'AI Interview Management' }}{% endblock %}
+
+{% block content %}
+<style>
+  .admin-container { max-width: 1200px; margin: 0 auto; animation: fadeIn 0.5s ease; }
+  .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-bottom: 30px; }
+  .stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 24px; display: flex; align-items: center; gap: 20px; }
+  .stat-icon { width: 60px; height: 60px; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 24px; }
+  
+  .table-panel { background: var(--surface); border: 1px solid var(--border); border-radius: 24px; padding: 32px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
+  .panel-title { font-size: 20px; font-weight: 800; color: var(--text-main); margin-bottom: 24px; display: flex; align-items: center; gap: 12px; }
+  
+  .data-table { width: 100%; border-collapse: separate; border-spacing: 0 10px; }
+  .data-table th { padding: 15px 20px; text-align: left; color: var(--text-muted); font-size: 13px; font-weight: 700; text-transform: uppercase; }
+  .data-table td { padding: 15px 20px; background: var(--bg); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); font-size: 14px; color: var(--text-main); font-weight: 600; }
+  .data-table td:first-child { border-left: 1px solid var(--border); border-top-left-radius: 12px; border-bottom-left-radius: 12px; }
+  .data-table td:last-child { border-right: 1px solid var(--border); border-top-right-radius: 12px; border-bottom-right-radius: 12px; }
+  
+  .grade-badge { padding: 6px 12px; border-radius: 8px; font-size: 12px; font-weight: 800; display: inline-block; }
+  .panel-action { padding: 8px 16px; border-radius: 10px; background: var(--surface); border: 1.5px solid var(--border); color: var(--text-main); font-size: 13px; font-weight: 700; cursor: pointer; transition: 0.2s; }
+  .panel-action:hover { border-color: var(--primary); color: var(--primary); background: rgba(37,99,235,0.05); }
+
+  /* MODAL */
+  .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); backdrop-filter: blur(8px); display: none; align-items: center; justify-content: center; z-index: 10000; padding: 20px; }
+  .modal-content { background: var(--surface); width: 100%; max-width: 800px; border-radius: 24px; padding: 32px; border: 1px solid var(--border); box-shadow: 0 25px 50px rgba(0,0,0,0.3); animation: slideUp 0.4s ease; }
+  
+  .chat-box { max-height: 450px; overflow-y: auto; background: var(--bg); border-radius: 20px; padding: 24px; display: flex; flex-direction: column; gap: 16px; margin-bottom: 24px; border: 1px solid var(--border); }
+  .bubble { padding: 12px 18px; border-radius: 16px; font-size: 14px; line-height: 1.6; max-width: 80%; }
+  .bubble.ai { background: var(--surface); border: 1px solid var(--border); align-self: flex-start; border-top-left-radius: 4px; }
+  .bubble.user { background: var(--primary); color: white; align-self: flex-end; border-top-right-radius: 4px; box-shadow: 0 4px 12px rgba(37,99,235,0.2); }
+  .bubble-info { font-size: 10px; font-weight: 800; text-transform: uppercase; margin-bottom: 4px; opacity: 0.6; }
+
+  @keyframes fadeIn { from{opacity:0;transform:translateY(10px);} to{opacity:1;transform:translateY(0);} }
+  @keyframes slideUp { from{opacity:0;transform:translateY(30px);} to{opacity:1;transform:translateY(0);} }
+</style>
+
+{% set is_ar = session.get('lang', 'en') == 'ar' %}
+
+<div class="admin-container">
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-icon" style="background: rgba(37,99,235,0.1); color: var(--primary);"><i class="fas fa-user-tie"></i></div>
+            <div><div style="font-size: 13px; color: var(--text-muted);">{{ 'إجمالي الجلسات' if is_ar else 'Total Sessions' }}</div><div id="totalInterviews" style="font-size: 24px; font-weight: 800;">0</div></div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon" style="background: rgba(16,185,129,0.1); color: #10b981;"><i class="fas fa-star"></i></div>
+            <div><div style="font-size: 13px; color: var(--text-muted);">{{ 'متوسط التقييم' if is_ar else 'Avg. Score' }}</div><div id="avgScore" style="font-size: 24px; font-weight: 800;">0%</div></div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon" style="background: rgba(245,158,11,0.1); color: #f59e0b;"><i class="fas fa-briefcase"></i></div>
+            <div><div style="font-size: 13px; color: var(--text-muted);">{{ 'أكثر التخصصات طلباً' if is_ar else 'Top Field' }}</div><div id="topField" style="font-size: 24px; font-weight: 800;">N/A</div></div>
+        </div>
+    </div>
+
+    <div class="table-panel">
+        <div class="panel-title"><i class="fas fa-history"></i> {{ 'سجل المقابلات الذكية' if is_ar else 'AI Interview History' }}</div>
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>{{ 'الطالب' if is_ar else 'Student' }}</th>
+                    <th>{{ 'التخصص' if is_ar else 'Role' }}</th>
+                    <th>{{ 'التقييم' if is_ar else 'Rating' }}</th>
+                    <th>{{ 'التاريخ' if is_ar else 'Date' }}</th>
+                    <th>{{ 'الإجراء' if is_ar else 'Action' }}</th>
+                </tr>
+            </thead>
+            <tbody id="interviewsBody">
+                <!-- Dynamic Content -->
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- MODAL -->
+<div id="viewModal" class="modal-overlay">
+    <div class="modal-content">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+            <h2 id="modalTitle" style="font-size: 20px; font-weight: 800; color: var(--text-main);"></h2>
+            <button onclick="closeModal()" style="background: none; border: none; color: var(--text-muted); font-size: 20px; cursor: pointer;"><i class="fas fa-times"></i></button>
+        </div>
+        <div id="chatBox" class="chat-box"></div>
+        <div style="background: rgba(37,99,235,0.05); padding: 24px; border-radius: 20px; border-left: 5px solid var(--primary);">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px;">
+                <h4 style="color: var(--primary); font-weight: 800;">{{ 'تحليل Alex النهائي:' if is_ar else "Alex's Performance Analysis:" }}</h4>
+                <div id="modalScoreBadge"></div>
+            </div>
+            <p id="modalFeedback" style="font-size: 14px; color: var(--text-main); font-weight: 500; line-height: 1.6;"></p>
+        </div>
+    </div>
+</div>
+
+<script>
+let interviews = [];
+
+async function loadInterviews() {
+    try {
+        const res = await fetch('/api/admin/interviews');
+        interviews = await res.json();
+        renderInterviews();
+        updateStats();
+    } catch(e) { console.error("Error loading interviews", e); }
+}
+
+function renderInterviews() {
+    const tbody = document.getElementById('interviewsBody');
+    tbody.innerHTML = interviews.map(i => `
+        <tr>
+            <td>${i.full_name}</td>
+            <td><span style="color: var(--primary); font-weight: 800;">${i.field}</span></td>
+            <td><span class="grade-badge" style="background: ${i.score >= 70 ? 'rgba(16,185,129,0.1)' : 'rgba(239,68,68,0.1)'}; color: ${i.score >= 70 ? '#10b981' : '#ef4444'}">${i.score}%</span></td>
+            <td style="color:var(--text-muted); font-size: 13px;">${i.date_str}</td>
+            <td>
+                <button onclick="viewInterview(${i.id})" class="panel-action">
+                    <i class="fas fa-eye"></i> {{ 'عرض الجلسة' if is_ar else 'View Session' }}
+                </button>
+            </td>
+        </tr>
+    `).join('');
+}
+
+function updateStats() {
+    document.getElementById('totalInterviews').textContent = interviews.length;
+    if(interviews.length > 0) {
+        const avg = Math.round(interviews.reduce((acc, i) => acc + i.score, 0) / interviews.length);
+        document.getElementById('avgScore').textContent = avg + '%';
+        
+        const fields = interviews.reduce((acc, i) => { acc[i.field] = (acc[i.field] || 0) + 1; return acc; }, {});
+        const top = Object.keys(fields).reduce((a, b) => fields[a] > fields[b] ? a : b);
+        document.getElementById('topField').textContent = top;
+    }
+}
+
+window.viewInterview = function(id) {
+    const i = interviews.find(x => x.id === id);
+    if(!i) return;
+    
+    document.getElementById('modalTitle').textContent = `${i.full_name} - ${i.field}`;
+    document.getElementById('modalFeedback').textContent = i.feedback;
+    document.getElementById('modalScoreBadge').innerHTML = `<span class="grade-badge" style="background: var(--primary); color: white;">${i.score}% Score</span>`;
+    
+    const chatBox = document.getElementById('chatBox');
+    chatBox.innerHTML = '';
+    try {
+        const history = JSON.parse(i.chat_history);
+        history.forEach(msg => {
+            const isAI = msg.role === 'assistant';
+            chatBox.innerHTML += `
+                <div class="bubble ${isAI ? 'ai' : 'user'}">
+                    <div class="bubble-info">${isAI ? 'Alex (AI Interviewer)' : 'Student'}</div>
+                    ${msg.content}
+                </div>
+            `;
+        });
+    } catch(e) { chatBox.innerHTML = 'Error parsing chat history.'; }
+    
+    document.getElementById('viewModal').style.display = 'flex';
+}
+
+window.closeModal = function() {
+    document.getElementById('viewModal').style.display = 'none';
+}
+
+loadInterviews();
+</script>
+{% endblock %}
